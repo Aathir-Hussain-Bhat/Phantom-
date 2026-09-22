@@ -1,0 +1,3078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src https://res.cloudinary.com data: blob:; connect-src https://generativelanguage.googleapis.com https://open.bigmodel.cn https://openrouter.ai https://api.groq.com https://api.cerebras.ai https://api.mistral.ai https://router.huggingface.co https://api.together.xyz https://en.wikipedia.org; manifest-src data: blob:; worker-src blob:; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Phantom">
+<title>Phantom — Your AI Ghost Team</title>
+<link rel="icon" href="https://res.cloudinary.com/prjgzqvy/image/upload/v1790017986/file_000000007bec8208a53dc97b3142afb6_bxd7tt.png">
+<link rel="apple-touch-icon" href="https://res.cloudinary.com/prjgzqvy/image/upload/v1790017986/file_000000007bec8208a53dc97b3142afb6_bxd7tt.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  colors: { base:'#0a0a0a', panel:'#171717', bubble:'#1f2937', ink:'#e5e5e5' },
+  fontFamily: { sans: ['Inter','-apple-system','BlinkMacSystemFont','Segoe UI','Roboto','sans-serif'] }
+}}};
+</script>
+<style>
+  :root { --accent:#8b5cf6; }
+  body { height:100vh; height:100dvh; }
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-thumb { background:#7c5cd6; border-radius:4px; }
+  ::-webkit-scrollbar-thumb:hover { background:#9a7ff0; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  textarea { scrollbar-width:thin; }
+  input[type=range] { accent-color: var(--accent); }
+  .glass { background:rgba(23,23,23,.82); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); }
+  .soft-shadow { box-shadow:0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06); }
+  .btn { transition:all .2s ease-in-out; } .btn:active { transform:scale(.95); }
+
+  /* Ripple touch feedback */
+  button:not(.act):not([data-noripple]) { position:relative; overflow:hidden; }
+  .agent-item { overflow:hidden; }
+  @keyframes rip { to { transform:scale(3.2); opacity:0; } }
+  .ripple { position:absolute; border-radius:9999px; background:rgba(255,255,255,.28); transform:scale(0); opacity:.75;
+    pointer-events:none; animation:rip .55s ease-out forwards; }
+
+  /* Premium avatars */
+  .ava { position:relative;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -12px 20px rgba(0,0,0,.3), 0 3px 10px -2px rgba(0,0,0,.5); }
+  .ava::after { content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+    background: radial-gradient(130% 100% at 28% 8%, rgba(255,255,255,.34), rgba(255,255,255,.05) 45%, transparent 62%); }
+  .ava > * { position:relative; z-index:1; filter:drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
+  .agent-item .ava { transition:transform .2s ease; }
+  .agent-item:hover .ava { transform:scale(1.07) rotate(-3deg); }
+
+  /* Message entrance: applied ONLY to genuinely new messages via .msg-enter.
+     Never re-runs on scroll, touch, or thread re-renders (fixes the fade bug). */
+  @keyframes msgIn { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:none;} }
+  .msg-enter { animation: msgIn .22s ease both; }
+  @keyframes dotB { 0%,80%,100% { transform:translateY(0); opacity:.35;} 40% { transform:translateY(-4px); opacity:1;} }
+  .tdot { width:5px; height:5px; border-radius:9999px; background:#a1a1aa; display:inline-block; animation:dotB 1.2s infinite; }
+  .tdot:nth-child(2){ animation-delay:.15s; } .tdot:nth-child(3){ animation-delay:.3s; }
+  @keyframes floaty { 0%,100% { transform:translateY(0);} 50% { transform:translateY(-8px);} }
+  .floaty { animation: floaty 3.5s ease-in-out infinite; }
+  @keyframes toastIn { from { opacity:0; transform:translateX(16px);} to { opacity:1; transform:none;} }
+  .toast { animation: toastIn .25s ease both; }
+  @keyframes popIn { from { opacity:0; transform:translateY(12px) scale(.96);} to { opacity:1; transform:none;} }
+  .pop { animation: popIn .22s cubic-bezier(.2,.8,.3,1.15) both; }
+  @keyframes blink { 50% { opacity:0; } }
+  .stream-caret { display:inline-block; width:8px; height:15px; background:var(--accent); margin-left:3px; vertical-align:text-bottom; border-radius:2px; animation:blink 1s steps(2) infinite; }
+  @keyframes pulseR { 0% { box-shadow:0 0 0 0 rgba(248,113,113,.55);} 100% { box-shadow:0 0 0 12px rgba(248,113,113,0);} }
+  .listening { color:#f87171 !important; animation:pulseR 1.4s infinite; }
+  .web-on { color:var(--accent); background:rgba(139,92,246,.14); }
+  .drop-above { box-shadow: inset 0 2px 0 var(--accent); }
+  .act { padding:.25rem; border-radius:.5rem; color:#71717a; transition:all .15s; position:relative; }
+  .act:hover { color:#e4e4e7; background:rgba(255,255,255,.08); }
+  .copied-tip { position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:#000; color:#fff;
+    font-size:10px; line-height:1; padding:4px 8px; border-radius:6px; white-space:nowrap; pointer-events:none; z-index:60; }
+  .agent-item { transition:all .2s ease-in-out; border-left:3px solid transparent; }
+  .agent-item:hover { transform:translateX(4px); }
+  @keyframes flashMsg { 0%,100% { background:transparent; } 30% { background:rgba(139,92,246,.18); } }
+  .flash { animation: flashMsg 1s ease 1; border-radius:16px; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:none;} }
+  .stagger > * { opacity:0; animation: fadeUp .45s ease forwards; }
+
+  /* SPLASH */
+  #splash { transition:opacity .3s ease; }
+  @keyframes splashIn { from { opacity:0; } to { opacity:1; } }
+  @keyframes splashFloat { 0% { transform:scale(1) rotate(0deg);} 25% { transform:scale(1.02) rotate(5deg);} 50% { transform:scale(1.05) rotate(0deg);} 75% { transform:scale(1.02) rotate(-5deg);} 100% { transform:scale(1) rotate(0deg);} }
+  @keyframes splashGlow { 0%,100% { filter:drop-shadow(0 0 8px rgba(139,92,246,.45)); } 50% { filter:drop-shadow(0 0 28px rgba(139,92,246,.95)); } }
+  .splash-logo { animation: splashIn .5s ease both, splashFloat 3s ease-in-out .5s infinite, splashGlow 2s ease-in-out .5s infinite; }
+  @keyframes ell { 0% { content:''; } 25% { content:'.'; } 50% { content:'..'; } 75% { content:'...'; } }
+  .ellipsis::after { content:''; display:inline-block; width:1.2em; text-align:left; animation:ell 1.2s steps(1,end) infinite; }
+  @keyframes shim { from { transform:translateX(-100%);} to { transform:translateX(350%);} }
+  .splash-bar { width:170px; height:2px; background:rgba(255,255,255,.08); border-radius:2px; overflow:hidden; }
+  .splash-bar > div { width:40%; height:100%; border-radius:2px; background:linear-gradient(90deg,transparent,#8b5cf6,#a78bfa,transparent); animation:shim 1.1s linear infinite; }
+  .logo-glow { transition:filter .2s ease, transform .2s ease; }
+  .logo-glow:hover { filter:drop-shadow(0 0 20px rgba(139,92,246,.4)); transform:scale(1.06); }
+  .brand-hover { transition:transform .2s ease; }
+  .group:hover .brand-hover { transform:rotate(15deg) scale(1.1); }
+
+  .md p { margin:.4em 0; } .md p:first-child { margin-top:0; } .md p:last-child { margin-bottom:0; }
+  .md ul, .md ol { margin:.4em 0 .4em 1.2em; } .md ul { list-style:disc; } .md ol { list-style:decimal; }
+  .md li { margin:.15em 0; }
+  .md h1, .md h2, .md h3 { font-weight:600; margin:.6em 0 .3em; color:#fff; }
+  .md h1 { font-size:1.15em; } .md h2 { font-size:1.08em; }
+  .md code { background:#111827; border:1px solid rgba(255,255,255,.08); padding:.1em .35em; border-radius:6px; font-size:.85em; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  .md pre { background:#111827; border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:.8em; overflow-x:auto; margin:.5em 0; }
+  .md pre code { background:none; border:none; padding:0; }
+  .md a { color:var(--accent); text-decoration:underline; overflow-wrap:anywhere; }
+  .md blockquote { border-left:3px solid #3f3f46; padding-left:.8em; color:#a1a1aa; margin:.4em 0; }
+  .md table { border-collapse:collapse; margin:.5em 0; font-size:.9em; }
+  .md th, .md td { border:1px solid rgba(255,255,255,.1); padding:.3em .6em; }
+  .md hr { border-color:rgba(255,255,255,.08); margin:.8em 0; }
+  .md strong { color:#fff; font-weight:600; }
+
+  /* ═══ POLISH LAYER ═══ */
+  ::selection { background:rgba(139,92,246,.4); color:#fff; }
+  @supports (color: color-mix(in srgb, red, blue)) {
+    ::selection { background:color-mix(in srgb, var(--accent) 40%, transparent); }
+  }
+  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+    outline:2px solid var(--accent); outline-offset:2px; border-radius:8px; }
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  /* Long-press feedback + context menu */
+  .msg { transition:transform .15s ease; }
+  .msg.pressing { transform:scale(.985); }
+  .agent-item.pressing { transform:translateX(4px) scale(.98); }
+  .prompt-item { transition:all .15s ease; }
+  .prompt-item.pressing { transform:scale(.98); }
+  #ctxMenu { will-change:transform, opacity; }
+  .ctx-in { animation: ctxIn .16s cubic-bezier(.2,.8,.3,1.2) both; }
+  @keyframes ctxIn { from { opacity:0; transform:scale(.92); } to { opacity:1; transform:scale(1); } }
+  #ctxMenu .ctx-item { transition:background .12s ease; }
+  @media (pointer: coarse) {
+    .msg, .agent-item, .prompt-item { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+  }
+
+  /* Composer focus glow (accent-aware) */
+  .composer { transition:border-color .2s ease, box-shadow .25s ease; }
+  .composer:focus-within {
+    border-color:rgba(139,92,246,.5);
+    box-shadow:0 0 0 3px rgba(139,92,246,.14), 0 12px 32px -14px rgba(139,92,246,.35); }
+  @supports (color: color-mix(in srgb, red, blue)) {
+    .composer:focus-within {
+      border-color:color-mix(in srgb, var(--accent) 55%, transparent);
+      box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent),
+                 0 12px 32px -14px color-mix(in srgb, var(--accent) 40%, transparent); }
+  }
+
+  /* Soft edge fade on the agent list scroll area */
+  #agentList {
+    -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 10px, #000 calc(100% - 12px), transparent 100%);
+    mask-image:linear-gradient(to bottom, transparent 0, #000 10px, #000 calc(100% - 12px), transparent 100%); }
+</style>
+</head>
+<body class="bg-base text-ink antialiased overflow-hidden font-sans">
+
+<!-- ═══════════════ SPLASH SCREEN ═══════════════ -->
+<div id="splash" class="fixed inset-0 z-[100] flex flex-col items-center justify-center" style="background:#121212">
+  <div id="splashLogoWrap" class="splash-logo w-[120px] h-[120px] flex items-center justify-center"></div>
+  <div class="mt-7 text-sm text-zinc-400 tracking-wide">Initializing Phantom<span class="ellipsis"></span></div>
+  <div class="splash-bar mt-6"><div></div></div>
+</div>
+
+<!-- ═══════════════ AUTH OVERLAY ═══════════════ -->
+<div id="authOverlay" class="fixed inset-0 z-[90] bg-base hidden overflow-y-auto">
+  <div class="min-h-full flex">
+    <div class="hidden lg:flex w-[45%] flex-col items-center justify-center p-10 border-r border-white/5 relative overflow-hidden">
+      <div class="absolute inset-0 opacity-40" style="background:radial-gradient(600px circle at 30% 30%, rgba(139,92,246,.15), transparent 60%), radial-gradient(500px circle at 70% 80%, rgba(99,102,241,.12), transparent 60%)"></div>
+      <div class="floaty relative" id="authBrandLogo"></div>
+      <h1 class="relative text-3xl font-bold text-white mt-6">Phantom</h1>
+      <p class="relative text-sm text-zinc-400 mt-2">Your AI Ghost Team</p>
+      <div class="relative mt-10 space-y-3 text-[13px] text-zinc-400 max-w-xs">
+        <div class="flex items-center gap-3"><span class="text-violet-400">👻</span> Build a team of specialized AI agents</div>
+        <div class="flex items-center gap-3"><span class="text-violet-400">⚡</span> 8 free AI providers with auto-failover</div>
+        <div class="flex items-center gap-3"><span class="text-violet-400">🔒</span> 100% local — your keys never leave this device</div>
+      </div>
+      <p class="relative text-[11px] text-zinc-600 mt-12">Created by <span class="text-zinc-400">BHAT BOYKA</span></p>
+    </div>
+    <div class="flex-1 flex items-center justify-center p-5">
+      <div class="w-full max-w-sm">
+        <div class="lg:hidden flex flex-col items-center mb-6">
+          <div id="authBrandLogoSm" class="w-16 h-16"></div>
+          <h1 class="text-xl font-bold text-white mt-3">Phantom</h1>
+          <p class="text-xs text-zinc-500 mt-1">Your AI Ghost Team</p>
+        </div>
+        <div class="bg-panel border border-white/10 rounded-2xl p-6 soft-shadow">
+          <div class="flex gap-1 p-1 bg-[#101010] rounded-xl mb-5">
+            <button id="tabSignin" class="flex-1 text-sm py-2 rounded-lg font-medium text-white transition-all" style="background:var(--accent)">Sign In</button>
+            <button id="tabSignup" class="flex-1 text-sm py-2 rounded-lg font-medium text-zinc-400 hover:text-white transition-all">Create Account</button>
+          </div>
+          <div id="authError" class="hidden text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2 mb-3"></div>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-medium text-zinc-400 mb-1.5">Username</label>
+              <div class="relative">
+                <input id="auUser" type="text" autocomplete="username" placeholder="yourname" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 pr-9 text-sm focus:outline-none focus:border-white/25 transition-colors">
+                <span id="vUser" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs hidden"></span>
+              </div>
+            </div>
+            <div id="fEmail" class="hidden">
+              <label class="block text-xs font-medium text-zinc-400 mb-1.5">Email</label>
+              <div class="relative">
+                <input id="auEmail" type="email" autocomplete="email" placeholder="you@example.com" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 pr-9 text-sm focus:outline-none focus:border-white/25 transition-colors">
+                <span id="vEmail" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs hidden"></span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-zinc-400 mb-1.5">Password</label>
+              <div class="relative">
+                <input id="auPass" type="password" autocomplete="current-password" placeholder="••••••••" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 pr-9 text-sm focus:outline-none focus:border-white/25 transition-colors">
+                <span id="vPass" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs hidden"></span>
+              </div>
+              <div id="pwMeter" class="hidden mt-2">
+                <div class="h-1 bg-white/10 rounded-full overflow-hidden"><div id="pwBar" class="h-full rounded-full transition-all duration-300" style="width:0%"></div></div>
+                <div id="pwLabel" class="text-[10px] text-zinc-500 mt-1"></div>
+              </div>
+            </div>
+            <div id="fConfirm" class="hidden">
+              <label class="block text-xs font-medium text-zinc-400 mb-1.5">Confirm password</label>
+              <div class="relative">
+                <input id="auConfirm" type="password" autocomplete="new-password" placeholder="••••••••" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 pr-9 text-sm focus:outline-none focus:border-white/25 transition-colors">
+                <span id="vConfirm" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs hidden"></span>
+              </div>
+            </div>
+          </div>
+          <button id="btnAuthGo" data-sfx="send" class="btn w-full mt-5 py-2.5 rounded-xl font-semibold text-white text-sm hover:opacity-90" style="background:var(--accent)">Sign In</button>
+          <button id="btnGuest" class="btn w-full mt-2.5 text-sm py-2.5 text-zinc-400 hover:text-white transition-colors">Continue as Guest →</button>
+          <p class="text-[10px] text-zinc-600 text-center mt-4 leading-relaxed">Accounts are stored locally on this device only.<br>Guest mode is limited to 1 agent and clears on refresh.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ APP ═══════════════ -->
+<div class="flex h-full">
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-80 glass border-r border-white/5 flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-300">
+    <div class="px-5 pt-4 pb-3 shrink-0">
+      <div class="flex items-center justify-between gap-2 mb-3">
+        <button id="sidebarBrand" class="btn flex-1 min-w-0 flex items-center gap-3 px-1 py-1.5 rounded-xl hover:bg-white/5" title="About Phantom">
+          <span id="sidebarLogo" class="logo-glow w-10 h-10 flex items-center justify-center shrink-0"></span>
+          <span class="text-left min-w-0">
+            <span class="block text-[15px] font-bold text-white leading-tight">Phantom</span>
+            <span class="block text-[10px] text-zinc-500">Your AI Ghost Team · v1.3.0</span>
+          </span>
+        </button>
+        <button id="btnQuickAdd" title="New agent (Ctrl+N)" aria-label="New agent" class="btn p-2 rounded-xl text-zinc-500 hover:text-white hover:bg-white/10 shrink-0"></button>
+      </div>
+      <div class="relative">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600" id="searchIcon"></span>
+        <input id="agentSearch" type="text" placeholder="Search agents" aria-label="Search agents" autocomplete="off"
+          class="w-full bg-[#101010]/80 border border-white/5 rounded-xl pl-9 pr-3 py-2.5 text-sm placeholder-zinc-500 focus:outline-none focus:border-white/20 transition-all">
+      </div>
+    </div>
+
+    <div id="agentList" class="flex-1 overflow-y-auto px-3 pb-2"></div>
+
+    <div class="p-3 border-t border-white/5 shrink-0">
+      <button id="btnAddAgent" class="btn w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-dashed border-white/15 text-sm text-zinc-400 hover:text-white hover:border-white/35"></button>
+      <button id="btnUserChip" class="btn w-full flex items-center gap-3 px-1 pt-3 pb-1 rounded-xl hover:bg-white/5" aria-label="Account menu">
+        <span id="userChipAvatar" class="w-8 h-8 rounded-full overflow-hidden shrink-0 flex"></span>
+        <span id="userChipName" class="text-sm text-zinc-300 truncate text-left flex-1"></span>
+        <span class="text-zinc-600 text-[10px]" id="userChipChev">▾</span>
+      </button>
+    </div>
+  </aside>
+  <div id="scrim" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden lg:hidden"></div>
+
+  <!-- MAIN -->
+  <main class="flex-1 flex flex-col min-w-0 relative">
+    <div id="offlineBanner" class="hidden bg-red-500/15 text-red-300 text-xs text-center py-1.5 px-4">You're offline — sending messages is disabled until your connection returns</div>
+
+    <header class="h-16 shrink-0 flex items-center gap-2 px-3 lg:px-5 border-b border-white/5 glass relative z-20">
+      <button id="btnMenu" class="lg:hidden btn p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10" aria-label="Menu"></button>
+      <button id="brandHome" class="btn group flex items-center gap-2.5 pr-2" aria-label="Phantom home" title="Home">
+        <span id="headerLogo" class="brand-hover w-8 h-8 flex items-center justify-center"></span>
+        <span class="hidden md:block font-bold text-white text-[15px]">Phantom</span>
+      </button>
+      <span class="w-px h-6 bg-white/10 mx-1 hidden sm:block"></span>
+      <button id="headerAgentBtn" class="btn flex items-center gap-3 min-w-0 rounded-xl px-2 py-1.5 hover:bg-white/5" title="View agent profile"></button>
+      <button id="headerSwitchChev" class="btn hidden sm:block p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-white/10 shrink-0" title="Switch agent" aria-label="Switch agent"></button>
+      <button id="headerModel" class="hidden sm:block btn text-[11px] px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 shrink-0"></button>
+      <div class="ml-auto flex items-center gap-1">
+        <div class="relative">
+          <button id="btnExportChat" title="Export chat" aria-label="Export chat" class="btn p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/10"></button>
+          <div id="exportMenu" class="hidden absolute right-0 top-11 w-44 glass border border-white/10 rounded-xl shadow-2xl p-1 z-50 pop">
+            <button data-exp="md" class="w-full text-left px-3 py-2 text-sm text-zinc-300 rounded-lg hover:bg-white/5">Export as Markdown</button>
+            <button data-exp="json" class="w-full text-left px-3 py-2 text-sm text-zinc-300 rounded-lg hover:bg-white/5">Export as JSON</button>
+          </div>
+        </div>
+        <button id="btnSettings" title="Settings (Ctrl+,)" aria-label="Settings" class="btn p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/10"></button>
+        <div class="relative">
+          <button id="btnUserMenu" class="btn flex items-center gap-2 pl-1.5 pr-2 py-1.5 rounded-full hover:bg-white/5" aria-label="Account">
+            <span id="headerUserAvatar" class="w-7 h-7 rounded-full overflow-hidden shrink-0 flex"></span>
+            <span id="headerUserName" class="hidden sm:block text-[13px] text-zinc-300 max-w-[90px] truncate"></span>
+          </button>
+          <div id="userMenu" class="hidden absolute right-0 top-12 w-60 glass border border-white/10 rounded-2xl shadow-2xl p-1.5 z-50 pop">
+            <div class="px-3 py-2.5 border-b border-white/5 mb-1">
+              <div id="menuUserName" class="text-sm font-semibold text-white truncate"></div>
+              <div id="menuUserEmail" class="text-[11px] text-zinc-500 truncate"></div>
+            </div>
+            <button data-umenu="profile" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-zinc-300 rounded-xl hover:bg-white/5">My Profile</button>
+            <button data-umenu="add" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-zinc-300 rounded-xl hover:bg-white/5">Add account</button>
+            <button data-umenu="logout" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-400 rounded-xl hover:bg-red-500/10">Sign out</button>
+            <div id="menuSwitchWrap" class="border-t border-white/5 mt-1 pt-1">
+              <div class="px-3 pt-1.5 pb-1 text-[10px] uppercase tracking-wider text-zinc-600 font-semibold">Switch user</div>
+              <div id="menuSwitchList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="agentSwitcher" class="hidden absolute left-3 lg:left-5 top-14 w-72 max-h-[60vh] overflow-y-auto glass border border-white/10 rounded-2xl shadow-2xl p-1.5 z-50 pop"></div>
+    </header>
+
+    <div id="thread" class="flex-1 overflow-y-auto px-4 py-5">
+      <div id="threadInner" class="max-w-3xl mx-auto"></div>
+    </div>
+
+    <div class="px-4 pb-4 lg:px-6 shrink-0">
+      <div class="max-w-3xl mx-auto relative">
+        <div id="replyBar" class="hidden mb-2 flex items-center gap-2 bg-panel border border-white/10 rounded-xl px-3 py-2">
+          <span class="text-xs text-zinc-500 flex-1 min-w-0 truncate" id="replyBarText"></span>
+          <button id="replyCancel" aria-label="Cancel reply" class="btn p-1 rounded text-zinc-500 hover:text-white"></button>
+        </div>
+        <div id="plusMenu" class="hidden absolute bottom-16 left-0 w-56 glass border border-white/10 rounded-xl shadow-2xl p-1 z-50 pop">
+          <button id="plusAttach" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-zinc-300 rounded-lg hover:bg-white/5"><span id="plusAttachIcon"></span>Attach text file</button>
+          <button id="plusClear" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-zinc-300 rounded-lg hover:bg-white/5"><span id="plusClearIcon"></span>Clear conversation</button>
+        </div>
+        <div class="composer flex items-end gap-1.5 glass border border-white/10 rounded-[26px] pl-2 pr-2 py-2 soft-shadow">
+          <button id="btnWeb" title="Web search — adds live Wikipedia context to your next message" aria-label="Toggle web search" class="btn p-2.5 rounded-full text-zinc-500 hover:text-white hover:bg-white/10 shrink-0"></button>
+          <button id="btnPlus" title="More" aria-label="More options" class="btn p-2.5 rounded-full text-zinc-500 hover:text-white hover:bg-white/10 shrink-0"></button>
+          <textarea id="input" rows="1" placeholder="Message…" aria-label="Message input" class="flex-1 bg-transparent resize-none outline-none text-[15px] leading-relaxed py-2 placeholder-zinc-500 max-h-40"></textarea>
+          <button id="btnMic" title="Voice input" aria-label="Voice input" class="btn p-2.5 rounded-full text-zinc-500 hover:text-white hover:bg-white/10 shrink-0"></button>
+          <button id="btnSend" data-sfx="send" title="Send" aria-label="Send" class="btn hidden p-2.5 rounded-full text-white shrink-0 hover:scale-105" style="background:var(--accent)"></button>
+          <button id="btnStop" title="Stop generating" aria-label="Stop" class="btn hidden p-2.5 rounded-full text-white bg-red-500 hover:bg-red-600 shrink-0"></button>
+        </div>
+        <div id="statusBar" class="text-[11px] text-zinc-600 text-center mt-2 transition-opacity duration-300"></div>
+        <input type="file" id="fileInput" accept=".txt,.md,.json,.csv,.log" class="hidden">
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Swipe reply hint -->
+<div id="swipeHint" class="hidden fixed z-[65] w-9 h-9 rounded-full bg-violet-500 flex items-center justify-center text-white pointer-events-none" style="transition:opacity .1s"></div>
+<!-- Reaction picker -->
+<div id="reactPicker" class="hidden fixed z-[66] glass border border-white/10 rounded-full shadow-2xl px-2 py-1.5 flex gap-1 pop"></div>
+<!-- Long-press / right-click context menu -->
+<div id="ctxMenu" class="hidden fixed z-[96] min-w-[190px] glass border border-white/10 rounded-2xl shadow-2xl p-1.5"></div>
+
+<!-- PWA INSTALL BANNER -->
+<div id="installBanner" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-[75] w-[min(420px,92vw)] glass border border-white/10 rounded-2xl shadow-2xl p-4" style="transition:transform .3s ease, opacity .3s ease">
+  <button id="installX" aria-label="Dismiss" class="btn absolute top-2 right-2 p-1.5 rounded-lg text-zinc-500 hover:text-white"></button>
+  <div class="flex items-center gap-3">
+    <span id="installLogo" class="w-10 h-10 shrink-0"></span>
+    <div class="flex-1 min-w-0">
+      <div class="text-sm font-semibold text-white">Install Phantom</div>
+      <div class="text-[11px] text-zinc-500">Add to home screen for quick access</div>
+    </div>
+  </div>
+  <div class="flex gap-2 mt-3">
+    <button id="btnInstall" class="btn flex-1 py-2 rounded-xl text-sm font-semibold text-white" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">Install</button>
+    <button id="btnInstallLater" class="btn px-4 py-2 rounded-xl text-sm text-zinc-400 hover:text-white hover:bg-white/5">Not now</button>
+  </div>
+</div>
+
+<!-- iOS A2HS MODAL -->
+<div id="iosModal" class="hidden fixed inset-0 z-[80] items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="iosModal"></div>
+  <div class="relative w-full max-w-sm glass border border-white/10 rounded-2xl shadow-2xl p-6 text-center pop">
+    <span id="iosLogo" class="inline-block w-16 h-16"></span>
+    <h3 class="text-base font-semibold text-white mt-3">Install Phantom on iOS</h3>
+    <div class="text-sm text-zinc-400 mt-3 space-y-2 text-left">
+      <p>1. Tap the <b class="text-white">Share</b> button in Safari's toolbar <span class="inline-block" style="animation:floaty 1.5s ease-in-out infinite">⬆︎</span></p>
+      <p>2. Scroll and tap <b class="text-white">"Add to Home Screen"</b></p>
+      <p>3. Tap <b class="text-white">Add</b> — done!</p>
+    </div>
+    <button data-close="iosModal" class="btn w-full mt-5 py-2.5 rounded-xl text-sm font-medium text-white" style="background:var(--accent)">Got it</button>
+  </div>
+</div>
+
+<!-- AGENT PROFILE PANEL -->
+<div id="profileScrim" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden"></div>
+<aside id="profilePanel" class="fixed top-0 right-0 bottom-0 w-full sm:w-[400px] glass border-l border-white/10 z-50 translate-x-full transition-transform duration-300 flex flex-col">
+  <div class="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
+    <h2 class="font-semibold text-white">Agent Profile</h2>
+    <button id="btnCloseProfile" aria-label="Close" class="btn p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/10"></button>
+  </div>
+  <div id="profileBody" class="flex-1 overflow-y-auto p-5"></div>
+  <div class="p-4 border-t border-white/5 grid grid-cols-2 gap-2 shrink-0">
+    <button id="pBtnChat" class="btn col-span-2 text-sm font-medium text-white py-2.5 rounded-xl hover:opacity-90" style="background:var(--accent)">Start Chat</button>
+    <button id="pBtnEdit" class="btn text-sm text-zinc-300 py-2.5 rounded-xl bg-white/5 hover:bg-white/10">Edit Agent</button>
+    <button id="pBtnDup" class="btn text-sm text-zinc-300 py-2.5 rounded-xl bg-white/5 hover:bg-white/10">Duplicate</button>
+    <button id="pBtnDelete" class="btn col-span-2 text-sm font-medium text-red-400 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20">Delete Agent</button>
+  </div>
+</aside>
+
+<!-- PROMPT LIBRARY MODAL -->
+<div id="promptModal" class="fixed inset-0 z-[56] hidden items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="promptModal"></div>
+  <div class="relative w-full max-w-md glass border border-white/10 rounded-2xl shadow-2xl pop flex flex-col max-h-[90vh]">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
+      <h2 id="promptModalTitle" class="font-semibold text-white">New Prompt</h2>
+      <button data-close="promptModal" class="btn p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/10"></button>
+    </div>
+    <div class="px-5 py-4 space-y-3 overflow-y-auto">
+      <div>
+        <label class="block text-xs font-medium text-zinc-400 mb-1.5">Name</label>
+        <input id="pfName" type="text" placeholder="e.g. Weekly report" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-zinc-400 mb-1.5">Prompt text <span class="text-zinc-600 font-normal">(pasted into the composer when used)</span></label>
+        <textarea id="pfText" rows="6" placeholder="Write the prompt template…" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm leading-relaxed resize-y focus:outline-none focus:border-white/25"></textarea>
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 px-5 py-4 border-t border-white/5 shrink-0">
+      <button data-close="promptModal" class="btn text-sm px-4 py-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10">Cancel</button>
+      <button id="btnPromptSave" class="btn text-sm px-5 py-2 rounded-xl font-medium text-white hover:opacity-90" style="background:var(--accent)">Save Prompt</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER PROFILE MODAL -->
+<div id="userModal" class="fixed inset-0 z-[55] hidden items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="userModal"></div>
+  <div class="relative w-full max-w-lg glass border border-white/10 rounded-2xl shadow-2xl pop max-h-[92vh] flex flex-col">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
+      <h2 class="font-semibold text-white">My Profile</h2>
+      <button data-close="userModal" class="btn p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/10"></button>
+    </div>
+    <div class="overflow-y-auto px-5 py-5 space-y-6">
+      <div class="flex items-center gap-4">
+        <span id="upAvatarBig" class="w-16 h-16 rounded-full overflow-hidden shrink-0 flex"></span>
+        <div class="min-w-0">
+          <div id="upNameBig" class="text-lg font-semibold text-white truncate"></div>
+          <div id="upStatsLine" class="text-[11px] text-zinc-500 mt-0.5"></div>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-zinc-400 mb-1.5">Avatar</label>
+        <div id="upPresetRow" class="flex flex-wrap gap-1.5"></div>
+        <button id="upUploadBtn" class="btn mt-2 text-xs px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300">Upload photo</button>
+        <input type="file" id="upAvatarFile" accept="image/*" class="hidden">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block text-xs font-medium text-zinc-400 mb-1.5">Username</label>
+          <input id="upUsername" type="text" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25"></div>
+        <div><label class="block text-xs font-medium text-zinc-400 mb-1.5">Email</label>
+          <input id="upEmail" type="email" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25"></div>
+      </div>
+      <div><label class="block text-xs font-medium text-zinc-400 mb-1.5">Bio <span id="upBioCount" class="text-zinc-600">(0/200)</span></label>
+        <textarea id="upBio" rows="2" maxlength="200" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm resize-none focus:outline-none focus:border-white/25"></textarea></div>
+      <button id="upSave" class="btn text-sm px-4 py-2 rounded-xl font-medium text-white" style="background:var(--accent)">Save Profile</button>
+
+      <div class="border-t border-white/5 pt-5">
+        <h3 class="text-sm font-semibold text-white mb-3">Change Password</h3>
+        <div class="space-y-2">
+          <input id="upPwCur" type="password" placeholder="Current password" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25">
+          <div class="grid grid-cols-2 gap-2">
+            <input id="upPwNew" type="password" placeholder="New password" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25">
+            <input id="upPwConf" type="password" placeholder="Confirm new" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25">
+          </div>
+        </div>
+        <button id="upPwSave" class="btn mt-2 text-xs px-3.5 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300">Update password</button>
+      </div>
+
+      <div class="border-t border-white/5 pt-5">
+        <h3 class="text-sm font-semibold text-white mb-1">Session</h3>
+        <p id="upSessionInfo" class="text-[11px] text-zinc-500 mb-2"></p>
+        <button id="upRevoke" class="btn text-xs px-3.5 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300">Revoke session (sign out)</button>
+      </div>
+
+      <div class="border-t border-white/5 pt-5">
+        <h3 class="text-sm font-semibold text-white mb-3">Data</h3>
+        <div class="flex flex-wrap gap-2">
+          <button id="upExport" class="btn text-xs px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300">Export my data</button>
+          <button id="upImport" class="btn text-xs px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300">Import backup</button>
+          <button id="upClearChats" class="btn text-xs px-3.5 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400">Clear all chats</button>
+          <button id="upDelete" class="btn text-xs px-3.5 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400">Delete account</button>
+        </div>
+        <input type="file" id="upImportFile" accept=".json" class="hidden">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPLATE PICKER -->
+<div id="tplModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="tplModal"></div>
+  <div class="relative w-full max-w-lg glass border border-white/10 rounded-2xl shadow-2xl pop max-h-[90vh] flex flex-col">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
+      <div><h2 class="font-semibold text-white">Add an agent</h2><p class="text-xs text-zinc-500 mt-0.5">Pick a preset template or start from scratch</p></div>
+      <button data-close="tplModal" class="btn p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/10"></button>
+    </div>
+    <div id="tplGrid" class="overflow-y-auto px-5 py-4 grid sm:grid-cols-2 gap-3"></div>
+  </div>
+</div>
+
+<!-- AGENT MODAL -->
+<div id="agentModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="agentModal"></div>
+  <div class="relative w-full max-w-xl glass border border-white/10 rounded-2xl shadow-2xl pop max-h-[92vh] flex flex-col">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
+      <h2 id="agentModalTitle" class="font-semibold text-white">New Agent</h2>
+      <button data-close="agentModal" class="btn p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/10"></button>
+    </div>
+    <div class="overflow-y-auto px-5 py-4 space-y-4">
+      <div id="agentPreview" class="flex items-center gap-3 p-3 bg-[#101010] rounded-xl border border-white/5"></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block text-xs font-medium text-zinc-400 mb-1.5">Agent name *</label>
+          <input id="afName" type="text" placeholder="e.g. Inbox Manager" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25"></div>
+        <div><label class="block text-xs font-medium text-zinc-400 mb-1.5">Role / Title</label>
+          <input id="afRole" type="text" placeholder="e.g. Email triage" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25"></div>
+      </div>
+      <div><label class="block text-xs font-medium text-zinc-400 mb-1.5">Avatar</label><div id="emojiRow" class="flex flex-wrap gap-1.5"></div></div>
+      <div><label class="block text-xs font-medium text-zinc-400 mb-1.5">Gradient</label><div id="gradRow" class="flex flex-wrap gap-2"></div></div>
+      <div><label class="block text-xs font-medium text-zinc-400 mb-1.5">Sidebar color tag</label><div id="colorRow" class="flex flex-wrap gap-2"></div></div>
+      <div><label class="block text-xs font-medium text-zinc-400 mb-1.5">System prompt</label>
+        <textarea id="afPrompt" rows="5" placeholder="You are…" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm leading-relaxed resize-y focus:outline-none focus:border-white/25"></textarea></div>
+      <div class="grid sm:grid-cols-3 gap-3">
+        <div><label class="block text-xs font-medium text-zinc-400 mb-1.5">Model <span class="text-zinc-600 font-normal">(live from your keys)</span></label>
+          <select id="afModel" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25"></select></div>
+        <div><label class="block text-xs font-medium text-zinc-400 mb-1.5">Temperature</label>
+          <input id="afTemp" type="range" min="0" max="1" step="0.1" value="0.6" class="w-full mt-3"><div id="afTempVal" class="text-[11px] text-zinc-500 mt-1">0.6 · balanced</div></div>
+        <div><label class="block text-xs font-medium text-zinc-400 mb-1.5">Max tokens</label>
+          <input id="afMax" type="range" min="256" max="4096" step="256" value="2048" class="w-full mt-3"><div id="afMaxVal" class="text-[11px] text-zinc-500 mt-1">2048 tokens</div></div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 px-5 py-4 border-t border-white/5 shrink-0">
+      <button id="btnArchiveAgent" class="hidden items-center gap-1.5 text-xs px-3 py-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10"></button>
+      <button id="btnDupAgent" class="hidden text-xs px-3 py-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10">Duplicate</button>
+      <div class="ml-auto flex gap-2">
+        <button data-close="agentModal" class="btn text-sm px-4 py-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10">Cancel</button>
+        <button id="btnSaveAgent" class="btn text-sm px-5 py-2 rounded-xl font-medium text-white hover:opacity-90" style="background:var(--accent)">Save Agent</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settingsModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="settingsModal"></div>
+  <div class="relative w-full max-w-2xl glass border border-white/10 rounded-2xl shadow-2xl pop max-h-[92vh] flex flex-col">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
+      <h2 class="font-semibold text-white">Settings</h2>
+      <button data-close="settingsModal" class="btn p-2 rounded-lg text-zinc-500 hover:text-white hover:bg-white/10"></button>
+    </div>
+    <div class="overflow-y-auto px-5 py-5 space-y-7">
+      <section>
+        <h3 class="text-sm font-semibold text-white mb-1">API Providers</h3>
+        <p class="text-xs text-zinc-500 mb-3">Model lists are fetched live from each provider using your key. Failover order: Gemini → Groq → Cerebras → GLM-4 → Mistral → OpenRouter → Hugging Face → Together.</p>
+        <label class="flex items-center gap-2.5 mb-3 text-xs text-zinc-300 bg-[#101010] border border-white/5 rounded-xl px-3 py-2.5 cursor-pointer">
+          <input id="shareKeysToggle" type="checkbox" class="accent-violet-500 w-4 h-4">
+          <span>Share API keys across all users on this device</span>
+        </label>
+        <div id="providerList" class="space-y-3"></div>
+      </section>
+      <section>
+        <h3 class="text-sm font-semibold text-white mb-1">Global Defaults</h3>
+        <p class="text-xs text-zinc-500 mb-3">Applied to newly created agents.</p>
+        <div class="grid sm:grid-cols-3 gap-3">
+          <div><label class="block text-xs text-zinc-400 mb-1.5">Default model</label>
+            <select id="setDefaultModel" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25"></select></div>
+          <div><label class="block text-xs text-zinc-400 mb-1.5">Temperature</label>
+            <input id="setDefaultTemp" type="range" min="0" max="1" step="0.1" value="0.6" class="w-full mt-3"><div id="setDefaultTempVal" class="text-[11px] text-zinc-500 mt-1">0.6</div></div>
+          <div><label class="block text-xs text-zinc-400 mb-1.5">Max tokens</label>
+            <input id="setDefaultMax" type="range" min="256" max="4096" step="256" value="2048" class="w-full mt-3"><div id="setDefaultMaxVal" class="text-[11px] text-zinc-500 mt-1">2048</div></div>
+        </div>
+        <div class="mt-4"><label class="block text-xs text-zinc-400 mb-2">Theme accent</label><div id="accentRow" class="flex flex-wrap gap-2"></div></div>
+      </section>
+      <section>
+        <h3 class="text-sm font-semibold text-white mb-1">Sound & Feedback</h3>
+        <p class="text-xs text-zinc-500 mb-3">Tactile touch feedback and subtle interaction sounds, generated on-device.</p>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2.5 text-xs text-zinc-300 bg-[#101010] border border-white/5 rounded-xl px-3 py-2.5 cursor-pointer">
+            <input id="toggleSounds" type="checkbox" class="accent-violet-500 w-4 h-4">
+            <span>Sound effects <span class="text-zinc-500">(taps, sends, success chimes)</span></span>
+          </label>
+          <label class="flex items-center gap-2.5 text-xs text-zinc-300 bg-[#101010] border border-white/5 rounded-xl px-3 py-2.5 cursor-pointer">
+            <input id="toggleHaptics" type="checkbox" class="accent-violet-500 w-4 h-4">
+            <span>Haptic feedback <span class="text-zinc-500">(vibration on supported devices)</span></span>
+          </label>
+        </div>
+      </section>
+      <section>
+        <h3 class="text-sm font-semibold text-white mb-1">Data</h3>
+        <p class="text-xs text-zinc-500 mb-3">Manage this account's local data. Full controls live in My Profile.</p>
+        <div class="mb-4">
+          <div class="flex justify-between text-[11px] text-zinc-500 mb-1.5"><span>Storage used</span><span id="storageText" class="tnum">0 MB / 5 MB</span></div>
+          <div class="h-1.5 bg-white/10 rounded-full overflow-hidden"><div id="storageBar" class="h-full rounded-full transition-all" style="width:0%;background:var(--accent)"></div></div>
+        </div>
+        <button id="btnExportAll" class="btn text-xs px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300">Export all data</button>
+      </section>
+      <section>
+        <h3 class="text-sm font-semibold text-white mb-2">Keyboard Shortcuts</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-zinc-400">
+          <div class="bg-[#101010] rounded-lg px-3 py-2.5 border border-white/5"><kbd class="text-zinc-200">Ctrl+K</kbd> search agents</div>
+          <div class="bg-[#101010] rounded-lg px-3 py-2.5 border border-white/5"><kbd class="text-zinc-200">Ctrl+N</kbd> new agent</div>
+          <div class="bg-[#101010] rounded-lg px-3 py-2.5 border border-white/5"><kbd class="text-zinc-200">Ctrl+,</kbd> settings</div>
+        </div>
+      </section>
+      <section class="border-t border-white/5 pt-6">
+        <div class="flex flex-col items-center text-center">
+          <span id="aboutLogo" class="w-16 h-16"></span>
+          <h3 class="text-base font-bold text-white mt-3">Phantom <span class="text-[11px] font-normal text-zinc-500" id="aboutVersion"></span></h3>
+          <p class="text-xs text-zinc-500 mt-1">Your AI Ghost Team</p>
+          <p class="text-xs text-zinc-400 mt-3">Created by <b class="text-white">BHAT BOYKA</b></p>
+          <div class="flex flex-wrap justify-center gap-1.5 mt-3">
+            <a href="https://youtube.com/@aathir_hussain_bhat.?si=28tBVXAnqc0qJfAQ" target="_blank" rel="noopener" class="btn text-[11px] px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-zinc-300">YouTube</a>
+            <a href="https://share.google/05cqDTY08eQEp74MH" target="_blank" rel="noopener" class="btn text-[11px] px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-zinc-300">Instagram</a>
+            <a href="https://share.google/jWLCjCdUvzcd360cx" target="_blank" rel="noopener" class="btn text-[11px] px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-zinc-300">Facebook</a>
+            <a href="https://github.com/Aathir-Hussain-Bhat" target="_blank" rel="noopener" class="btn text-[11px] px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-zinc-300">GitHub</a>
+            <a href="https://x.com/bhatboyka" target="_blank" rel="noopener" class="btn text-[11px] px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-zinc-300">X (Twitter)</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div id="confirmModal" class="fixed inset-0 z-[60] hidden items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="confirmModal"></div>
+  <div class="relative w-full max-w-sm glass border border-white/10 rounded-2xl shadow-2xl p-5 pop">
+    <h3 id="cfTitle" class="font-semibold text-white"></h3>
+    <p id="cfMsg" class="text-sm text-zinc-400 mt-2 leading-relaxed"></p>
+    <div class="flex justify-end gap-2 mt-5">
+      <button id="cfCancel" class="btn text-sm px-4 py-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10">Cancel</button>
+      <button id="cfOk" class="btn text-sm px-4 py-2 rounded-xl font-medium text-white bg-red-500 hover:bg-red-600">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts" class="fixed bottom-4 right-4 z-[85] space-y-2 w-[min(360px,90vw)]"></div>
+
+<script>
+'use strict';
+
+/* ═══════════════════════ // CONFIG ═══════════════════════ */
+const APP_VERSION = '1.3.0';
+const LOGO_URL = 'https://res.cloudinary.com/prjgzqvy/image/upload/v1790017986/file_000000007bec8208a53dc97b3142afb6_bxd7tt.png';
+
+const LS = { USERS:'phantom_users', SESSION:'phantom_session', SHARED:'phantom_shared_keys', INSTALL:'phantom_install_dismissed', IOS:'phantom_ios_hint', MIG:'phantom_migrated', MODELS:'phantom_model_cache' };
+const bucketKey = () => 'phantom_u_' + (USER ? USER.id : 'guest');
+
+const DEFAULT_KEYS = { gemini:'', groq:'', cerebras:'', glm:'', mistral:'', openrouter:'', huggingface:'', together:'' };
+
+const PROVIDERS = {
+  gemini:      { label:'Google Gemini', model:'gemini-2.0-flash',                        keyUrl:'https://aistudio.google.com/apikey',        tier:'1,500 req/day free',  tint:'linear-gradient(135deg,#60a5fa,#2563eb)' },
+  groq:        { label:'Groq',          model:'llama-3.3-70b-versatile',                 keyUrl:'https://console.groq.com/keys',             tier:'14,400 req/day free', tint:'linear-gradient(135deg,#f97316,#dc2626)' },
+  cerebras:    { label:'Cerebras',      model:'llama-3.3-70b',                           keyUrl:'https://cloud.cerebras.ai',                 tier:'30 req/min free',     tint:'linear-gradient(135deg,#fb923c,#f59e0b)' },
+  glm:         { label:'GLM-4',         model:'glm-4-flash',                             keyUrl:'https://open.bigmodel.cn',                  tier:'Generous free tier',  tint:'linear-gradient(135deg,#34d399,#0d9488)' },
+  mistral:     { label:'Mistral',       model:'mistral-small-latest',                    keyUrl:'https://console.mistral.ai',                tier:'1 req/sec free',      tint:'linear-gradient(135deg,#fbbf24,#ea580c)' },
+  openrouter:  { label:'OpenRouter',    model:'meta-llama/llama-3.1-70b-instruct',       keyUrl:'https://openrouter.ai/keys',                tier:'Free fallback models',tint:'linear-gradient(135deg,#a855f7,#c026d3)' },
+  huggingface: { label:'Hugging Face',  model:'meta-llama/Llama-3.1-8B-Instruct',        keyUrl:'https://huggingface.co/settings/tokens',    tier:'Free monthly credits',tint:'linear-gradient(135deg,#facc15,#ca8a04)' },
+  together:    { label:'Together AI',   model:'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo', keyUrl:'https://api.together.ai/settings/api-keys', tier:'Free starter credit', tint:'linear-gradient(135deg,#38bdf8,#0284c7)' },
+};
+PROVIDERS.gemini.endpoint = 'https://generativelanguage.googleapis.com/v1beta/models';
+PROVIDERS.groq.endpoint = 'https://api.groq.com/openai/v1';
+PROVIDERS.cerebras.endpoint = 'https://api.cerebras.ai/v1';
+PROVIDERS.glm.endpoint = 'https://open.bigmodel.cn/api/paas/v4';
+PROVIDERS.mistral.endpoint = 'https://api.mistral.ai/v1';
+PROVIDERS.openrouter.endpoint = 'https://openrouter.ai/api/v1';
+PROVIDERS.huggingface.endpoint = 'https://router.huggingface.co/v1';
+PROVIDERS.together.endpoint = 'https://api.together.xyz/v1';
+const FAILOVER = ['gemini','groq','cerebras','glm','mistral','openrouter','huggingface','together'];
+
+const MODELS = {
+  'gemini-2.0-flash':                     { label:'Gemini 2.0 Flash',      provider:'gemini' },
+  'gemini-1.5-flash':                     { label:'Gemini 1.5 Flash',      provider:'gemini' },
+  'llama-3.3-70b-versatile':              { label:'Llama 3.3 70B',         provider:'groq' },
+  'llama-3.1-8b-instant':                 { label:'Llama 3.1 8B Instant',  provider:'groq' },
+  'llama-3.3-70b':                        { label:'Llama 3.3 70B',         provider:'cerebras' },
+  'llama3.1-8b':                          { label:'Llama 3.1 8B',          provider:'cerebras' },
+  'glm-4-flash':                          { label:'GLM-4 Flash',           provider:'glm' },
+  'glm-4':                                { label:'GLM-4',                 provider:'glm' },
+  'mistral-small-latest':                 { label:'Mistral Small',         provider:'mistral' },
+  'meta-llama/llama-3.1-70b-instruct':    { label:'Llama 3.1 70B',         provider:'openrouter' },
+  'meta-llama/Llama-3.1-8B-Instruct':     { label:'Llama 3.1 8B Instruct', provider:'huggingface' },
+  'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo': { label:'Llama 3.1 8B Turbo', provider:'together' },
+};
+const LEGACY_PROVIDER = {
+  'llama-3.1-70b-versatile': 'groq',
+  'mistralai/Mistral-7B-Instruct-v0.2': 'huggingface',
+  'meta-llama/Llama-3-8b-chat-hf': 'together',
+};
+
+const GRADIENTS = [
+  { id:'violet',  css:'linear-gradient(135deg,#8b5cf6,#6366f1)' },
+  { id:'emerald', css:'linear-gradient(135deg,#34d399,#0d9488)' },
+  { id:'orange',  css:'linear-gradient(135deg,#fb923c,#d97706)' },
+  { id:'blue',    css:'linear-gradient(135deg,#60a5fa,#0891b2)' },
+  { id:'pink',    css:'linear-gradient(135deg,#ec4899,#e11d48)' },
+  { id:'purple',  css:'linear-gradient(135deg,#a855f7,#c026d3)' },
+  { id:'lime',    css:'linear-gradient(135deg,#a3e635,#16a34a)' },
+  { id:'red',     css:'linear-gradient(135deg,#ef4444,#f97316)' },
+];
+const COLORS = { violet:'#8b5cf6', emerald:'#10b981', orange:'#f97316', blue:'#3b82f6', pink:'#ec4899', purple:'#a855f7', lime:'#84cc16', red:'#ef4444' };
+const EMOJIS = ['👻','🤖','👽','🦊','🐺','🦉','🐲','🧙','🥷','🤠','🧠','⚡','🎯','🚀','🔮','💼','📚','🎨','🧬','🛸','🌟','🔥'];
+const PRESET_AVATARS = ['👻','🤖','👽','🦊','🐺','🦉','🐲','🥷'];
+const REACTIONS = ['❤️','👍','😂','😮','😢','🙏'];
+
+const CONTEXT_MESSAGES = 24, CIRCUIT_THRESHOLD = 3, CIRCUIT_COOLDOWN = 10*60*1000, TEST_TIMEOUT = 10000;
+const MODEL_REFRESH_MS = 24*60*60*1000;
+const LONGPRESS_MS = 480;
+
+const PRESETS = [
+  { name:'Inbox Manager', emoji:'👻', gradient:'violet', color:'violet', role:'Email triage & drafts', model:'gemini-2.0-flash', temp:0.3, maxTokens:1024,
+    desc:'Triage email: archive noise, flag what matters, draft replies in your voice.', starter:'inbox got away from me this weekend, sweep it',
+    systemPrompt:`You are Inbox Manager, a ghost teammate inside the Phantom app. You triage the user's email: archive noise, flag anything that needs their eyes, and draft replies in their voice.\n\nStyle: short, lowercase, human. No corporate fluff.\n\nWhen you complete work, report using action badges — one per line, bold action word, arrow, then detail:\n✓ **Archived** → 26 newsletters + receipts\n✓ **Drafted** → 6 replies · held for review\n⚠ **Needs review** → contract question from Dana\n\nNever invent emails the user didn't mention. If you need context, ask for it in one short line.` },
+  { name:'Chief Strategist', emoji:'', gradient:'emerald', color:'emerald', role:'Planning & decisions', model:'glm-4-flash', temp:0.5, maxTokens:2048,
+    desc:'High-level planning, prioritization and decisive recommendations.', starter:'help me decide between two job offers',
+    systemPrompt:`You are Chief, the strategic lead of the user's Phantom team. You plan, prioritize, and make calls.\n\nRules:\n- Lead with the decision: "Do X." Then 2–3 tight reasons or tradeoffs.\n- Think in second-order effects. Flag risks honestly.\n- Use badges for outcomes:\n  ✓ **Decided** → launch tuesday\n  ⚠ **Risk** → vendor SLA is vague\n- Default to under 200 words. Go deep only when asked.` },
+  { name:'Sales Ghost', emoji:'👻', gradient:'orange', color:'orange', role:'Cold outreach & follow-ups', model:'llama-3.3-70b-versatile', temp:0.8, maxTokens:1024,
+    desc:'Cold emails and follow-ups under 90 words that actually get replies.', starter:'draft a cold email to a design agency founder',
+    systemPrompt:`You are Sales Ghost, an elite cold-outbound specialist. You write emails that get replies.\n\nRules:\n- Under 90 words. One clear CTA. Zero buzzwords ("synergy", "revolutionary" — banned).\n- Personalize from context the user gives you. Never fabricate credentials or numbers.\n- When drafting, offer 2 subject line options.\n- Badge your output:\n  ✓ **Drafted** → cold email to acme · 74 words\n  ⚠ **Needs review** → pricing claim needs approval` },
+  { name:'Researcher', emoji:'🤖', gradient:'blue', color:'blue', role:'Web search & fact-check', model:'gemini-2.0-flash', temp:0.4, maxTokens:2048,
+    desc:'Search, verify and synthesize — bottom line first, sources cited.', starter:"what's new in fusion energy this month?",
+    systemPrompt:`You are Researcher, the Phantom team's analyst. You search, verify, and synthesize.\n\nRules:\n- Bottom line first. Then evidence as tight bullets with sources and dates where possible.\n- Separate fact from inference. Flag uncertainty explicitly:\n  ⚠ **Unverified** → single-source claim\n- Prefer primary sources. Note when information may be outdated.\n- Use badges:\n  ✓ **Verified** → 3 independent sources\n  ✓ **Summarized** → 5 key findings` },
+  { name:'Code Reviewer', emoji:'🤖', gradient:'pink', color:'pink', role:'Bugs, security & performance', model:'glm-4-flash', temp:0.2, maxTokens:2048,
+    desc:'Bug detection, security review and optimization with minimal fixes.', starter:'review this function for edge cases',
+    systemPrompt:`You are Code Reviewer, a meticulous senior engineer on the Phantom team.\n\nRules:\n- First line: one-sentence verdict (ship it / fix first / rewrite).\n- Then issues as badges, most severe first:\n  ⚠ **Bug** → off-by-one in the loop (line 42)\n  ⚠ **Security** → unsanitized input rendered as HTML\n  ✓ **Optimized** → memoize the recursive call\n- Show minimal corrected snippets in fenced code blocks. Explain the why in one line per issue.` },
+  { name:'Study Buddy', emoji:'👽', gradient:'lime', color:'lime', role:'Socratic exam prep', model:'gemini-2.0-flash', temp:0.6, maxTokens:2048,
+    desc:'Socratic exam prep — quizzes you, tracks weak areas, never dumps answers.', starter:'quiz me on operating systems scheduling',
+    systemPrompt:`You are Study Buddy, a Socratic tutor for university exam prep.\n\nRules:\n- Never dump the full answer. Guide with one focused question at a time.\n- Break topics into a checklist; track progress with badges:\n  ✓ **Covered** → unit 3: CPU scheduling\n  ⚠ **Revisit** → paging vs segmentation\n- After each concept, give one practice question scaled to the user's level.\n- If the user is stuck twice, give a hint — not the answer.` },
+];
+
+/* ═══════════════════════ // UTILITIES ═══════════════════════ */
+const $ = s => document.querySelector(s);
+const esc = (s = '') => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const show = el => el.classList.remove('hidden');
+const hide = el => el.classList.add('hidden');
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const setHTML = (sel, html) => { const el = document.querySelector(sel); if (el) el.innerHTML = html; };
+const fillAvatarSlot = (sel, html) => setHTML(sel, html);
+const load = (k, fb) => { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? fb; } catch { return fb; } };
+const saveRaw = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { toast('Storage full — export a backup and clear old data', 'error'); } };
+const estTokens = t => Math.max(1, Math.round((t || '').length / 4));
+const isFreeId = id => /:free$/.test(id);
+const humanModel = id => String(id || '').split('/').pop().replace(/:free$/, '').replace(/[-_]+/g, ' ').trim()
+  .split(' ').map(w => w ? (w[0].toUpperCase() + w.slice(1)) : w).join(' ');
+const modelLabel = m => (MODELS[m] && MODELS[m].label) || humanModel(m) || m;
+const tempWord = v => { v = +v; return v <= 0.3 ? 'precise' : v <= 0.7 ? 'balanced' : 'creative'; };
+
+const ICONS = {
+  plus:'<path d="M12 5v14M5 12h14"/>', search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  gear:'<path d="M10.3 4.3c.4-1.8 2.9-1.8 3.4 0a1.7 1.7 0 0 0 2.6 1.1c1.5-1 3.3.8 2.4 2.4a1.7 1.7 0 0 0 1.1 2.6c1.8.4 1.8 2.9 0 3.4a1.7 1.7 0 0 0-1.1 2.6c1 1.5-.8 3.3-2.4 2.4a1.7 1.7 0 0 0-2.6 1.1c-.4 1.8-2.9 1.8-3.4 0a1.7 1.7 0 0 0-2.6-1.1c-1.5 1-3.3-.8-2.4-2.4a1.7 1.7 0 0 0-1.1-2.6c-1.8-.4-1.8-2.9 0-3.4a1.7 1.7 0 0 0 1.1-2.6c-1-1.5.8-3.3 2.4-2.4 1 .6 2.2.1 2.6-1.1z"/><circle cx="12" cy="12" r="3"/>',
+  download:'<path d="M12 3v12m-4-4 4 4 4-4M5 21h14"/>', send:'<path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/>',
+  stop:'<rect x="6.5" y="6.5" width="11" height="11" rx="2"/>',
+  mic:'<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4"/>',
+  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18z"/>',
+  pencil:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>',
+  trash:'<path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>',
+  star:'<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1L12 2z"/>',
+  copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+  refresh:'<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
+  menu:'<path d="M4 6h16M4 12h16M4 18h16"/>', x:'<path d="M18 6 6 18M6 6l12 12"/>',
+  eye:'<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>', chev:'<path d="m6 9 6 6 6-6"/>',
+  doc:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3"/>',
+  archive:'<rect x="2" y="4" width="20" height="5" rx="1"/><path d="M4 9v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9M10 13h4"/>',
+  restore:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
+  key:'<path d="m21 2-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3-3.5 3.5z"/>',
+  reply:'<polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/>',
+  smile:'<circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
+};
+const icon = (n, cls='w-4 h-4') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
+const ghost = (cls='w-5 h-5') => `<svg class="${cls}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a8 8 0 0 0-8 8v11.3c0 .5.6.8 1 .5l2-1.6 2.1 1.7c.3.3.7.3 1 0l1.9-1.5 1.9 1.5c.3.3.7.3 1 0L19 20.2l2 1.6c.4.3 1 0 1-.5V10a8 8 0 0 0-8-8z"/><circle cx="9.3" cy="10.5" r="1.4" fill="#171717"/><circle cx="14.7" cy="10.5" r="1.4" fill="#171717"/></svg>`;
+
+// ─── LOGO (with fallback) ───
+let logoState = 'pending';
+(() => { const t = new Image(); t.crossOrigin = 'anonymous';
+  t.onload = () => { logoState = 'ok'; document.dispatchEvent(new CustomEvent('logo-ok')); };
+  t.onerror = () => { logoState = 'fail'; }; t.src = LOGO_URL; })();
+const pFallback = cls => `<span class="${cls} flex items-center justify-center rounded-full font-bold text-white select-none" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">P</span>`;
+window.phantomLogoFallback = pFallback;
+function logoHTML(cls) {
+  if (logoState === 'fail') return pFallback(cls);
+  return `<img src="${LOGO_URL}" alt="Phantom logo" crossorigin="anonymous" class="${cls} object-cover" onerror="this.outerHTML=window.phantomLogoFallback('${cls}')">`;
+}
+
+const gradOf = id => (GRADIENTS.find(g => g.id === id) || GRADIENTS[0]).css;
+function agentAvatarHTML(a, cls='w-9 h-9 rounded-xl', emojiCls='text-lg') {
+  const g = gradOf(a.gradient);
+  if (a.emoji) return `<div class="ava ${cls} flex items-center justify-center shrink-0" style="background:${g}"><span class="${emojiCls} leading-none">${a.emoji}</span></div>`;
+  return `<div class="ava ${cls} flex items-center justify-center shrink-0" style="background:${g}">${ghost(cls.includes('w-20') ? 'w-10 h-10' : 'w-5 h-5 text-white/95')}</div>`;
+}
+function userAvatarInner(u, textCls='text-xs') {
+  if (u && u.avatar && String(u.avatar).startsWith('data:')) return `<img src="${u.avatar}" alt="" class="w-full h-full object-cover">`;
+  if (u && u.avatar) return `<span class="w-full h-full flex items-center justify-center ${textCls}" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">${u.avatar}</span>`;
+  const initial = (u && u.username ? u.username[0] : 'P').toUpperCase();
+  return `<span class="w-full h-full flex items-center justify-center font-bold text-white ${textCls}" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">${esc(initial)}</span>`;
+}
+
+function fmtTime(ts) {
+  const d = new Date(ts), now = new Date();
+  if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString([], { hour:'numeric', minute:'2-digit' });
+  const y = new Date(now); y.setDate(now.getDate() - 1);
+  if (d.toDateString() === y.toDateString()) return 'Yesterday';
+  return d.toLocaleDateString([], { month:'short', day:'numeric' });
+}
+const fmtDivider = ts => { const d = new Date(ts); const t = d.toLocaleTimeString([], { hour:'numeric', minute:'2-digit' });
+  return d.toDateString() === new Date().toDateString() ? t : `${d.toLocaleDateString([], { month:'short', day:'numeric' })}, ${t}`; };
+
+/* ═══════════════════════ // SFX ENGINE (Web Audio, on-device) ═══════════════════════ */
+const SFX = {
+  ctx: null, last: { name:'', t:0 },
+  unlock() {
+    if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch { this.ctx = null; } }
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+  },
+  tone(f, d, type, v, at = 0, slide) {
+    const c = this.ctx; if (!c || c.state !== 'running') return;
+    try {
+      const t0 = c.currentTime + at;
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = type; o.frequency.setValueAtTime(f, t0);
+      if (slide) o.frequency.exponentialRampToValueAtTime(slide, t0 + d);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(v, t0 + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+      o.connect(g); g.connect(c.destination);
+      o.start(t0); o.stop(t0 + d + 0.06);
+    } catch {}
+  },
+  play(name) {
+    if (!settings || settings.sounds === false) return;
+    const now = performance.now();
+    if (this.last.name === name && now - this.last.t < 120) return;
+    this.last = { name, t: now };
+    this.unlock(); if (!this.ctx) return;
+    const D = {
+      tap:     [[660, .05, 'sine', .05]],
+      send:    [[430, .1,  'sine', .07, 0, 760]],
+      receive: [[740, .11, 'sine', .055, 0, 470]],
+      success: [[523.25, .09, 'triangle', .06], [659.25, .09, 'triangle', .06, .08], [783.99, .13, 'triangle', .06, .16]],
+      error:   [[170, .16, 'square', .045], [118, .2, 'square', .04, .06]],
+      warn:    [[340, .08, 'triangle', .05], [262, .11, 'triangle', .045, .08]],
+      pop:     [[300, .08, 'sine', .09, 0, 920]],
+    }[name] || [];
+    D.forEach(a => this.tone(...a));
+    if (settings.haptics !== false && navigator.vibrate) {
+      const map = { tap:8, send:14, receive:10, success:[10,40,14], error:35, warn:16, pop:12 };
+      try { navigator.vibrate(map[name] || 8); } catch {}
+    }
+  },
+};
+function rippleAt(el, e) {
+  if (el.closest('[data-noripple]')) return;
+  const r = el.getBoundingClientRect();
+  const d = Math.max(r.width, r.height) * 1.15;
+  const s = document.createElement('span');
+  s.className = 'ripple';
+  s.style.width = s.style.height = d + 'px';
+  const x = (e.clientX || r.left + r.width / 2) - r.left - d / 2;
+  const y = (e.clientY || r.top + r.height / 2) - r.top - d / 2;
+  s.style.left = x + 'px'; s.style.top = y + 'px';
+  el.appendChild(s);
+  setTimeout(() => s.remove(), 560);
+}
+document.addEventListener('pointerdown', e => {
+  SFX.unlock();
+  const t = e.target.closest && e.target.closest('button, a, .agent-item, [data-maction]');
+  if (!t) return;
+  if (!t.classList.contains('act')) rippleAt(t, e);
+  const explicit = t.closest('[data-sfx]');
+  SFX.play(explicit ? explicit.dataset.sfx : 'tap');
+}, { passive:true });
+
+function toast(msg, type='info', ms=4000, action=null) {
+  const colors = { info:'#3b82f6', success:'#10b981', warn:'#f59e0b', error:'#ef4444' };
+  const sounds = { success:'success', error:'error', warn:'warn', info:'tap' };
+  SFX.play(sounds[type] || 'tap');
+  const el = document.createElement('div');
+  el.className = 'toast glass border border-white/10 rounded-xl shadow-2xl px-4 py-3 text-[13px] text-zinc-200 flex items-center gap-3 cursor-pointer';
+  el.style.borderLeft = `3px solid ${colors[type] || colors.info}`;
+  el.innerHTML = `<span class="flex-1">${esc(msg)}</span>`;
+  if (action) {
+    const b = document.createElement('button');
+    b.className = 'text-xs font-semibold px-2.5 py-1 rounded-lg hover:bg-white/10 transition-colors shrink-0';
+    b.style.color = 'var(--accent)'; b.textContent = action.label;
+    b.onclick = e => { e.stopPropagation(); el.remove(); action.fn(); };
+    el.appendChild(b);
+  }
+  el.onclick = () => el.remove();
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), ms);
+}
+function flashCopied(btn) {
+  if (!btn) return;
+  btn.classList.add('text-emerald-400');
+  const tip = document.createElement('span'); tip.className = 'copied-tip'; tip.textContent = 'Copied';
+  btn.appendChild(tip);
+  setTimeout(() => { btn.classList.remove('text-emerald-400'); tip.remove(); }, 2000);
+}
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); return true; }
+  catch { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch {} ta.remove(); return ok; }
+}
+function download(filename, content, type='application/json') {
+  const blob = new Blob([content], { type });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function storageMB() {
+  let bytes = 0;
+  for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('phantom_')) bytes += (localStorage.getItem(k) || '').length * 2; }
+  return bytes / 1048576;
+}
+
+// confirm dialog
+let confirmResolve = null;
+function confirmDialog({ title, message, okText='Delete', danger=true }) {
+  $('#cfTitle').textContent = title; $('#cfMsg').textContent = message; $('#cfOk').textContent = okText;
+  $('#cfOk').className = `btn text-sm px-4 py-2 rounded-xl font-medium text-white transition-colors ${danger ? 'bg-red-500 hover:bg-red-600' : 'hover:opacity-90'}`;
+  $('#cfOk').style.background = danger ? '' : 'var(--accent)';
+  openModal('confirmModal');
+  return new Promise(res => { confirmResolve = res; });
+}
+function settleConfirm(result) {
+  const m = document.getElementById('confirmModal');
+  m.classList.add('hidden'); m.classList.remove('flex');
+  const r = confirmResolve; confirmResolve = null;
+  if (r) r(result);
+}
+const openModal = id => { closeCtxMenu(); const m = document.getElementById(id); m.classList.remove('hidden'); m.classList.add('flex'); };
+const closeModal = id => { const m = document.getElementById(id); if (m) { m.classList.add('hidden'); m.classList.remove('flex'); } };
+const modalOpen = id => !document.getElementById(id).classList.contains('hidden');
+
+if (window.marked && marked.setOptions) marked.setOptions({ gfm:true, breaks:true });
+if (window.DOMPurify) DOMPurify.addHook('afterSanitizeAttributes', node => {
+  if (node.tagName === 'A') { node.setAttribute('target','_blank'); node.setAttribute('rel','noopener noreferrer'); }
+});
+const renderMD = t => { try { const raw = marked.parse(t); return window.DOMPurify ? DOMPurify.sanitize(raw) : esc(raw); } catch { return esc(t); } };
+const renderMDInline = t => { try { const raw = marked.parseInline(t); return window.DOMPurify ? DOMPurify.sanitize(raw) : esc(raw); } catch { return esc(t); } };
+function renderAssistantContent(raw, streaming=false) {
+  const lines = String(raw).split('\n'); let html = '', buf = [];
+  const flush = () => { if (buf.length) { html += `<div class="md">${renderMD(buf.join('\n'))}</div>`; buf = []; } };
+  for (const line of lines) {
+    const m = line.match(/^\s*([✓✔⚠✖])\s*(?:\*\*)?([^*→\n]+?)(?:\*\*)?\s*→\s*(.+?)\s*$/);
+    if (m) { flush();
+      const sym = m[1] === '✔' ? '✓' : m[1], label = m[2].trim(), detail = m[3];
+      const color = sym === '⚠' ? 'text-amber-400' : sym === '✖' ? 'text-red-400' : 'text-emerald-300';
+      html += `<div class="flex items-baseline gap-2 py-0.5"><span class="${color} font-bold shrink-0">${sym}</span>` +
+              `<span><span class="font-semibold text-white">${esc(label)}</span> <span class="text-zinc-300/80">→ ${renderMDInline(detail)}</span></span></div>`;
+    } else buf.push(line);
+  }
+  flush();
+  if (streaming) html += '<span class="stream-caret"></span>';
+  return html;
+}
+const typingHTML = () => `<div class="flex items-center gap-2.5 py-1">
+  <span class="inline-flex" style="animation:spin 1s linear infinite">${logoHTML('w-6 h-6 rounded-full')}</span>
+  <span class="text-xs text-zinc-400">Phantom is typing</span>
+  <span class="flex items-center gap-1"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></span></div>`;
+
+/* ═══════════════════════ // AUTH & STATE MANAGEMENT ═══════════════════════ */
+const enc = new TextEncoder();
+const bytesToHex = b => Array.from(b).map(x => x.toString(16).padStart(2, '0')).join('');
+const hexToBytes = h => new Uint8Array((h.match(/../g) || []).map(x => parseInt(x, 16)));
+const PBKDF2_ITER = 150000;
+function randomSalt() { return bytesToHex(crypto.getRandomValues(new Uint8Array(16))); }
+async function sha256Hex(s) {
+  const buf = await crypto.subtle.digest('SHA-256', enc.encode(s));
+  return bytesToHex(new Uint8Array(buf));
+}
+async function pbkdf2Hex(pass, saltHex, iterations) {
+  const key = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name:'PBKDF2', hash:'SHA-256', salt:hexToBytes(saltHex), iterations }, key, 256);
+  return bytesToHex(new Uint8Array(bits));
+}
+async function makePasswordRecord(pass) {
+  if (crypto.subtle) {
+    const salt = randomSalt();
+    return { algo:'pbkdf2', salt, iterations:PBKDF2_ITER, passHash: await pbkdf2Hex(pass, salt, PBKDF2_ITER) };
+  }
+  const salt = randomSalt();
+  let h = 5381; const s = salt + '::' + pass;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return { algo:'fnv', salt, iterations:0, passHash:'fnv_' + (h >>> 0).toString(16) + '_' + s.length };
+}
+async function verifyPassword(u, pass) {
+  if (u.algo === 'pbkdf2' && u.salt) return (await pbkdf2Hex(pass, u.salt, u.iterations || PBKDF2_ITER)) === u.passHash;
+  if (u.algo === 'fnv' && u.salt) {
+    let h = 5381; const s = u.salt + '::' + pass;
+    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return ('fnv_' + (h >>> 0).toString(16) + '_' + s.length) === u.passHash;
+  }
+  try {
+    if ((await sha256Hex('phantom::v1::' + pass)) === u.passHash) { await upgradeHash(u, pass); return true; }
+  } catch {}
+  return false;
+}
+async function upgradeHash(u, pass) {
+  try {
+    const rec = await makePasswordRecord(pass);
+    Object.assign(u, rec);
+    const users = getUsers(); const i = users.findIndex(x => x.id === u.id);
+    if (i >= 0) { users[i] = u; persistUsers(users); }
+  } catch {}
+}
+
+const getUsers = () => load(LS.USERS, []) || [];
+const persistUsers = list => saveRaw(LS.USERS, list);
+
+let USER = null;
+let agents = [], chats = {}, settings = null, latency = {}, circuit = {}, prompts = [];
+let ui = { activeId:null, collapsed:{ pinned:false, all:false, archived:true, prompts:false } };
+let sharedKeys = Object.assign({}, DEFAULT_KEYS, load(LS.SHARED, {}));
+let modelCache = normModelCache(load(LS.MODELS, {}));
+const dynamicIds = p => (modelCache[p] && modelCache[p].models) || [];
+function providerOf(modelId) {
+  if (!modelId) return null;
+  if (MODELS[modelId]) return MODELS[modelId].provider;
+  if (LEGACY_PROVIDER[modelId]) return LEGACY_PROVIDER[modelId];
+  for (const p of FAILOVER) if (dynamicIds(p).includes(modelId)) return p;
+  return null;
+}
+const isGuest = () => !!USER && USER.id === 'guest';
+const persist = () => { if (USER && !isGuest()) saveRaw(bucketKey(), { agents, chats, settings, latency, circuit, ui, prompts }); };
+const saveAgents = persist, saveChats = persist, saveSettings = persist, saveCircuit = persist, saveLatency = persist, saveUI = persist;
+
+function defaultSettings() {
+  return { apiKeys: Object.assign({}, DEFAULT_KEYS), shareKeys:false, theme:'dark',
+    defaultModel:'gemini-2.0-flash', defaultTemp:0.6, defaultMaxTokens:2048, accent:'violet',
+    sounds:true, haptics:true };
+}
+function normLatency(o) {
+  if (!o || typeof o !== 'object' || Array.isArray(o)) return {};
+  Object.keys(o).forEach(k => { const v = o[k];
+    if (!v || typeof v !== 'object' || typeof v.avg !== 'number' || typeof v.n !== 'number')
+      o[k] = (typeof v === 'number' && isFinite(v)) ? { avg:v, n:1 } : { avg:0, n:0 }; });
+  return o;
+}
+function normCircuit(o) {
+  if (!o || typeof o !== 'object' || Array.isArray(o)) return {};
+  Object.keys(o).forEach(k => { const v = o[k];
+    if (!v || typeof v !== 'object' || typeof v.fails !== 'number')
+      o[k] = { fails:(typeof v === 'number' && isFinite(v)) ? v : 0, lastFail:0 };
+    if (typeof o[k].lastFail !== 'number') o[k].lastFail = 0; });
+  return o;
+}
+function normModelCache(o) {
+  const out = {};
+  if (!o || typeof o !== 'object' || Array.isArray(o)) return out;
+  FAILOVER.forEach(p => { const c = o[p];
+    if (c && Array.isArray(c.models)) out[p] = { models:c.models.filter(x => typeof x === 'string' && x), ts: typeof c.ts === 'number' ? c.ts : 0 }; });
+  return out;
+}
+function defaultPrompts() {
+  return [
+    { id:uid(), name:'Explain simply', createdAt:Date.now(), text:'Explain the following in simple terms, as if to a curious beginner. Use one short analogy. Keep it under 150 words.\n\n' },
+    { id:uid(), name:'Professional rewrite', createdAt:Date.now(), text:'Rewrite the text below in a clear, professional tone. Keep the meaning intact, remove fluff, and return only the rewrite.\n\n' },
+    { id:uid(), name:'Summarize', createdAt:Date.now(), text:'Summarize the following into 3–5 tight bullet points, then finish with one "Bottom line:" sentence.\n\n' },
+    { id:uid(), name:'Find the bugs', createdAt:Date.now(), text:'Review the code below for bugs, edge cases and security issues. List issues most-severe first, each with a minimal fix.\n\n' },
+    { id:uid(), name:'Action plan', createdAt:Date.now(), text:'Turn the goal below into a concrete step-by-step plan: ordered actions, rough time estimates, and the single first step I should do right now.\n\n' },
+  ];
+}
+function normPrompts(arr) {
+  return (Array.isArray(arr) ? arr : [])
+    .filter(p => p && typeof p.name === 'string' && typeof p.text === 'string')
+    .map(p => ({ id: typeof p.id === 'string' ? p.id : uid(), name:p.name, text:p.text, createdAt: typeof p.createdAt === 'number' ? p.createdAt : Date.now() }));
+}
+function presetToAgent(p) {
+  return { id:uid(), name:p.name, emoji:p.emoji||'', gradient:p.gradient||'violet', role:p.role, systemPrompt:p.systemPrompt||'',
+    model:p.model || settings.defaultModel, temp:p.temp ?? settings.defaultTemp, maxTokens:p.maxTokens ?? settings.defaultMaxTokens,
+    color:p.color||'violet', pinned:false, archived:false, createdAt:Date.now(), starter:p.starter||'' };
+}
+function loadForUser(u) {
+  settings = defaultSettings(); agents = []; chats = {}; latency = {}; circuit = {};
+  ui = { activeId:null, collapsed:{ pinned:false, all:false, archived:true, prompts:false } };
+  prompts = defaultPrompts();
+  if (u.id === 'guest') { agents = [presetToAgent(PRESETS[0])]; return; }
+  const d = load(bucketKey(), null);
+  if (d) {
+    agents = Array.isArray(d.agents) ? d.agents : [];
+    chats = (d.chats && typeof d.chats === 'object') ? d.chats : {};
+    settings = Object.assign(defaultSettings(), d.settings || {});
+    settings.apiKeys = Object.assign({}, DEFAULT_KEYS, settings.apiKeys || {});
+    latency = normLatency(d.latency); circuit = normCircuit(d.circuit);
+    ui = Object.assign({ activeId:null, collapsed:{ pinned:false, all:false, archived:true, prompts:false } }, d.ui || {});
+    if (!ui.collapsed || typeof ui.collapsed !== 'object') ui.collapsed = { pinned:false, all:false, archived:true, prompts:false };
+    if (typeof ui.collapsed.prompts !== 'boolean') ui.collapsed.prompts = false;
+    prompts = Array.isArray(d.prompts) ? normPrompts(d.prompts) : defaultPrompts();
+  } else if (localStorage.getItem('phantom_agents') && !load(LS.MIG, false)) {
+    try {
+      agents = JSON.parse(localStorage.getItem('phantom_agents')) || [];
+      chats = JSON.parse(localStorage.getItem('phantom_chats')) || {};
+      const os = JSON.parse(localStorage.getItem('phantom_settings')) || '{}';
+      settings = Object.assign(defaultSettings(), typeof os === 'object' ? os : {});
+      settings.apiKeys = Object.assign({}, DEFAULT_KEYS, (os && os.apiKeys) || {});
+      latency = normLatency(JSON.parse(localStorage.getItem('phantom_latency') || '{}'));
+      circuit = normCircuit(JSON.parse(localStorage.getItem('phantom_circuit') || '{}'));
+      saveRaw(LS.MIG, true);
+      setTimeout(() => toast('Imported your previous Phantom data into this account', 'success'), 800);
+    } catch {}
+    persist();
+  } else {
+    agents = PRESETS.slice(0, 4).map(presetToAgent);
+    persist();
+  }
+  Object.keys(chats).forEach(k => (Array.isArray(chats[k]) ? chats[k] : []).forEach(m => { if (!m.id) m.id = uid(); }));
+}
+function ensureActive() {
+  if (!agents.find(a => a.id === ui.activeId)) {
+    ui.activeId = (agents.find(a => !a.archived) || agents[0] || {}).id || null;
+    saveUI();
+  }
+}
+const activeAgent = () => agents.find(a => a.id === ui.activeId) || null;
+const keyFor = p => (settings.shareKeys ? sharedKeys[p] : settings.apiKeys[p]) || '';
+const hasAnyKey = () => FAILOVER.some(p => keyFor(p).trim());
+const getChat = id => { if (!chats[id] || !Array.isArray(chats[id])) chats[id] = []; return chats[id]; };
+
+/* ─── auth flows ─── */
+let authMode = 'signin';
+function showAuth(mode='signin', prefill='') {
+  show($('#authOverlay'));
+  setAuthTab(mode);
+  $('#auUser').value = prefill; $('#auEmail').value = ''; $('#auPass').value = ''; $('#auConfirm').value = '';
+  hide($('#authError'));
+  validateAuthForm();
+  setTimeout(() => $('#auUser').focus(), 100);
+}
+function hideAuth() { hide($('#authOverlay')); }
+function setAuthTab(mode) {
+  authMode = mode;
+  const on = 'flex-1 text-sm py-2 rounded-lg font-medium text-white transition-all';
+  const off = 'flex-1 text-sm py-2 rounded-lg font-medium text-zinc-400 hover:text-white transition-all';
+  $('#tabSignin').className = mode === 'signin' ? on : off;
+  $('#tabSignup').className = mode === 'signup' ? on : off;
+  $('#tabSignin').style.background = mode === 'signin' ? 'var(--accent)' : '';
+  $('#tabSignup').style.background = mode === 'signup' ? 'var(--accent)' : '';
+  $('#fEmail').classList.toggle('hidden', mode !== 'signup');
+  $('#fConfirm').classList.toggle('hidden', mode !== 'signup');
+  $('#pwMeter').classList.add('hidden');
+  $('#btnAuthGo').textContent = mode === 'signin' ? 'Sign In' : 'Create Account';
+}
+const emailOk = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+function pwStrength(p) {
+  if (!p) return 'none';
+  let s = 0;
+  if (p.length >= 6) s++; if (p.length >= 10) s++;
+  if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++; if (/\d/.test(p)) s++; if (/[^A-Za-z0-9]/.test(p)) s++;
+  return s <= 1 ? 'weak' : s <= 3 ? 'medium' : 'strong';
+}
+function setFieldIcon(id, state) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (!state) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  el.textContent = state === 'ok' ? '✓' : '✗';
+  el.className = `absolute right-3 top-1/2 -translate-y-1/2 text-xs ${state === 'ok' ? 'text-emerald-400' : 'text-red-400'}`;
+}
+function validateAuthForm() {
+  const un = $('#auUser').value.trim(), em = $('#auEmail').value.trim(), pw = $('#auPass').value, cf = $('#auConfirm').value;
+  const users = getUsers();
+  const uOk = un.length >= 3 && (authMode === 'signin' || !users.some(x => x.username.toLowerCase() === un.toLowerCase()));
+  setFieldIcon('vUser', un ? (uOk ? 'ok' : 'bad') : null);
+  let eOk = true;
+  if (authMode === 'signup') { eOk = emailOk(em) && !users.some(x => (x.email || '').toLowerCase() === em.toLowerCase());
+    setFieldIcon('vEmail', em ? (eOk ? 'ok' : 'bad') : null); } else setFieldIcon('vEmail', null);
+  const st = pwStrength(pw);
+  setFieldIcon('vPass', pw ? (pw.length >= 6 ? 'ok' : 'bad') : null);
+  if (authMode === 'signup' && pw) {
+    show($('#pwMeter'));
+    const pct = st === 'weak' ? '33%' : st === 'medium' ? '66%' : '100%';
+    const col = st === 'weak' ? '#ef4444' : st === 'medium' ? '#f59e0b' : '#10b981';
+    $('#pwBar').style.width = pct; $('#pwBar').style.background = col;
+    $('#pwLabel').textContent = st === 'weak' ? 'Weak password' : st === 'medium' ? 'Medium strength' : 'Strong password';
+    $('#pwLabel').style.color = col;
+  }
+  let cOk = true;
+  if (authMode === 'signup') { cOk = cf.length > 0 && cf === pw; setFieldIcon('vConfirm', cf ? (cOk ? 'ok' : 'bad') : null); } else setFieldIcon('vConfirm', null);
+  $('#btnAuthGo').disabled = !(un && pw && (authMode === 'signin' || (eOk && cOk && pw.length >= 6)));
+  $('#btnAuthGo').style.opacity = $('#btnAuthGo').disabled ? '.5' : '1';
+}
+function authError(msg) { const el = $('#authError'); el.textContent = msg; show(el); }
+async function submitAuth() {
+  const un = $('#auUser').value.trim(), pw = $('#auPass').value;
+  if (!un || !pw) return;
+  const users = getUsers();
+  if (authMode === 'signin') {
+    const u = users.find(x => x.username.toLowerCase() === un.toLowerCase() || (x.email || '').toLowerCase() === un.toLowerCase());
+    if (!u) return authError('No account found with that username or email');
+    if (!(await verifyPassword(u, pw))) return authError('Wrong password — try again');
+    startSession(u);
+  } else {
+    const em = $('#auEmail').value.trim(), cf = $('#auConfirm').value;
+    if (users.some(x => x.username.toLowerCase() === un.toLowerCase())) return authError('That username is taken');
+    if (!emailOk(em)) return authError('Invalid email address');
+    if (users.some(x => (x.email || '').toLowerCase() === em.toLowerCase())) return authError('An account with that email already exists');
+    if (pw.length < 6) return authError('Password must be at least 6 characters');
+    if (cf !== pw) return authError('Passwords do not match');
+    const rec = await makePasswordRecord(pw);
+    const u = Object.assign({ id:uid(), username:un, email:em, avatar:null, bio:'', createdAt:Date.now(), lastLogin:Date.now() }, rec);
+    users.push(u); persistUsers(users);
+    startSession(u);
+  }
+}
+function startSession(u, announce=true) {
+  USER = u;
+  u.lastLogin = Date.now();
+  const users = getUsers(); const i = users.findIndex(x => x.id === u.id);
+  if (i >= 0) { users[i] = u; persistUsers(users); }
+  saveRaw(LS.SESSION, { userId:u.id, token:uid() + uid(), expiry:Date.now() + 24*60*60*1000 });
+  loadForUser(u);
+  hideAuth();
+  resetTransient();
+  applyAccent(); renderChrome(); renderAll();
+  if (announce) toast(`Welcome back, ${u.username} 👻`, 'success');
+}
+function startGuest() {
+  USER = { id:'guest', username:'Guest', email:'', avatar:'👻', bio:'Browsing as guest', createdAt:Date.now(), lastLogin:Date.now() };
+  localStorage.removeItem(LS.SESSION);
+  loadForUser(USER);
+  hideAuth();
+  resetTransient();
+  applyAccent(); renderChrome(); renderAll();
+  toast('Guest mode — data clears when you refresh', 'info', 5000);
+}
+function logout() {
+  localStorage.removeItem(LS.SESSION);
+  USER = null;
+  showAuth('signin');
+  toast('Signed out', 'info', 2000);
+}
+function resetTransient() {
+  profileId = null; editingIdx = null; replyState = null; threadError = null;
+  closeProfile(); hide($('#userModal'));
+}
+
+/* ═══════════════════════ // API ROTATION ═══════════════════════ */
+const circuitOpen = p => { const c = circuit[p]; return !!(c && c.fails >= CIRCUIT_THRESHOLD && (Date.now() - c.lastFail) < CIRCUIT_COOLDOWN); };
+function providerOrder(preferred) {
+  const avail = FAILOVER.filter(p => keyFor(p).trim() && !circuitOpen(p));
+  const latOf = p => { const l = latency[p]; return (l && typeof l === 'object' && l.n > 0) ? l.avg : Infinity; };
+  return avail.sort((a, b) => { if (a === preferred) return -1; if (b === preferred) return 1; return latOf(a) - latOf(b); });
+}
+function recordFail(p, err) {
+  const c = (circuit[p] && typeof circuit[p] === 'object') ? circuit[p] : { fails:0, lastFail:0 };
+  c.fails = (c.fails || 0) + 1; c.lastFail = Date.now();
+  circuit[p] = c; saveCircuit();
+  if (c.fails === CIRCUIT_THRESHOLD) toast(`${PROVIDERS[p].label} failed ${CIRCUIT_THRESHOLD}× — paused for 10 minutes (circuit breaker)`, 'error');
+  renderSidebar(); renderHeader();
+  if (err && err.status === 401) toast(`${PROVIDERS[p].label} rejected the API key — check Settings`, 'error');
+}
+function recordSuccess(p, ms) {
+  try {
+    circuit[p] = { fails:0, lastFail:0 };
+    const prev = latency[p];
+    const base = (prev && typeof prev === 'object' && typeof prev.avg === 'number' && typeof prev.n === 'number') ? prev : { avg:Math.round(ms), n:0 };
+    base.avg = Math.round((base.avg * base.n + ms) / (base.n + 1)); base.n++;
+    latency[p] = base;
+    saveLatency(); saveCircuit();
+  } catch { latency[p] = { avg:Math.round(ms), n:1 }; }
+  renderSidebar(); renderHeader();
+}
+function statusOf(a) {
+  const p = providerOf(a.model) || 'gemini';
+  if (!keyFor(p).trim()) return hasAnyKey() ? { cls:'bg-amber-400', label:'Preferred key missing — will fail over' } : { cls:'bg-red-500', label:'No API keys configured' };
+  if (circuitOpen(p)) { const mins = Math.max(1, Math.ceil((CIRCUIT_COOLDOWN - (Date.now() - circuit[p].lastFail)) / 60000)); return { cls:'bg-red-500', label:`${PROVIDERS[p].label} cooling down · ${mins}m left` }; }
+  const c = circuit[p];
+  if (c && c.fails > 0) return { cls:'bg-amber-400', label:`${c.fails} recent failure${c.fails > 1 ? 's' : ''} on ${PROVIDERS[p].label}` };
+  return { cls:'bg-emerald-500', label:'Ready' };
+}
+async function httpError(res) {
+  let msg = `HTTP ${res.status}`;
+  try { const j = await res.json(); msg = (j.error && (j.error.message || j.error.code || j.error)) || msg; } catch {}
+  const e = new Error(msg); e.status = res.status; return e;
+}
+function friendlyTestError(err) {
+  if (!err) return 'Unknown error';
+  if (err.name === 'AbortError') return 'Network timeout (10s)';
+  if (err instanceof TypeError) return 'Network error — offline or blocked';
+  if (err.status === 401 || err.status === 403) return 'Invalid key';
+  if (err.status === 429) return 'Rate limited';
+  if (err.status === 503) return 'Model warming up — try again';
+  return err.message || ('HTTP ' + err.status);
+}
+
+/* ═══════════════════════ // PROVIDER ADAPTERS ═══════════════════════ */
+async function streamSSE(response, onEvent) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream:true });
+    let idx;
+    while ((idx = buffer.indexOf('\n')) >= 0) {
+      const line = buffer.slice(0, idx).trim();
+      buffer = buffer.slice(idx + 1);
+      if (line.startsWith('data:')) onEvent(line.slice(5).trim());
+    }
+  }
+}
+async function callGemini({ model, system, messages, temp, maxTokens, apiKey, signal, onDelta }) {
+  const contents = messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
+  const body = { contents, generationConfig: { temperature: temp, maxOutputTokens: maxTokens } };
+  if (system) body.systemInstruction = { parts: [{ text: system }] };
+  const res = await fetch(`${PROVIDERS.gemini.endpoint}/${encodeURIComponent(model)}:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`,
+    { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body), signal });
+  if (!res.ok) throw await httpError(res);
+  let full = '';
+  await streamSSE(res, data => {
+    if (!data || data === '[DONE]') return;
+    try { const j = JSON.parse(data); for (const p of (j.candidates?.[0]?.content?.parts) || []) if (p.text) { full += p.text; onDelta(p.text); } } catch {}
+  });
+  return full;
+}
+async function callOpenAI(endpoint, model, extraHeaders, { system, messages, temp, maxTokens, apiKey, signal, onDelta }) {
+  const msgs = [];
+  if (system) msgs.push({ role:'system', content: system });
+  msgs.push(...messages.map(m => ({ role:m.role, content:m.content })));
+  const res = await fetch(endpoint, { method:'POST',
+    headers: Object.assign({ 'Content-Type':'application/json', 'Authorization': `Bearer ${apiKey}` }, extraHeaders),
+    body: JSON.stringify({ model, messages: msgs, stream:true, temperature: temp, max_tokens: maxTokens }), signal });
+  if (!res.ok) throw await httpError(res);
+  let full = '';
+  await streamSSE(res, data => {
+    if (!data || data === '[DONE]') return;
+    try { const d = JSON.parse(data).choices?.[0]?.delta?.content || ''; if (d) { full += d; onDelta(d); } } catch {}
+  });
+  return full;
+}
+function callProvider(p, args) {
+  if (p === 'gemini') return callGemini(args);
+  const headers = {};
+  if (p === 'openrouter') { headers['HTTP-Referer'] = 'https://phantom.app'; headers['X-Title'] = 'Phantom'; }
+  return callOpenAI(PROVIDERS[p].endpoint + '/chat/completions', args.model, headers, args);
+}
+async function _testProvider(p, key, signal) {
+  const t0 = performance.now();
+  if (p === 'gemini') {
+    const r = await fetch(`${PROVIDERS.gemini.endpoint}/gemini-2.0-flash?key=${encodeURIComponent(key)}`, { signal });
+    if (!r.ok) throw await httpError(r);
+  } else if (p === 'glm') {
+    const r = await fetch(PROVIDERS.glm.endpoint + '/chat/completions', { method:'POST', signal,
+      headers:{ 'Content-Type':'application/json', 'Authorization': `Bearer ${key}` },
+      body: JSON.stringify({ model:'glm-4-flash', messages:[{ role:'user', content:'Hi' }], max_tokens:1, stream:false }) });
+    if (!r.ok) throw await httpError(r);
+  } else if (p === 'openrouter') {
+    const r = await fetch('https://openrouter.ai/api/v1/auth/key', { headers:{ 'Authorization': `Bearer ${key}` }, signal });
+    if (!r.ok) throw await httpError(r);
+  } else {
+    const r = await fetch(PROVIDERS[p].endpoint + '/models', { headers:{ 'Authorization': `Bearer ${key}` }, signal });
+    if (!r.ok) throw await httpError(r);
+  }
+  return performance.now() - t0;
+}
+async function testProvider(p, key) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), TEST_TIMEOUT);
+  try { return await _testProvider(p, key, ctrl.signal); } finally { clearTimeout(timer); }
+}
+
+/* ─── LIVE MODEL DISCOVERY ─── */
+function tidyIds(arr) {
+  return [...new Set(arr)].sort((a, b) => {
+    const fa = isFreeId(a) ? 0 : 1, fb = isFreeId(b) ? 0 : 1;
+    if (fa !== fb) return fa - fb;
+    return a.localeCompare(b);
+  }).slice(0, 500);
+}
+async function fetchProviderModels(p, key) {
+  let ids = [];
+  if (p === 'gemini') {
+    const r = await fetch(`${PROVIDERS.gemini.endpoint}?pageSize=200&key=${encodeURIComponent(key)}`);
+    if (!r.ok) throw await httpError(r);
+    const j = await r.json();
+    ids = (j.models || [])
+      .filter(m => (m.supportedGenerationMethods || []).includes('generateContent') && /^models\//.test(m.name || ''))
+      .map(m => m.name.replace(/^models\//, ''));
+  } else if (p === 'glm') {
+    try {
+      const r = await fetch(PROVIDERS.glm.endpoint + '/models', { headers:{ 'Authorization': `Bearer ${key}` } });
+      if (r.ok) { const j = await r.json(); ids = (j.data || j.models || []).map(m => (typeof m === 'string' ? m : m.id)).filter(Boolean); }
+    } catch {}
+    if (!ids.length) ids = ['glm-4-flash', 'glm-4-air', 'glm-4-plus', 'glm-4-long', 'glm-4'];
+  } else {
+    const r = await fetch(PROVIDERS[p].endpoint + '/models', { headers:{ 'Authorization': `Bearer ${key}` } });
+    if (!r.ok) throw await httpError(r);
+    const j = await r.json();
+    ids = (j.data || j.models || []).map(m => (typeof m === 'string' ? m : m.id)).filter(Boolean);
+  }
+  return tidyIds(ids);
+}
+async function refreshModels(p, key) {
+  const models = await fetchProviderModels(p, key);
+  if (models.length) {
+    modelCache[p] = { models, ts: Date.now() };
+    saveRaw(LS.MODELS, modelCache);
+    populateModelSelects();
+    updateModelInfo(p);
+  }
+  return models.length;
+}
+const modelFetchTimers = {};
+function queueModelFetch(p, key) {
+  clearTimeout(modelFetchTimers[p]);
+  if (!key || key.trim().length < 8) return;
+  modelFetchTimers[p] = setTimeout(() => { refreshModels(p, key.trim()).catch(() => {}); }, 900);
+}
+function backgroundModelRefresh() {
+  FAILOVER.forEach((p, i) => {
+    const key = keyFor(p).trim();
+    if (!key) return;
+    const c = modelCache[p];
+    if (c && c.models && c.models.length && Date.now() - (c.ts || 0) < MODEL_REFRESH_MS) return;
+    setTimeout(() => refreshModels(p, key).catch(() => {}), 400 + i * 350);
+  });
+}
+function updateModelInfo(p) {
+  const el = document.querySelector(`[data-modelinfo="${p}"]`);
+  if (!el) return;
+  const c = modelCache[p];
+  if (c && c.models && c.models.length) {
+    const age = Date.now() - (c.ts || 0);
+    const when = age < 60000 ? 'just now' : age < 3600e3 ? Math.round(age / 60000) + 'm ago' : Math.round(age / 3600e3) + 'h ago';
+    el.className = 'text-[11px] mt-1.5 text-zinc-500';
+    el.textContent = `✓ ${c.models.length} models discovered · updated ${when}`;
+  } else if (keyFor(p).trim()) {
+    el.className = 'text-[11px] mt-1.5 text-amber-400';
+    el.textContent = 'Model discovery pending — press Test or retype the key';
+  } else { el.textContent = ''; el.className = 'text-[11px] mt-1.5'; }
+}
+
+/* ═══════════════════════ // STREAMING ENGINE ═══════════════════════ */
+const threadEl = () => $('#thread');
+const isNearBottom = () => threadEl().scrollHeight - threadEl().scrollTop - threadEl().clientHeight < 140;
+const autoScroll = force => { if (force || isNearBottom()) threadEl().scrollTop = threadEl().scrollHeight; };
+function createStreamRenderer(containerEl) {
+  let target = '', shown = '', rafId = null, finished = false;
+  const paint = () => { containerEl.innerHTML = renderAssistantContent(shown, true); };
+  const tick = () => {
+    if (finished) return;
+    if (shown.length < target.length) {
+      const backlog = target.length - shown.length;
+      shown = target.slice(0, shown.length + Math.max(2, Math.round(backlog / 10)));
+      paint(); autoScroll();
+    }
+    rafId = requestAnimationFrame(tick);
+  };
+  rafId = requestAnimationFrame(tick);
+  return {
+    push(d) { target += d; },
+    clear() { target = ''; shown = ''; containerEl.innerHTML = typingHTML(); },
+    finish() { finished = true; if (rafId) cancelAnimationFrame(rafId); shown = target; paint(); },
+    text() { return target; },
+  };
+}
+let genState = { active:false, controller:null, typewriter:null };
+
+/* ─── REAL LINK ENRICHMENT ───
+   Fetches related, guaranteed-valid Wikipedia article links for a message.
+   Cached per message id. Injected into the system prompt and appended as a
+   "Sources" footer so replies always carry working links. */
+const sourceCache = {};
+async function fetchSources(msg, outerSignal) {
+  const key = msg.id || ('k:' + (msg.content || '').slice(0, 64));
+  if (sourceCache[key]) return sourceCache[key];
+  const q = (msg.content || '').replace(/\s+/g, ' ').trim().slice(0, 220);
+  if (!q || q.split(' ').filter(Boolean).length < 4) return [];
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 6000);
+  const onAbort = () => ctrl.abort();
+  if (outerSignal) { if (outerSignal.aborted) ctrl.abort(); else outerSignal.addEventListener('abort', onAbort, { once:true }); }
+  try {
+    const params = new URLSearchParams({ action:'query', list:'search', srsearch:q, srlimit:'3', format:'json', origin:'*' });
+    const res = await fetch('https://en.wikipedia.org/w/api.php?' + params, { signal: ctrl.signal });
+    if (!res.ok) return [];
+    const j = await res.json();
+    const hits = (j.query && j.query.search) || [];
+    if (!hits.length) return [];
+    const links = hits.map(h => ({
+      title: h.title,
+      snippet: String(h.snippet || '').replace(/<[^>]*>/g, ''),
+      url: 'https://en.wikipedia.org/wiki/' + encodeURIComponent(h.title.replace(/ /g, '_')),
+    }));
+    sourceCache[key] = links;
+    return links;
+  } catch { return []; }
+  finally { clearTimeout(timer); if (outerSignal) outerSignal.removeEventListener('abort', onAbort); }
+}
+
+/* ─── AGENT AUTO-REACTION ───
+   After a successful reply, react on the user's message based on the tone of
+   the agent's response. Never overrides a reaction the user set themselves. */
+function pickAgentReaction(text) {
+  const t = String(text || '');
+  const low = t.toLowerCase();
+  const has = re => re.test(low);
+  if (has(/\b(sorry|unfortunately|apolog|my mistake|couldn'?t|unable to|went wrong)\b/)) return '🙏';
+  if (has(/\b(congratulations|awesome|excellent|amazing|fantastic|nailed it|well done|great news|proud of)\b/)) return '❤️';
+  if (has(/\b(lol|haha|hehe|hilarious|that'?s funny)\b/) || t.includes('😂')) return '😂';
+  if (t.includes('⚠')) return '😮';
+  if (t.includes('✓') || t.includes('✔')) return '👍';
+  if (has(/\b(done|completed|fixed|solved|shipped|finished|all set)\b/)) return '👍';
+  return null;
+}
+
+async function generateResponse() {
+  const agent = activeAgent();
+  if (!agent || genState.active) return;
+  const list = getChat(agent.id);
+  if (!list.some(m => m.role === 'user')) { renderThread(); return; }
+  const preferred = providerOf(agent.model) || 'gemini';
+  const order = providerOrder(preferred);
+  if (!order.length) {
+    threadError = { title: hasAnyKey() ? 'All providers cooling down' : 'No API key configured',
+      detail: hasAnyKey() ? 'Circuit breakers are active — retry in a few minutes.' : 'Add any provider key in Settings to start chatting.', retry: hasAnyKey() };
+    renderThread(); return;
+  }
+  genState.active = true; genState.controller = new AbortController(); updateSendState();
+  const targetMsg = [...list].reverse().find(m => m.role === 'user');
+  const ph = { id:uid(), role:'assistant', content:'', ts:Date.now(), model:'', tokens:0, streaming:true };
+  list.push(ph); renderThread();
+  const bodyEl = document.querySelector(`.msg[data-idx="${list.length - 1}"] .msg-body`);
+  const tw = createStreamRenderer(bodyEl);
+  genState.typewriter = tw;
+  const context = list.slice(0, -1).slice(-CONTEXT_MESSAGES)
+    .map(m => ({ role:m.role, content:m.content }));
+  let system = agent.systemPrompt || '';
+  // Real-link enrichment (automatic + cached). The 🌐 toggle adds the stronger instruction.
+  const srcs = targetMsg ? await fetchSources(targetMsg, genState.controller.signal) : [];
+  if (srcs.length) {
+    const header = targetMsg && targetMsg.web
+      ? 'The user requested fresh web information. Relevant sources found just now:'
+      : 'Verified sources related to this topic (if you mention sources or links, use ONLY these URLs):';
+    system += '\n\n' + header + '\n' + srcs.map(s => `- ${s.title} — ${s.snippet}\n  ${s.url}`).join('\n');
+  }
+  if (targetMsg && targetMsg.web && !srcs.length) toast('Web search found nothing usable — answering from model knowledge', 'warn', 2500);
+  let lastErr = null;
+  for (let i = 0; i < order.length; i++) {
+    const p = order[i];
+    const model = providerOf(agent.model) === p ? agent.model : PROVIDERS[p].model;
+    tw.clear();
+    const t0 = performance.now();
+    try {
+      const full = await callProvider(p, { model, system, messages:context, temp:agent.temp, maxTokens:agent.maxTokens,
+        apiKey:keyFor(p).trim(), signal:genState.controller.signal, onDelta: d => tw.push(d) });
+      const ms = performance.now() - t0;
+      if (!full.trim()) throw new Error('Empty response');
+      recordSuccess(p, ms);
+      tw.finish();
+      if (targetMsg) targetMsg.status = 'read';
+      let finalContent = tw.text();
+      if (srcs.length) finalContent += '\n\n🔗 **Sources:**\n' + srcs.map(s => `- [${s.title}](${s.url})`).join('\n');
+      if (targetMsg && !targetMsg.reaction && !targetMsg.agentReacted) {
+        const r = pickAgentReaction(finalContent);
+        if (r) { targetMsg.reaction = r; targetMsg.agentReacted = true; }
+      }
+      Object.assign(ph, { content: finalContent, streaming:false, model:modelLabel(model), tokens:estTokens(finalContent), ms:Math.round(ms) });
+      genState.active = false; genState.typewriter = null; updateSendState();
+      SFX.play('receive');
+      persist(); renderThread();
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') {
+        tw.finish();
+        const partial = tw.text();
+        if (partial.trim()) Object.assign(ph, { content:partial, streaming:false, model:modelLabel(model), tokens:estTokens(partial), stopped:true });
+        else list.pop();
+        genState.active = false; genState.typewriter = null; updateSendState();
+        persist(); renderThread();
+        toast('Generation stopped', 'info', 2000);
+        return;
+      }
+      recordFail(p, err); lastErr = err;
+      const next = order[i + 1];
+      if (next) toast(err.status === 429
+        ? `${PROVIDERS[p].label} rate limited → switching to ${PROVIDERS[next].label}…`
+        : `${PROVIDERS[p].label} failed → trying ${PROVIDERS[next].label}…`, 'warn');
+    }
+  }
+  list.pop();
+  genState.active = false; genState.typewriter = null; updateSendState();
+  threadError = { title:'All systems busy', detail:(lastErr && lastErr.message) || 'Every configured provider failed.', retry:true };
+  persist(); renderThread();
+}
+
+/* ═══════════════════════ // UI RENDERING ═══════════════════════ */
+let webSearchOn = false, threadError = null, dragId = null;
+let modalEditId = null, selEmoji = '👻', selGrad = 'violet', selColor = 'violet';
+let editingIdx = null, profileId = null, replyState = null, promptEditId = null;
+const testState = {};
+const inputEl = $('#input');
+// Tracks the last rendered chat so the entrance animation only plays for NEW messages
+let lastRender = { id:null, count:0 };
+
+function applyAccent() { document.documentElement.style.setProperty('--accent', COLORS[settings.accent] || '#8b5cf6'); }
+
+function tickHTML(status) {
+  const gray = '#9ca3af', blue = '#53bdeb';
+  const one = c => `<svg width="15" height="11" viewBox="0 0 16 11" fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5.5 4.5 9 11 2"/></svg>`;
+  const two = c => `<svg width="17" height="11" viewBox="0 0 18 11" fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5.5 4.5 9 11 2M6 5.5 9.5 9 16 2"/></svg>`;
+  if (status === 'read') return two(blue);
+  if (status === 'delivered') return two(gray);
+  return one(gray);
+}
+
+function agentItemHTML(a, isArchived=false) {
+  const msgs = chats[a.id] || [];
+  const last = msgs[msgs.length - 1];
+  const active = a.id === ui.activeId;
+  const accent = COLORS[a.color] || '#8b5cf6';
+  const st = isArchived ? null : statusOf(a);
+  const preview = last
+    ? ((last.content || '').split('\n').map(l => l.replace(/^\s*[✓✔⚠✖]\s*/, '').replace(/\*\*/g, '')).find(l => l.trim()) || '…').slice(0, 44)
+    : esc(a.role);
+  const actions = isArchived
+    ? `<button data-action="restore" title="Unarchive" class="act">${icon('restore','w-3.5 h-3.5')}</button><button data-action="del" title="Delete" class="act">${icon('trash','w-3.5 h-3.5')}</button>`
+    : `<button data-action="edit" title="Edit" class="act">${icon('pencil','w-3.5 h-3.5')}</button><button data-action="pin" title="${a.pinned?'Unpin':'Pin'}" class="act ${a.pinned?'text-amber-400':''}">${icon('star','w-3.5 h-3.5')}</button><button data-action="del" title="Delete" class="act">${icon('trash','w-3.5 h-3.5')}</button>`;
+  return `<div class="agent-item group relative px-3 py-2.5 rounded-2xl cursor-pointer hover:bg-white/5 ${active ? 'bg-white/5' : ''}"
+      draggable="true" data-id="${a.id}" ${active ? `style="background:rgba(255,255,255,.06);border-left-color:${accent}"` : ''}>
+    <div data-profile title="Open profile" class="flex items-center gap-3">
+      ${agentAvatarHTML(a)}
+      <div class="flex-1 min-w-0 flex items-baseline gap-2">
+        <span class="text-[14px] font-medium truncate ${active ? 'text-white' : 'text-zinc-200'}">${esc(a.name)}</span>
+        <span class="ml-auto text-[11px] text-zinc-500 shrink-0 tnum">${last ? fmtTime(last.ts) : ''}</span>
+      </div>
+    </div>
+    <div class="text-[12px] text-zinc-500 truncate mt-0.5 pl-12 pr-6" title="Click to open chat">${preview}</div>
+    <div class="absolute right-2 top-1.5 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-panel/95 rounded-lg p-0.5 z-10">${actions}</div>
+    ${st ? `<span class="w-2 h-2 rounded-full ${st.cls} absolute right-2.5 bottom-2.5 group-hover:opacity-0 transition-opacity" title="${st.label}"></span>` : ''}
+  </div>`;
+}
+function groupHTML(key, label, items, isArchived=false) {
+  const col = ui.collapsed[key];
+  return `<div class="mb-1">
+    <button data-group="${key}" class="w-full flex items-center gap-1.5 px-3 pt-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-600 hover:text-zinc-400 transition-colors">
+      <span class="transition-transform ${col ? '-rotate-90' : ''}">${icon('chev','w-3 h-3')}</span><span>${label}</span><span class="text-zinc-700 font-normal tnum">(${items.length})</span>
+    </button>
+    ${col ? '' : `<div class="space-y-0.5">${items.map(a => agentItemHTML(a, isArchived)).join('')}</div>`}
+  </div>`;
+}
+function promptGroupHTML() {
+  const col = ui.collapsed.prompts;
+  const rows = prompts.map(p => `
+    <div class="prompt-item group relative px-3 py-2 rounded-xl cursor-pointer hover:bg-white/5" data-pid="${p.id}" title="Click to use · long-press for options">
+      <div class="flex items-center gap-2.5">
+        <span class="text-zinc-500 shrink-0">${icon('doc','w-3.5 h-3.5')}</span>
+        <span class="text-[13px] font-medium text-zinc-300 truncate flex-1">${esc(p.name)}</span>
+      </div>
+      <div class="text-[11px] text-zinc-600 truncate mt-0.5 pl-6 pr-2">${esc((p.text || '').split('\n')[0].slice(0, 46)) || '<span class="italic">empty prompt</span>'}</div>
+    </div>`).join('');
+  return `<div class="mb-1">
+    <button data-group="prompts" class="w-full flex items-center gap-1.5 px-3 pt-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-600 hover:text-zinc-400 transition-colors">
+      <span class="transition-transform ${col ? '-rotate-90' : ''}">${icon('chev','w-3 h-3')}</span><span>Prompt Library</span><span class="text-zinc-700 font-normal tnum">(${prompts.length})</span>
+    </button>
+    ${col ? '' : rows + `<button data-pact="new" class="mt-1 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border border-dashed border-white/10 text-[12px] text-zinc-500 hover:text-white hover:border-white/30 transition-all">${icon('plus','w-3.5 h-3.5')} New prompt</button>`}
+  </div>`;
+}
+function renderSidebar() {
+  const q = $('#agentSearch').value.trim().toLowerCase();
+  const match = a => !q || (a.name + ' ' + a.role).toLowerCase().includes(q);
+  const pinned = agents.filter(a => a.pinned && !a.archived && match(a));
+  const normal = agents.filter(a => !a.pinned && !a.archived && match(a));
+  const archived = agents.filter(a => a.archived && match(a));
+  let html = '';
+  if (pinned.length) html += groupHTML('pinned', 'Pinned', pinned);
+  if (normal.length || pinned.length) html += groupHTML('all', pinned.length ? 'All Agents' : 'Agents', normal);
+  else html += `<div class="text-center text-xs text-zinc-600 py-8">${q ? 'No agents match your search.' : 'No agents yet — add one below.'}</div>`;
+  if (archived.length) html += groupHTML('archived', 'Archived', archived, true);
+  html += promptGroupHTML();
+  $('#agentList').innerHTML = html;
+}
+function renderHeader() {
+  const a = activeAgent();
+  $('#headerAgentBtn').innerHTML = a
+    ? `${agentAvatarHTML(a, 'w-9 h-9 rounded-xl')}
+       <span class="min-w-0 text-left"><span class="flex items-center gap-2"><span class="text-[15px] font-semibold text-white truncate">${esc(a.name)}</span>
+       <span class="w-2 h-2 rounded-full ${statusOf(a).cls} shrink-0" title="${statusOf(a).label}"></span></span>
+       <span class="block text-[11px] text-zinc-500 truncate">${esc(a.role)}</span></span>`
+    : `<span class="text-[15px] font-semibold text-white">Home</span><span class="hidden sm:block text-[11px] text-zinc-500">your dashboard</span>`;
+  $('#headerModel').textContent = a ? modelLabel(a.model) : '';
+  $('#input').placeholder = a ? `Message ${a.name}` : 'Pick an agent to start';
+
+  const u = USER || { username:'…', avatar:null };
+  fillAvatarSlot('#headerUserAvatar', userAvatarInner(u, 'text-xs'));
+  $('#headerUserName').textContent = u.username;
+  fillAvatarSlot('#userChipAvatar', userAvatarInner(u, 'text-sm'));
+  $('#userChipName').textContent = isGuest() ? 'Guest · not saved' : u.username;
+  $('#menuUserName').textContent = u.username;
+  $('#menuUserEmail').textContent = u.email || (isGuest() ? 'Guest session — data clears on refresh' : 'Local account');
+
+  const others = getUsers().filter(x => x.id !== (USER && USER.id));
+  $('#menuSwitchWrap').classList.toggle('hidden', others.length === 0 || isGuest());
+  $('#menuSwitchList').innerHTML = others.map(x => `
+    <button data-switchuser="${x.id}" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-white/5">
+      <span class="w-6 h-6 rounded-full overflow-hidden shrink-0 flex">${userAvatarInner(x, 'text-[10px]')}</span>
+      <span class="text-sm text-zinc-300 truncate">${esc(x.username)}</span></button>`).join('');
+
+  $('#agentSwitcher').innerHTML = agents.filter(x => !x.archived).map(x => `
+    <button data-switch="${x.id}" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 ${x.id === ui.activeId ? 'bg-white/5' : ''}">
+      ${agentAvatarHTML(x, 'w-7 h-7 rounded-lg', 'text-sm')}
+      <span class="text-sm truncate ${x.id === ui.activeId ? 'text-white' : 'text-zinc-300'}">${esc(x.name)}</span>
+      ${x.id === ui.activeId ? `<span class="ml-auto text-emerald-400">${icon('check','w-4 h-4')}</span>` : ''}
+    </button>`).join('') +
+    `<div class="border-t border-white/5 mt-1 pt-1"><button data-switch="new" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-zinc-400 hover:bg-white/5">${icon('plus','w-4 h-4')} New agent</button></div>`;
+}
+
+function metaRowHTML(m, i, role) {
+  const btns = [
+    `<button data-maction="copy" data-idx="${i}" title="Copy" aria-label="Copy" class="act">${icon('copy','w-3.5 h-3.5')}</button>`,
+    `<button data-maction="reply" data-idx="${i}" title="Reply" aria-label="Reply" class="act">${icon('reply','w-3.5 h-3.5')}</button>`,
+    `<button data-maction="react" data-idx="${i}" title="React" aria-label="React" class="act">${icon('smile','w-3.5 h-3.5')}</button>`,
+  ];
+  if (role === 'user') btns.push(`<button data-maction="edit" data-idx="${i}" title="Edit" class="act">${icon('pencil','w-3.5 h-3.5')}</button>`);
+  else if (m.content && !m.streaming) btns.push(`<button data-maction="regen" data-idx="${i}" title="Regenerate" class="act">${icon('refresh','w-3.5 h-3.5')}</button>`);
+  btns.push(`<button data-maction="del" data-idx="${i}" title="Delete" class="act">${icon('trash','w-3.5 h-3.5')}</button>`);
+  return `<div class="flex items-center gap-0.5 mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity ${role === 'user' ? 'justify-end' : ''}">${btns.join('')}</div>`;
+}
+function replyPreviewHTML(m) {
+  if (!m.replyTo) return '';
+  const list = getChat(ui.activeId);
+  const orig = list.find(x => x.id === m.replyTo);
+  if (!orig) return '';
+  const who = orig.role === 'user' ? 'You' : (activeAgent() ? activeAgent().name : 'Agent');
+  const snippet = (orig.content || '').split('\n')[0].slice(0, 60);
+  return `<button data-maction="jump" data-mid="${esc(m.replyTo)}" class="w-full text-left mb-1.5 flex items-stretch gap-2 rounded-lg overflow-hidden bg-black/25 hover:bg-black/35 transition-colors" style="border-left:3px solid var(--accent)">
+    <span class="block px-2 py-1 min-w-0"><span class="block text-[10px] font-semibold" style="color:var(--accent)">${esc(who)}</span>
+    <span class="block text-[11px] text-zinc-300/80 truncate">${esc(snippet)}</span></span></button>`;
+}
+function reactionChipHTML(m) {
+  if (!m.reaction) return '';
+  return `<div class="mt-1"><button data-maction="unreact" data-idx="${m._i}" class="btn inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-panel border border-white/15 hover:border-white/35" title="Remove reaction">
+    <span>${m.reaction}</span><span class="text-zinc-400 tnum">1</span></button></div>`;
+}
+function bubbleHTML(m, i, grouped, isNew=false) {
+  m._i = i;
+  const enter = isNew ? 'msg-enter' : '';
+  if (editingIdx === i && m.role === 'user') {
+    return `<div class="msg group flex justify-end ${grouped ? 'mt-1' : 'mt-4'} ${enter}" data-idx="${i}" data-mid="${m.id || ''}">
+      <div class="max-w-[85%] sm:max-w-[75%] flex items-end gap-2">
+        <div class="min-w-0">
+          <div class="rounded-2xl rounded-br-sm px-3.5 py-2.5" style="background:linear-gradient(135deg,#059669,#15803d)">
+            <textarea id="editArea" rows="3" class="w-full bg-black/25 text-white text-[15px] leading-relaxed resize-none outline-none rounded-lg px-2">${esc(m.content)}</textarea>
+            <div class="flex justify-end gap-2 pt-1.5">
+              <button data-maction="edit-cancel" class="btn text-xs px-3 py-1.5 rounded-full text-white/70 hover:bg-white/10">Cancel</button>
+              <button data-maction="edit-save" data-idx="${i}" class="btn text-xs px-3.5 py-1.5 rounded-full bg-black/40 text-white font-medium hover:bg-black/60">Save</button>
+            </div>
+          </div>
+        </div>
+      </div></div>`;
+  }
+  if (m.role === 'user') {
+    const u = USER || {};
+    return `<div class="msg group flex justify-end ${grouped ? 'mt-1' : 'mt-4'} ${enter}" data-idx="${i}" data-mid="${m.id || ''}">
+      <div class="max-w-[85%] sm:max-w-[75%] flex items-end gap-2">
+        <div class="min-w-0">
+          <div class="rounded-2xl rounded-br-sm px-4 py-2.5 text-[15px] leading-relaxed text-white soft-shadow" style="background:linear-gradient(135deg,#059669,#15803d)">
+            ${replyPreviewHTML(m)}
+            <div class="whitespace-pre-wrap break-words">${esc(m.content)}${m.web ? ' <span class="text-[10px] bg-black/20 rounded-full px-2 py-0.5 align-middle">🌐 web</span>' : ''}</div>
+            <div class="flex items-center justify-end gap-1 mt-0.5 text-[10px] text-white/60">
+              <span class="tnum">${fmtTime(m.ts)}</span>${m.stopped ? '<span>· stopped</span>' : ''}${tickHTML(m.status || 'sent')}
+            </div>
+          </div>
+          ${reactionChipHTML(m)}
+          ${metaRowHTML(m, i, 'user')}
+        </div>
+        ${grouped ? '<span class="w-7 shrink-0"></span>' : `<span class="w-7 h-7 rounded-full overflow-hidden shrink-0 flex">${userAvatarInner(u, 'text-[10px]')}</span>`}
+      </div></div>`;
+  }
+  return `<div class="msg group flex ${grouped ? 'mt-1' : 'mt-4'} ${enter}" data-idx="${i}" data-mid="${m.id || ''}">
+      ${grouped ? '<span class="w-7 shrink-0"></span>' : `<span class="w-7 h-7 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">${logoHTML('w-7 h-7 object-cover')}</span>`}
+      <div class="max-w-[85%] sm:max-w-[75%] min-w-0">
+        <div class="msg-body rounded-2xl rounded-bl-sm px-4 py-3 text-[15px] leading-relaxed text-ink bg-bubble soft-shadow">
+          ${replyPreviewHTML(m)}
+          ${m.content ? renderAssistantContent(m.content) : typingHTML()}
+          <div class="flex items-center justify-end gap-1 mt-1 text-[10px] text-zinc-500">
+            <span class="tnum">${fmtTime(m.ts)}</span>
+            ${m.model ? `<span>· ${esc(m.model)}</span>` : ''}${m.tokens ? `<span class="tnum">· ≈${m.tokens} tok</span>` : ''}${m.ms ? `<span class="tnum">· ${(m.ms/1000).toFixed(1)}s</span>` : ''}
+          </div>
+        </div>
+        ${reactionChipHTML(m)}
+        ${metaRowHTML(m, i, 'assistant')}
+      </div></div>`;
+}
+function setupCardHTML() {
+  const rows = FAILOVER.map(p => { const pr = PROVIDERS[p]; return `
+    <div class="flex items-center gap-3 bg-[#101010] rounded-xl px-4 py-3 border border-white/5">
+      <span class="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0" style="background:${pr.tint}">${icon('key','w-4 h-4')}</span>
+      <div class="flex-1 min-w-0"><div class="text-sm font-medium text-white">${pr.label}</div><div class="text-[11px] text-zinc-500">${pr.tier}</div></div>
+      <a href="${pr.keyUrl}" target="_blank" rel="noopener" class="text-xs text-zinc-400 hover:text-white underline shrink-0">Get key ↗</a>
+    </div>`; }).join('');
+  return `<div class="max-w-md mx-auto my-8 glass border border-white/10 rounded-2xl p-6 text-center pop">
+    <div class="floaty inline-block w-14 h-14">${logoHTML('w-14 h-14 object-cover rounded-2xl')}</div>
+    <h3 class="text-lg font-semibold text-white mt-3">Connect your AI providers</h3>
+    <p class="text-sm text-zinc-400 mt-1.5 leading-relaxed">Phantom runs on your own keys — every provider has a free tier. Add at least one and your team comes alive.</p>
+    <div class="mt-4 space-y-2 text-left">${rows}</div>
+    <button data-maction="open-settings" class="btn mt-5 w-full py-2.5 rounded-xl font-medium text-white hover:opacity-90" style="background:var(--accent)">Open Settings</button></div>`;
+}
+function errorCardHTML(e) {
+  return `<div class="max-w-md mx-auto my-6 glass border border-red-500/20 rounded-2xl p-5 text-center pop">
+    <div class="text-2xl">😵‍💫</div>
+    <h3 class="text-sm font-semibold text-white mt-2">${esc(e.title)}</h3>
+    <p class="text-xs text-zinc-500 mt-1.5 break-words">${esc(e.detail)}</p>
+    ${e.retry ? '<button data-maction="retry" class="btn mt-4 text-xs px-4 py-2 rounded-xl font-medium text-white hover:opacity-90" style="background:var(--accent)">Retry</button>'
+              : '<button data-maction="open-settings" class="btn mt-4 text-xs px-4 py-2 rounded-xl font-medium text-white hover:opacity-90" style="background:var(--accent)">Open Settings</button>'}</div>`;
+}
+function emptyChatHTML(agent) {
+  const starters = [agent.starter, 'What can you help me with?', 'Give me a quick plan of action'].filter(Boolean).slice(0, 3);
+  return `<div class="flex flex-col items-center justify-center text-center gap-3 py-14">
+    <button data-maction="open-profile" title="View profile" class="floaty cursor-pointer">${agentAvatarHTML(agent, 'w-20 h-20 rounded-3xl', 'text-4xl')}</button>
+    <h2 class="text-xl font-semibold text-white mt-2">${esc(agent.name)}</h2>
+    <p class="text-sm text-zinc-500">${esc(agent.role)} · ${statusOf(agent).label}</p>
+    <div class="starters stagger flex flex-col sm:flex-row flex-wrap justify-center gap-2 mt-4">
+      ${starters.map((s, i) => `<button data-maction="starter" data-sfx="send" data-text="${esc(s)}" style="animation-delay:${i * 0.1}s" class="btn text-[13px] px-4 py-2 rounded-full bg-bubble border border-white/5 text-zinc-300 hover:border-white/25 hover:text-white">${esc(s)}</button>`).join('')}
+    </div></div>`;
+}
+function homeHTML() {
+  const u = USER || {};
+  const list = agents.filter(a => !a.archived);
+  const totalMsgs = Object.values(chats).reduce((s, c) => s + (Array.isArray(c) ? c.length : 0), 0);
+  const cards = list.map((a, i) => `
+    <button data-maction="open-agent" style="animation-delay:${0.05 * i}s" class="btn text-left p-4 rounded-2xl bg-panel border border-white/5 hover:border-white/25 hover:-translate-y-0.5 soft-shadow">
+      <div class="flex items-center gap-3">${agentAvatarHTML(a, 'w-10 h-10 rounded-xl')}
+        <div class="min-w-0"><div class="text-sm font-semibold text-white truncate">${esc(a.name)}</div><div class="text-[11px] text-zinc-500 truncate">${esc(a.role)}</div></div></div>
+      <div class="text-[11px] text-zinc-500 mt-2.5 tnum">${(chats[a.id] || []).length} messages · ${statusOf(a).label}</div>
+    </button>`).join('');
+  const newCard = `<button data-maction="new-agent" class="btn rounded-2xl border border-dashed border-white/15 hover:border-white/35 hover:-translate-y-0.5 flex flex-col items-center justify-center gap-2 min-h-[92px] text-zinc-400 hover:text-white">
+    ${icon('plus','w-5 h-5')}<span class="text-sm">New agent</span></button>`;
+  return `<div class="py-8">
+    <div class="flex flex-col items-center text-center">
+      <div class="floaty w-20 h-20">${logoHTML('w-20 h-20 object-cover rounded-3xl')}</div>
+      <h1 class="text-2xl font-bold text-white mt-4">Welcome back, ${esc(u.username || 'friend')}</h1>
+      <p class="text-sm text-zinc-500 mt-1">Your AI ghost team is standing by · ${list.length} agent${list.length !== 1 ? 's' : ''} · ${totalMsgs} messages</p>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-3 mt-8 stagger">${cards}${newCard}</div>
+    ${list.length === 0 ? `<div class="stagger flex flex-col sm:flex-row flex-wrap justify-center gap-2 mt-6">
+      ${PRESETS.slice(0, 4).map((p, i) => `<button data-tpl="${i}" data-maction="quick-template" data-sfx="pop" style="animation-delay:${0.15 + i * 0.1}s" class="btn text-[13px] px-4 py-2 rounded-full bg-panel border border-white/5 text-zinc-300 hover:border-white/25 hover:text-white">＋ ${esc(p.name)}</button>`).join('')}
+    </div>` : ''}</div>`;
+}
+function noAgentHTML() {
+  return `<div class="flex flex-col items-center justify-center text-center gap-4 py-20">
+    <div class="floaty w-20 h-20">${logoHTML('w-20 h-20 object-cover rounded-3xl')}</div>
+    <h2 class="text-xl font-semibold text-white">Welcome to Phantom</h2>
+    <p class="text-sm text-zinc-500 max-w-xs leading-relaxed">Create your first AI teammate — pick a preset template or start from scratch.</p>
+    <div class="stagger flex flex-col sm:flex-row flex-wrap justify-center gap-2 mt-2">
+      ${PRESETS.slice(0, 4).map((p, i) => `<button data-tpl="${i}" data-maction="quick-template" data-sfx="pop" style="animation-delay:${0.1 + i * 0.1}s" class="btn text-[13px] px-4 py-2 rounded-full bg-panel border border-white/5 text-zinc-300 hover:border-white/25 hover:text-white">＋ ${esc(p.name)}</button>`).join('')}
+      <button data-maction="new-agent" style="animation-delay:.5s" class="btn text-[13px] px-4 py-2 rounded-full font-medium text-white hover:opacity-90" style="background:var(--accent)">Custom agent</button>
+    </div></div>`;
+}
+function updateStatusBar() {
+  const bar = $('#statusBar');
+  const a = activeAgent();
+  const msgs = a ? (chats[a.id] || []) : [];
+  const visible = !!(a && msgs.length === 0);
+  if (visible) {
+    bar.textContent = `≈${msgs.reduce((s, m) => s + (m.tokens || 0), 0)} tokens · ${modelLabel(a.model)} · ${storageMB().toFixed(2)} MB / 5 MB used`;
+    bar.classList.remove('hidden');
+    requestAnimationFrame(() => bar.classList.remove('opacity-0'));
+  } else if (!bar.classList.contains('hidden')) {
+    bar.classList.add('opacity-0');
+    setTimeout(() => { const cur = activeAgent(); const n = cur ? (chats[cur.id] || []).length : 1; if (n > 0 || !cur) bar.classList.add('hidden'); }, 300);
+  }
+}
+function renderThread() {
+  const inner = $('#threadInner');
+  const a = activeAgent();
+  if (!a) { inner.innerHTML = agents.length ? homeHTML() : noAgentHTML(); updateStatusBar(); return; }
+  const msgs = getChat(a.id);
+  if (!msgs.length) { lastRender = { id:a.id, count:0 }; inner.innerHTML = hasAnyKey() ? emptyChatHTML(a) : setupCardHTML(); updateStatusBar(); return; }
+  let html = '', lastTs = 0, lastRole = null;
+  msgs.forEach((m, i) => {
+    if (lastTs && m.ts - lastTs > 30 * 60 * 1000) html += `<div class="flex justify-center my-4"><span class="text-[11px] text-zinc-600 bg-panel px-3 py-1 rounded-full tnum">${fmtDivider(m.ts)}</span></div>`;
+    const grouped = lastRole === m.role && lastTs && (m.ts - lastTs) < 120000;
+    lastTs = m.ts; lastRole = m.role;
+    // Animate ONLY messages appended since the previous render of this same chat
+    const isNew = lastRender.id === a.id && i >= lastRender.count;
+    html += bubbleHTML(m, i, grouped, isNew);
+  });
+  lastRender = { id:a.id, count:msgs.length };
+  if (threadError) html += errorCardHTML(threadError);
+  if (!hasAnyKey()) html = `<div class="max-w-md mx-auto mb-4 bg-amber-400/10 border border-amber-400/20 rounded-xl px-4 py-3 text-xs text-amber-300 flex items-center gap-2">⚠ No API keys configured — <button data-maction="open-settings" class="underline hover:text-white">open settings</button></div>` + html;
+  inner.innerHTML = html;
+  updateStatusBar();
+  autoScroll(true);
+}
+function renderAll() { ensureActive(); renderSidebar(); renderHeader(); renderThread(); updateSendState(); }
+
+/* ─── agent profile panel ─── */
+function openProfile(id) { closeCtxMenu(); if (!agents.find(x => x.id === id)) return; profileId = id; renderProfile(); show($('#profileScrim')); $('#profilePanel').classList.remove('translate-x-full'); }
+function closeProfile() { profileId = null; hide($('#profileScrim')); $('#profilePanel').classList.add('translate-x-full'); }
+function renderProfile() {
+  const a = agents.find(x => x.id === profileId);
+  if (!a) { closeProfile(); return; }
+  const msgs = chats[a.id] || [];
+  const p = providerOf(a.model) || 'gemini';
+  const lat = latency[p];
+  const avg = (lat && typeof lat === 'object' && lat.n > 0) ? lat.avg : null;
+  const st = statusOf(a);
+  const created = new Date(a.createdAt).toLocaleDateString([], { year:'numeric', month:'short', day:'numeric' });
+  const statBox = (label, val) => `<div class="bg-[#101010] rounded-xl border border-white/5 px-3 py-2.5 text-center">
+    <div class="text-[15px] font-semibold text-white truncate tnum">${val}</div>
+    <div class="text-[10px] uppercase tracking-wide text-zinc-500 mt-0.5">${label}</div></div>`;
+  $('#profileBody').innerHTML = `
+    <div class="flex flex-col items-center text-center gap-2">
+      ${agentAvatarHTML(a, 'w-20 h-20 rounded-3xl', 'text-4xl')}
+      <div class="min-w-0"><h3 class="text-lg font-semibold text-white truncate">${esc(a.name)}${a.archived ? ' <span class="align-middle text-[10px] text-zinc-400 bg-white/10 rounded-full px-2 py-0.5">archived</span>' : ''}</h3>
+      <p class="text-xs text-zinc-500">${esc(a.role)}</p></div>
+      <span class="inline-flex items-center gap-1.5 text-[11px] text-zinc-400 bg-white/5 rounded-full px-2.5 py-1">
+        <span class="w-1.5 h-1.5 rounded-full ${st.cls}"></span>${st.label}</span>
+    </div>
+    <div class="grid grid-cols-3 gap-2 mt-5">
+      ${statBox('Messages', msgs.length)}
+      ${statBox('Avg response', avg ? (avg / 1000).toFixed(1) + 's' : '—')}
+      ${statBox('Created', esc(created))}
+    </div>
+    <div class="mt-4 flex flex-wrap gap-1.5">
+      <span class="text-[11px] px-2.5 py-1 rounded-full bg-white/5 text-zinc-300">${esc(modelLabel(a.model))} · ${PROVIDERS[p].label}</span>
+      <span class="text-[11px] px-2.5 py-1 rounded-full bg-white/5 text-zinc-300 tnum">temp ${a.temp}</span>
+      <span class="text-[11px] px-2.5 py-1 rounded-full bg-white/5 text-zinc-300 tnum">${a.maxTokens} max tokens</span>
+      ${a.pinned ? '<span class="text-[11px] px-2.5 py-1 rounded-full bg-amber-400/10 text-amber-400">📌 pinned</span>' : ''}
+    </div>
+    <div class="mt-5"><label class="block text-xs font-medium text-zinc-400 mb-1.5">System prompt</label>
+      <div class="max-h-44 overflow-y-auto text-[13px] leading-relaxed text-zinc-300 whitespace-pre-wrap bg-[#101010] rounded-xl p-3 border border-white/5">${a.systemPrompt ? esc(a.systemPrompt) : '<span class="text-zinc-600 italic">No system prompt — default behavior.</span>'}</div></div>`;
+}
+
+/* ═══════════════════════ // MODALS ═══════════════════════ */
+function renderPickerRows() {
+  $('#emojiRow').innerHTML = EMOJIS.map(em =>
+    `<button type="button" data-emoji="${em}" title="${em}" class="btn w-9 h-9 rounded-xl text-lg flex items-center justify-center ${selEmoji === em ? 'bg-white/15 ring-2 ring-white/50' : 'bg-white/5 hover:bg-white/10 hover:scale-110'}">${em}</button>`).join('') +
+    `<button type="button" data-emoji="" title="Gradient ghost" class="btn w-9 h-9 rounded-xl flex items-center justify-center ${selEmoji === '' ? 'bg-white/15 ring-2 ring-white/50' : 'bg-white/5 hover:bg-white/10'} text-zinc-400">${ghost('w-4 h-4')}</button>`;
+  $('#gradRow').innerHTML = GRADIENTS.map(g =>
+    `<button type="button" data-grad="${g.id}" class="btn w-9 h-9 rounded-xl ${selGrad === g.id ? 'ring-2 ring-white ring-offset-2 ring-offset-[#171717]' : ''}" style="background:${g.css}"></button>`).join('');
+  $('#colorRow').innerHTML = Object.entries(COLORS).map(([id, hex]) =>
+    `<button type="button" data-color="${id}" class="btn w-6 h-6 rounded-full ${selColor === id ? 'ring-2 ring-white ring-offset-2 ring-offset-[#171717]' : ''}" style="background:${hex}"></button>`).join('');
+}
+function updateAgentPreview() {
+  const name = $('#afName').value.trim() || 'Unnamed agent';
+  const role = $('#afRole').value.trim() || 'AI teammate';
+  $('#agentPreview').innerHTML = `${agentAvatarHTML({ emoji:selEmoji, gradient:selGrad }, 'w-12 h-12 rounded-2xl', 'text-2xl')}
+    <div class="min-w-0"><div class="text-sm font-semibold text-white truncate">${esc(name)}</div><div class="text-[11px] text-zinc-500 truncate">${esc(role)}</div></div>`;
+}
+function openAgentModal(agent = null, preset = null) {
+  if (isGuest() && !agent && agents.filter(a => !a.archived).length >= 1) {
+    toast('Guest mode allows 1 agent — create a free account for unlimited teammates', 'warn', 5000);
+    return;
+  }
+  modalEditId = agent ? agent.id : null;
+  const src = agent || preset || {};
+  populateModelSelects();
+  $('#afName').value = src.name || '';
+  $('#afRole').value = src.role || '';
+  $('#afPrompt').value = src.systemPrompt || '';
+  $('#afModel').value = src.model || settings.defaultModel;
+  if (!$('#afModel').value) $('#afModel').value = 'gemini-2.0-flash';
+  $('#afTemp').value = src.temp ?? settings.defaultTemp;
+  $('#afMax').value = src.maxTokens ?? settings.defaultMaxTokens;
+  selEmoji = src.emoji !== undefined ? src.emoji : '👻';
+  selGrad = src.gradient || 'violet';
+  selColor = src.color || 'violet';
+  $('#agentModalTitle').textContent = agent ? 'Edit Agent' : 'New Agent';
+  $('#btnDupAgent').classList.toggle('hidden', !agent);
+  $('#btnArchiveAgent').classList.toggle('hidden', !agent);
+  $('#btnArchiveAgent').classList.toggle('flex', !!agent);
+  if (agent) $('#btnArchiveAgent').innerHTML = agent.archived ? `${icon('restore','w-4 h-4')} Unarchive` : `${icon('archive','w-4 h-4')} Archive`;
+  renderPickerRows(); updateAgentPreview();
+  $('#afTempVal').textContent = `${(+$('#afTemp').value).toFixed(1)} · ${tempWord($('#afTemp').value)}`;
+  $('#afMaxVal').textContent = `${$('#afMax').value} tokens`;
+  openModal('agentModal');
+  setTimeout(() => $('#afName').focus(), 60);
+}
+function openTpl() { renderTplGrid(); openModal('tplModal'); }
+function renderTplGrid() {
+  $('#tplGrid').innerHTML = PRESETS.map((p, i) => `
+    <button data-tpl="${i}" class="btn text-left p-4 rounded-2xl bg-[#101010] border border-white/5 hover:border-white/25 hover:-translate-y-0.5">
+      <div class="flex items-center gap-3">${agentAvatarHTML(p, 'w-10 h-10 rounded-xl')}
+        <div class="min-w-0"><div class="text-sm font-semibold text-white truncate">${esc(p.name)}</div><div class="text-[11px] text-zinc-500 truncate">${esc(p.role)}</div></div></div>
+      <p class="text-[12px] text-zinc-400 mt-2.5 leading-relaxed">${esc(p.desc)}</p>
+    </button>`).join('') +
+    `<button data-tpl="custom" class="btn rounded-2xl border border-dashed border-white/15 hover:border-white/35 hover:-translate-y-0.5 flex flex-col items-center justify-center gap-2 min-h-[110px]">
+      <span class="text-zinc-500">${icon('plus','w-6 h-6')}</span><span class="text-sm text-zinc-400">Custom — start from scratch</span></button>`;
+}
+function saveAgentFromModal() {
+  const name = $('#afName').value.trim();
+  if (!name) { toast('Give your agent a name', 'warn'); $('#afName').focus(); return; }
+  const data = { name, role: $('#afRole').value.trim() || 'AI teammate', emoji: selEmoji, gradient: selGrad, color: selColor,
+    systemPrompt: $('#afPrompt').value, model: $('#afModel').value, temp: parseFloat($('#afTemp').value), maxTokens: parseInt($('#afMax').value, 10) };
+  if (modalEditId) {
+    const a = agents.find(x => x.id === modalEditId);
+    Object.assign(a, data);
+    persist(); renderAll();
+    if (profileId === a.id) renderProfile();
+    closeModal('agentModal');
+    toast(`${a.name} updated`, 'success');
+  } else {
+    const a = Object.assign({ id:uid(), pinned:false, archived:false, createdAt:Date.now(), starter:'' }, data);
+    agents.push(a);
+    ui.activeId = a.id;
+    persist(); renderAll(); closeModal('agentModal');
+    toast(`${a.name} joined your team 👻`, 'success');
+  }
+}
+function duplicateAgent(id) {
+  const a = agents.find(x => x.id === id);
+  if (!a) return null;
+  if (isGuest()) { toast('Duplication is disabled in guest mode', 'warn'); return null; }
+  const copy = JSON.parse(JSON.stringify(a));
+  copy.id = uid(); copy.name = a.name + ' Copy'; copy.pinned = false; copy.createdAt = Date.now();
+  agents.splice(agents.indexOf(a) + 1, 0, copy);
+  persist(); renderSidebar();
+  toast(`Cloned as "${copy.name}"`, 'success');
+  return copy;
+}
+async function deleteAgent(id) {
+  const a = agents.find(x => x.id === id);
+  if (!a) return;
+  const ok = await confirmDialog({ title:`Delete ${a.name}?`, message:'This agent and its entire chat history will be permanently removed.', okText:'Delete' });
+  if (!ok) return;
+  agents = agents.filter(x => x.id !== id);
+  delete chats[id];
+  if (ui.activeId === id) ui.activeId = null;
+  if (profileId === id) closeProfile();
+  persist(); renderAll();
+  toast(`${a.name} deleted`, 'info');
+}
+
+/* ─── prompt library ─── */
+function openPromptModal(p = null) {
+  promptEditId = p ? p.id : null;
+  $('#pfName').value = p ? p.name : '';
+  $('#pfText').value = p ? p.text : '';
+  $('#promptModalTitle').textContent = p ? 'Edit Prompt' : 'New Prompt';
+  openModal('promptModal');
+  setTimeout(() => $('#pfName').focus(), 60);
+}
+function savePromptFromModal() {
+  const name = $('#pfName').value.trim(), text = $('#pfText').value.trim();
+  if (!name) { toast('Give the prompt a name', 'warn'); $('#pfName').focus(); return; }
+  if (!text) { toast('Prompt text is empty', 'warn'); $('#pfText').focus(); return; }
+  if (promptEditId) {
+    const p = prompts.find(x => x.id === promptEditId);
+    if (p) { p.name = name; p.text = text; }
+  } else {
+    prompts.push({ id:uid(), name, text, createdAt:Date.now() });
+  }
+  persist(); renderSidebar(); closeModal('promptModal');
+  toast(promptEditId ? 'Prompt updated' : 'Prompt saved to library', 'success');
+}
+function insertPrompt(p) {
+  inputEl.value = inputEl.value ? inputEl.value.replace(/\s+$/, '') + '\n\n' + p.text : p.text;
+  autoResize(); updateSendState(); inputEl.focus();
+  if (window.innerWidth < 1024) closeSidebarMobile();
+  SFX.play('pop');
+  toast(`"${p.name}" added to composer`, 'info', 1800);
+}
+function deletePrompt(id) {
+  const i = prompts.findIndex(p => p.id === id);
+  if (i < 0) return;
+  const removed = prompts.splice(i, 1)[0];
+  persist(); renderSidebar();
+  toast(`"${removed.name}" deleted`, 'info', 5000, { label:'Undo', fn: () => {
+    prompts.splice(Math.min(i, prompts.length), 0, removed);
+    persist(); renderSidebar();
+  }});
+}
+
+/* ─── settings ─── */
+function providerBadge(p) {
+  if (!keyFor(p).trim()) return { txt:'Not configured', dot:'bg-zinc-600', txtCls:'text-zinc-500' };
+  if (circuitOpen(p)) return { txt:'Cooldown', dot:'bg-red-500', txtCls:'text-red-400' };
+  if (testState[p] === 'ok') return { txt:'Connected', dot:'bg-emerald-500', txtCls:'text-emerald-400' };
+  const c = circuit[p];
+  if (testState[p] === 'fail' || (c && c.fails > 0)) return { txt:'Error', dot:'bg-amber-400', txtCls:'text-amber-400' };
+  return { txt:'Key saved', dot:'bg-emerald-500', txtCls:'text-zinc-400' };
+}
+function renderProviderList() {
+  $('#providerList').innerHTML = FAILOVER.map((p, i) => { const pr = PROVIDERS[p]; const b = providerBadge(p); return `
+    <div class="p-3 bg-[#101010] rounded-xl border border-white/5">
+      <div class="flex items-center justify-between mb-2 gap-2">
+        <span class="flex items-center gap-2 min-w-0">
+          <span class="w-2 h-2 rounded-full shrink-0 ${b.dot}" data-badge-dot="${p}"></span>
+          <span class="text-sm font-medium text-zinc-200 truncate">${i + 1}. ${pr.label}</span>
+          <span data-badge-txt="${p}" class="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 ${b.txtCls} shrink-0">${b.txt}</span>
+        </span>
+        <span class="text-[10px] text-zinc-500 shrink-0">${pr.tier}</span>
+      </div>
+      <div class="flex gap-2">
+        <div class="relative flex-1">
+          <input id="key-${p}" data-keyid="${p}" type="password" placeholder="${p === 'gemini' ? 'AIza…' : p === 'openrouter' ? 'sk-or-…' : 'API key'}" autocomplete="off" value="${esc(keyFor(p))}"
+            class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 py-2 text-sm pr-9 focus:outline-none focus:border-white/25 transition-colors">
+          <button data-eye="${p}" title="Show/hide" class="btn absolute right-2 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300">${icon('eye','w-4 h-4')}</button>
+        </div>
+        <button data-test="${p}" class="btn text-xs px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300 shrink-0 min-w-[64px]">Test</button>
+        <a href="${pr.keyUrl}" target="_blank" rel="noopener" title="Get a free key" class="btn text-xs px-2 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 shrink-0">↗</a>
+      </div>
+      <div data-testout="${p}" class="text-[11px] mt-1.5"></div>
+      <div data-modelinfo="${p}" class="text-[11px] mt-1"></div>
+    </div>`; }).join('');
+  $('#shareKeysToggle').checked = !!settings.shareKeys;
+  $('#toggleSounds').checked = settings.sounds !== false;
+  $('#toggleHaptics').checked = settings.haptics !== false;
+  FAILOVER.forEach(updateModelInfo);
+}
+function updateProviderBadges() {
+  FAILOVER.forEach(p => {
+    const b = providerBadge(p);
+    const dot = document.querySelector(`[data-badge-dot="${p}"]`);
+    const txt = document.querySelector(`[data-badge-txt="${p}"]`);
+    if (dot) dot.className = `w-2 h-2 rounded-full shrink-0 ${b.dot}`;
+    if (txt) { txt.textContent = b.txt; txt.className = `text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 ${b.txtCls} shrink-0`; }
+  });
+}
+async function runTest(p, btn) {
+  const input = document.getElementById('key-' + p);
+  const out = document.querySelector(`[data-testout="${p}"]`);
+  if (!out) return;
+  const key = (input ? input.value : keyFor(p)).trim();
+  if (!key) { out.className = 'text-[11px] mt-1.5 text-amber-400'; out.textContent = '⚠ Enter a key first'; return; }
+  btn.disabled = true;
+  const old = btn.innerHTML;
+  btn.innerHTML = `<svg class="w-4 h-4 animate-spin mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.2-8.56"/></svg>`;
+  try {
+    const ms = await testProvider(p, key);
+    recordSuccess(p, ms);
+    testState[p] = 'ok';
+    out.className = 'text-[11px] mt-1.5 text-emerald-400';
+    out.textContent = `✓ Success · ${Math.round(ms)}ms`;
+    refreshModels(p, key).catch(() => {});
+  } catch (err) {
+    testState[p] = 'fail';
+    out.className = 'text-[11px] mt-1.5 text-red-400';
+    out.textContent = `✗ ${friendlyTestError(err)}`;
+  }
+  btn.disabled = false; btn.innerHTML = old;
+  updateProviderBadges();
+}
+function openSettings() {
+  populateModelSelects();
+  renderProviderList();
+  $('#setDefaultModel').value = settings.defaultModel;
+  $('#setDefaultTemp').value = settings.defaultTemp;
+  $('#setDefaultTempVal').textContent = `${(+settings.defaultTemp).toFixed(1)} · ${tempWord(settings.defaultTemp)}`;
+  $('#setDefaultMax').value = settings.defaultMaxTokens;
+  $('#setDefaultMaxVal').textContent = `${settings.defaultMaxTokens} tokens`;
+  $('#toggleSounds').checked = settings.sounds !== false;
+  $('#toggleHaptics').checked = settings.haptics !== false;
+  renderAccentRow(); updateStorageUI();
+  openModal('settingsModal');
+}
+function renderAccentRow() {
+  $('#accentRow').innerHTML = Object.entries(COLORS).map(([id, hex]) =>
+    `<button data-accent="${id}" class="btn w-7 h-7 rounded-full ${settings.accent === id ? 'ring-2 ring-white ring-offset-2 ring-offset-[#171717]' : ''}" style="background:${hex}"></button>`).join('');
+}
+function updateStorageUI() {
+  const mb = storageMB();
+  $('#storageBar').style.width = Math.min(100, (mb / 5) * 100) + '%';
+  $('#storageText').textContent = `${mb.toFixed(2)} MB / 5 MB used`;
+}
+function populateModelSelects() {
+  const mkOpt = id => `<option value="${esc(id)}">${esc(modelLabel(id))}${isFreeId(id) ? ' · free' : ''}</option>`;
+  let html = '';
+  FAILOVER.forEach(p => {
+    const statics = Object.keys(MODELS).filter(id => MODELS[id].provider === p);
+    const all = [...new Set([...statics, ...dynamicIds(p)])];
+    if (!all.length) return;
+    html += `<optgroup label="${esc(PROVIDERS[p].label)}">${all.map(mkOpt).join('')}</optgroup>`;
+  });
+  if (!html) html = Object.entries(MODELS).map(([id, m]) => `<option value="${esc(id)}">${esc(m.label)}</option>`).join('');
+  ['afModel', 'setDefaultModel'].forEach(sid => {
+    const el = document.getElementById(sid);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = html;
+    if (cur && Array.from(el.options).some(o => o.value === cur)) el.value = cur;
+  });
+}
+function exportChat(fmt) {
+  const a = activeAgent();
+  const msgs = a ? (chats[a.id] || []) : [];
+  if (!a || !msgs.length) { toast('Nothing to export yet', 'info'); return; }
+  if (fmt === 'json') download(`${a.name.replace(/\s+/g, '-')}-chat.json`, JSON.stringify({ agent:a.name, role:a.role, exportedAt:new Date().toISOString(), messages:msgs }, null, 2));
+  else {
+    let md = `# ${a.name} — ${a.role}\n\n> Exported from Phantom · ${new Date().toLocaleString()}\n\n---\n\n`;
+    msgs.forEach(m => {
+      md += m.role === 'user'
+        ? `**You** · ${fmtTime(m.ts)}${m.web ? ' · 🌐 web' : ''}\n\n${m.content}\n\n---\n\n`
+        : `**${a.name}** · ${m.model || ''} · ${fmtTime(m.ts)}\n\n${m.content}\n\n---\n\n`;
+    });
+    download(`${a.name.replace(/\s+/g, '-')}-chat.md`, md, 'text/markdown');
+  }
+  toast('Chat exported', 'success');
+  hide($('#exportMenu'));
+}
+
+/* ═══════════════════════ // USER PROFILE MODAL ═══════════════════════ */
+function openUserModal() {
+  if (!USER || isGuest()) { toast('Guest mode has no profile — create an account to save your data', 'warn'); showAuth('signup'); return; }
+  $('#upUsername').value = USER.username;
+  $('#upEmail').value = USER.email || '';
+  $('#upBio').value = USER.bio || '';
+  $('#upBioCount').textContent = `(${(USER.bio || '').length}/200)`;
+  $('#upPwCur').value = $('#upPwNew').value = $('#upPwConf').value = '';
+  const totalSent = Object.values(chats).reduce((s, c) => s + (Array.isArray(c) ? c.filter(m => m.role === 'user').length : 0), 0);
+  $('#upStatsLine').textContent = `${totalSent} messages sent · ${agents.length} agents · member since ${new Date(USER.createdAt).toLocaleDateString([], { month:'short', year:'numeric' })}`;
+  const s = load(LS.SESSION, null);
+  $('#upSessionInfo').textContent = s ? `Active on this device · expires ${new Date(s.expiry).toLocaleString()}` : 'No active session';
+  renderUserPresetRow(); renderUserAvatars();
+  openModal('userModal');
+}
+function renderUserAvatars() { fillAvatarSlot('#upAvatarBig', userAvatarInner(USER, 'text-2xl')); }
+function renderUserPresetRow() {
+  $('#upPresetRow').innerHTML = PRESET_AVATARS.map(em =>
+    `<button data-upavatar="${em}" class="btn w-9 h-9 rounded-full text-lg flex items-center justify-center ${USER.avatar === em ? 'bg-white/15 ring-2 ring-white/50' : 'bg-white/5 hover:bg-white/10'}">${em}</button>`).join('');
+}
+async function saveUserProfile() {
+  const un = $('#upUsername').value.trim(), em = $('#upEmail').value.trim(), bio = $('#upBio').value.trim();
+  if (un.length < 3) { toast('Username must be at least 3 characters', 'warn'); return; }
+  const users = getUsers();
+  if (users.some(x => x.id !== USER.id && x.username.toLowerCase() === un.toLowerCase())) { toast('That username is taken', 'error'); return; }
+  if (em && !emailOk(em)) { toast('Invalid email address', 'error'); return; }
+  USER.username = un; USER.email = em; USER.bio = bio;
+  const i = users.findIndex(x => x.id === USER.id);
+  if (i >= 0) { users[i] = USER; persistUsers(users); }
+  renderHeader(); renderUserAvatars();
+  toast('Profile saved', 'success');
+}
+async function changePassword() {
+  const cur = $('#upPwCur').value, nw = $('#upPwNew').value, cf = $('#upPwConf').value;
+  if (!cur || !nw || !cf) { toast('Fill in all password fields', 'warn'); return; }
+  if (!(await verifyPassword(USER, cur))) { toast('Current password is wrong', 'error'); return; }
+  if (nw.length < 6) { toast('New password must be at least 6 characters', 'warn'); return; }
+  if (nw !== cf) { toast('New passwords do not match', 'error'); return; }
+  const rec = await makePasswordRecord(nw);
+  Object.assign(USER, rec);
+  const users = getUsers(); const i = users.findIndex(x => x.id === USER.id);
+  if (i >= 0) { users[i] = USER; persistUsers(users); }
+  $('#upPwCur').value = $('#upPwNew').value = $('#upPwConf').value = '';
+  toast('Password updated', 'success');
+}
+
+/* ═══════════════════════ // CONTEXT MENUS & LONG-PRESS ═══════════════════════ */
+function openCtxMenu(x, y, items) {
+  const m = $('#ctxMenu');
+  m._items = items;
+  ctxArm = false; // menu must see a real pointerdown before its first click counts
+  m.innerHTML = items.map((it, i) => it.sep
+    ? '<div class="my-1 mx-2 border-t border-white/5"></div>'
+    : `<button data-ctx="${i}" class="ctx-item w-full flex items-center gap-2.5 px-3 py-2 text-[13px] rounded-xl ${it.danger ? 'text-red-400 hover:bg-red-500/10' : 'text-zinc-200 hover:bg-white/10'}">${icon(it.icon, 'w-4 h-4 shrink-0')}<span class="flex-1 text-left font-medium">${esc(it.label)}</span></button>`).join('');
+  m.classList.remove('hidden');
+  m.classList.remove('ctx-in'); void m.offsetWidth; m.classList.add('ctx-in');
+  const w = m.offsetWidth, h = m.offsetHeight;
+  const px = Math.max(8, Math.min(x, window.innerWidth - w - 8));
+  const py = Math.max(8, Math.min(y, window.innerHeight - h - 8));
+  m.style.left = px + 'px'; m.style.top = py + 'px';
+  const ox = x <= px + w / 2 ? 'left' : 'right';
+  const oy = y <= py + h / 2 ? 'top' : 'bottom';
+  m.style.transformOrigin = `${ox} ${oy}`;
+}
+function closeCtxMenu() {
+  const m = $('#ctxMenu');
+  if (m && !m.classList.contains('hidden')) { m.classList.add('hidden'); m.classList.remove('ctx-in'); }
+  ctxArm = false;
+}
+let ctxArm = false;
+ $('#ctxMenu').addEventListener('pointerdown', () => { ctxArm = true; }, { capture:true, passive:true });
+ $('#ctxMenu').addEventListener('click', e => {
+  const b = e.target.closest('[data-ctx]');
+  if (!b) return;
+  const it = ($('#ctxMenu')._items || [])[+b.dataset.ctx];
+  closeCtxMenu();
+  if (it && it.fn) it.fn();
+});
+
+let pressTimer = null, pressState = null, suppressNextClick = false;
+// Swallow the synthetic click that can fire after a long-press — but NEVER a real
+// tap inside an armed context menu (this was the "buttons don't work" bug).
+document.addEventListener('click', e => {
+  if (suppressNextClick) {
+    suppressNextClick = false;
+    const inFloating = e.target.closest && e.target.closest('#ctxMenu, #reactPicker');
+    if (!inFloating || !ctxArm) { e.stopPropagation(); e.preventDefault(); }
+  }
+}, true);
+function cancelPress() {
+  clearTimeout(pressTimer); pressTimer = null;
+  if (pressState) pressState.el.classList.remove('pressing');
+  pressState = null;
+}
+function startPress(e, el, onFire) {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  if (e.target.closest('button, a, textarea, input, select, [data-maction]')) return;
+  cancelPress();
+  pressState = { el, x: e.clientX, y: e.clientY };
+  el.classList.add('pressing');
+  pressTimer = setTimeout(() => {
+    pressTimer = null;
+    if (!pressState) return;
+    const s = pressState; pressState = null;
+    s.el.classList.remove('pressing');
+    SFX.play('pop');
+    suppressNextClick = true;
+    onFire(s.x, s.y, s.el);
+  }, LONGPRESS_MS);
+}
+function wirePressArea(root, selector, onLongPress) {
+  root.addEventListener('pointerdown', e => {
+    const t = e.target.closest(selector);
+    if (t) startPress(e, t, onLongPress);
+  });
+  root.addEventListener('pointermove', e => {
+    if (pressState && Math.hypot(e.clientX - pressState.x, e.clientY - pressState.y) > 8) cancelPress();
+  }, { passive:true });
+  ['pointerup', 'pointercancel'].forEach(ev => root.addEventListener(ev, () => cancelPress(), { passive:true }));
+  root.addEventListener('scroll', () => { cancelPress(); closeCtxMenu(); }, { passive:true });
+}
+
+function openMessageCtx(x, y, idx) {
+  if (genState.active) { toast('Wait for the current response to finish', 'info'); return; }
+  const a = activeAgent(); if (!a) return;
+  const list = getChat(a.id);
+  const m = list[idx]; if (!m) return;
+  const items = [
+    { icon:'copy', label:'Copy', fn: async () => { if (await copyText(m.content || '')) toast('Copied', 'success', 1500); else toast('Copy failed', 'error'); } },
+    { icon:'reply', label:'Reply', fn: () => setReply(m.id || idx) },
+    { icon:'smile', label:'React', fn: () => {
+        const el = document.querySelector(`.msg[data-idx="${idx}"]`);
+        const r = el ? el.getBoundingClientRect() : { left:x, top:y, width:0, height:0 };
+        openReactPicker(r.left + r.width / 2, r.top, idx);
+      } },
+  ];
+  if (m.role === 'user')
+    items.push({ icon:'pencil', label:'Edit', fn: () => { editingIdx = idx; renderThread(); const ta = $('#editArea'); if (ta) { ta.focus(); ta.selectionStart = ta.value.length; } } });
+  else if (m.content && !m.streaming)
+    items.push({ icon:'refresh', label:'Regenerate', fn: () => regenerate(idx) });
+  items.push({ sep:true }, { icon:'trash', label:'Delete', danger:true, fn: () => deleteMessageAt(idx) });
+  openCtxMenu(x, y, items);
+}
+function deleteMessageAt(i) {
+  const a = activeAgent(); if (!a) return;
+  const list = getChat(a.id);
+  const removed = list.splice(i, 1)[0];
+  if (!removed) return;
+  const chatId = a.id;
+  persist(); renderThread();
+  toast('Message deleted', 'info', 5000, { label:'Undo', fn: () => {
+    if (genState.active) { toast('Cannot undo while generating', 'warn'); return; }
+    const l = getChat(chatId);
+    l.splice(Math.min(i, l.length), 0, removed);
+    persist(); renderThread();
+  }});
+}
+function openAgentCtx(x, y, id) {
+  const a = agents.find(v => v.id === id); if (!a) return;
+  const items = a.archived ? [
+    { icon:'pencil', label:'Edit', fn: () => openAgentModal(a) },
+    { icon:'restore', label:'Unarchive', fn: () => { a.archived = false; persist(); renderAll(); toast(`${a.name} restored`, 'success'); } },
+    { sep:true },
+    { icon:'trash', label:'Delete', danger:true, fn: () => deleteAgent(id) },
+  ] : [
+    { icon:'send', label:'Open chat', fn: () => openAgentChat(id) },
+    { icon:'eye', label:'View profile', fn: () => { setActive(id); openProfile(id); } },
+    { sep:true },
+    { icon:'pencil', label:'Edit', fn: () => openAgentModal(a) },
+    { icon:'star', label: a.pinned ? 'Unpin' : 'Pin', fn: () => { a.pinned = !a.pinned; persist(); renderSidebar(); } },
+    { icon:'copy', label:'Duplicate', fn: () => duplicateAgent(id) },
+    { icon:'archive', label:'Archive', fn: () => { a.archived = true; persist(); renderAll(); toast(`${a.name} archived`, 'info'); } },
+    { sep:true },
+    { icon:'trash', label:'Delete', danger:true, fn: () => deleteAgent(id) },
+  ];
+  openCtxMenu(x, y, items);
+}
+function openPromptCtx(x, y, id) {
+  const p = prompts.find(v => v.id === id); if (!p) return;
+  openCtxMenu(x, y, [
+    { icon:'send', label:'Use in chat', fn: () => insertPrompt(p) },
+    { icon:'copy', label:'Copy text', fn: async () => { if (await copyText(p.text)) toast('Prompt copied', 'success', 1500); } },
+    { icon:'pencil', label:'Edit', fn: () => openPromptModal(p) },
+    { sep:true },
+    { icon:'trash', label:'Delete', danger:true, fn: () => deletePrompt(id) },
+  ]);
+}
+wirePressArea($('#agentList'), '.agent-item', (x, y, el) => openAgentCtx(x, y, el.dataset.id));
+wirePressArea($('#agentList'), '.prompt-item', (x, y, el) => openPromptCtx(x, y, el.dataset.pid));
+wirePressArea($('#thread'), '.msg', (x, y, el) => openMessageCtx(x, y, +el.dataset.idx));
+// Desktop right-click; on touch, long-press handles it and the native menu is blocked
+document.addEventListener('contextmenu', e => {
+  const msg = e.target.closest('.msg');
+  const item = e.target.closest('.agent-item');
+  const prompt = e.target.closest('.prompt-item');
+  if (!msg && !item && !prompt) return;
+  if (e.target.closest('button, a, textarea, input, select')) return;
+  e.preventDefault();
+  if (window.matchMedia('(pointer: fine)').matches) {
+    if (msg) openMessageCtx(e.clientX, e.clientY, +msg.dataset.idx);
+    else if (item) openAgentCtx(e.clientX, e.clientY, item.dataset.id);
+    else openPromptCtx(e.clientX, e.clientY, prompt.dataset.pid);
+  }
+});
+window.addEventListener('blur', () => { cancelPress(); closeCtxMenu(); });
+window.addEventListener('resize', () => { closeCtxMenu(); if (window.innerWidth >= 1024) hide($('#scrim')); });
+
+/* ═══════════════════════ // EVENT HANDLERS ═══════════════════════ */
+const autoResize = () => { inputEl.style.height = 'auto'; inputEl.style.height = Math.min(inputEl.scrollHeight, 160) + 'px'; };
+function updateSendState() {
+  const active = genState.active;
+  $('#btnSend').classList.toggle('hidden', active || !inputEl.value.trim());
+  $('#btnMic').classList.toggle('hidden', active || !!inputEl.value.trim());
+  $('#btnStop').classList.toggle('hidden', !active);
+}
+function setReply(mid) {
+  replyState = mid;
+  const list = getChat(ui.activeId);
+  const orig = list.find(x => x.id === mid);
+  if (!orig) { replyState = null; hide($('#replyBar')); return; }
+  $('#replyBarText').innerHTML = `↩ Replying to <b class="text-zinc-300">${orig.role === 'user' ? 'yourself' : esc(activeAgent().name)}</b>: ${esc((orig.content || '').split('\n')[0].slice(0, 50))}`;
+  show($('#replyBar'));
+  inputEl.focus();
+}
+// Opens a chat and, on mobile, slides the sidebar away by itself
+function openAgentChat(id) {
+  setActive(id);
+  if (window.innerWidth < 1024) closeSidebarMobile();
+}
+async function handleSend() {
+  const text = inputEl.value.trim();
+  if (!text || genState.active) return;
+  if (!navigator.onLine) { toast('You are offline — message not sent', 'error'); return; }
+  const agent = activeAgent();
+  if (!agent) { toast('Pick an agent first', 'warn'); return; }
+  if (!hasAnyKey()) { toast('Add an API key in Settings first', 'warn'); openSettings(); return; }
+  SFX.play('send');
+  threadError = null;
+  const list = getChat(agent.id);
+  const msg = { id:uid(), role:'user', content:text, ts:Date.now(), tokens:estTokens(text), web:webSearchOn, status:'sent', replyTo: replyState || null };
+  list.push(msg);
+  persist();
+  replyState = null; hide($('#replyBar'));
+  inputEl.value = ''; autoResize(); updateSendState();
+  renderThread();
+  setTimeout(() => {
+    const l = getChat(agent.id);
+    const m = l.find(x => x.id === msg.id);
+    if (m && m.status === 'sent') { m.status = 'delivered'; persist(); renderThread(); }
+  }, 700);
+  await generateResponse();
+}
+function regenerate(i) {
+  if (genState.active) return;
+  const a = activeAgent(); if (!a) return;
+  const list = getChat(a.id);
+  const prevUser = [...list.slice(0, i)].reverse().find(m => m.role === 'user');
+  if (prevUser) prevUser.status = 'delivered';
+  list.splice(i);
+  threadError = null;
+  persist(); renderThread();
+  generateResponse();
+}
+function setActive(id) {
+  if (genState.active) { toast('Stop the current response first', 'warn'); return; }
+  if (id && !agents.find(a => a.id === id)) return;
+  const changed = id !== ui.activeId;
+  ui.activeId = id; editingIdx = null; threadError = null; replyState = null; hide($('#replyBar'));
+  saveUI();
+  renderSidebar(); renderHeader(); renderThread(); updateSendState();
+  if (changed && id) SFX.play('pop');
+  if (window.innerWidth >= 1024 && id) inputEl.focus();
+}
+const openSidebarMobile = () => { $('#sidebar').classList.remove('-translate-x-full'); show($('#scrim')); };
+const closeSidebarMobile = () => { $('#sidebar').classList.add('-translate-x-full'); hide($('#scrim')); };
+
+// ─── reaction picker ───
+function openReactPicker(x, y, idx) {
+  const pk = $('#reactPicker');
+  pk.innerHTML = REACTIONS.map(em => `<button data-react="${em}" data-sfx="pop" data-idx="${idx}" class="btn w-9 h-9 rounded-full text-lg hover:bg-white/10 hover:scale-125 flex items-center justify-center transition-transform">${em}</button>`).join('');
+  pk.style.left = Math.min(x, window.innerWidth - 230) + 'px';
+  pk.style.top = Math.max(10, y - 52) + 'px';
+  show(pk);
+}
+function applyReaction(idx, emoji) {
+  const a = activeAgent(); if (!a) return;
+  const list = getChat(a.id);
+  const m = list[idx];
+  if (!m) return;
+  m.reaction = (m.reaction === emoji) ? null : emoji;
+  persist(); renderThread();
+}
+
+// ─── sidebar ───
+ $('#agentList').addEventListener('click', e => {
+  const g = e.target.closest('[data-group]');
+  if (g) { const k = g.dataset.group; ui.collapsed[k] = !ui.collapsed[k]; saveUI(); renderSidebar(); return; }
+  const pa = e.target.closest('[data-pact]');
+  if (pa) { if (pa.dataset.pact === 'new') openPromptModal(); return; }
+  const pi = e.target.closest('[data-pid]');
+  if (pi) { const p = prompts.find(x => x.id === pi.dataset.pid); if (p) insertPrompt(p); return; }
+  const btn = e.target.closest('[data-action]');
+  const item = e.target.closest('.agent-item');
+  if (!item) return;
+  const id = item.dataset.id;
+  if (btn) {
+    const a = agents.find(x => x.id === id);
+    if (!a) return;
+    const act = btn.dataset.action;
+    if (act === 'edit') openAgentModal(a);
+    else if (act === 'pin') { a.pinned = !a.pinned; persist(); renderSidebar(); }
+    else if (act === 'restore') { a.archived = false; persist(); renderAll(); toast(`${a.name} restored`, 'success'); }
+    else if (act === 'del') deleteAgent(id);
+    return;
+  }
+  if (e.target.closest('[data-profile]')) { setActive(id); openProfile(id); }
+  else { setActive(id); if (window.innerWidth < 1024) closeSidebarMobile(); }
+});
+ $('#agentList').addEventListener('dragstart', e => {
+  const it = e.target.closest('.agent-item'); if (!it) return;
+  dragId = it.dataset.id; it.classList.add('opacity-40');
+  e.dataTransfer.effectAllowed = 'move';
+  try { e.dataTransfer.setData('text/plain', dragId); } catch {}
+});
+ $('#agentList').addEventListener('dragover', e => {
+  e.preventDefault();
+  const it = e.target.closest('.agent-item');
+  document.querySelectorAll('.drop-above').forEach(x => x.classList.remove('drop-above'));
+  if (it && it.dataset.id !== dragId) it.classList.add('drop-above');
+});
+ $('#agentList').addEventListener('drop', e => {
+  e.preventDefault();
+  const it = e.target.closest('.agent-item');
+  document.querySelectorAll('.drop-above').forEach(x => x.classList.remove('drop-above'));
+  if (!it || !dragId || it.dataset.id === dragId) { dragId = null; return; }
+  const from = agents.findIndex(a => a.id === dragId);
+  if (from < 0) { dragId = null; return; }
+  const moved = agents.splice(from, 1)[0];
+  agents.splice(agents.findIndex(a => a.id === it.dataset.id), 0, moved);
+  dragId = null; persist(); renderSidebar();
+});
+ $('#agentList').addEventListener('dragend', () => {
+  dragId = null;
+  document.querySelectorAll('.drop-above').forEach(x => x.classList.remove('drop-above'));
+  document.querySelectorAll('.agent-item').forEach(x => x.classList.remove('opacity-40'));
+});
+ $('#agentSearch').addEventListener('input', renderSidebar);
+ $('#btnAddAgent').addEventListener('click', openTpl);
+ $('#btnQuickAdd').addEventListener('click', openTpl);
+ $('#btnMenu').addEventListener('click', openSidebarMobile);
+ $('#scrim').addEventListener('click', closeSidebarMobile);
+ $('#sidebarBrand').addEventListener('click', openSettings);
+
+// ─── agent profile panel ───
+ $('#btnCloseProfile').addEventListener('click', closeProfile);
+ $('#profileScrim').addEventListener('click', closeProfile);
+ $('#pBtnChat').addEventListener('click', () => {
+  const a = agents.find(x => x.id === profileId);
+  if (a && a.archived) { a.archived = false; persist(); renderSidebar(); renderHeader(); }
+  closeProfile();
+  if (a) openAgentChat(a.id);
+});
+ $('#pBtnEdit').addEventListener('click', () => { const a = agents.find(x => x.id === profileId); if (a) { closeProfile(); openAgentModal(a); } });
+ $('#pBtnDup').addEventListener('click', () => { if (profileId) { duplicateAgent(profileId); closeProfile(); } });
+ $('#pBtnDelete').addEventListener('click', () => { if (profileId) deleteAgent(profileId); });
+
+// ─── header / user menu ───
+ $('#brandHome').addEventListener('click', () => setActive(null));
+ // Clicking the agent in the chat header opens its profile; the chevron switches agents
+ $('#headerAgentBtn').addEventListener('click', () => { const a = activeAgent(); if (a) openProfile(a.id); });
+ $('#headerSwitchChev').addEventListener('click', () => { renderHeader(); $('#agentSwitcher').classList.toggle('hidden'); });
+ $('#agentSwitcher').addEventListener('click', e => {
+  const b = e.target.closest('[data-switch]');
+  if (!b) return;
+  hide($('#agentSwitcher'));
+  if (b.dataset.switch === 'new') openTpl();
+  else openAgentChat(b.dataset.switch);
+});
+ $('#headerModel').addEventListener('click', () => { const a = activeAgent(); if (a) openAgentModal(a); });
+ $('#btnSettings').addEventListener('click', openSettings);
+ $('#btnExportChat').addEventListener('click', () => $('#exportMenu').classList.toggle('hidden'));
+ $('#exportMenu').addEventListener('click', e => { const b = e.target.closest('[data-exp]'); if (b) exportChat(b.dataset.exp); });
+ $('#btnUserChip').addEventListener('click', openUserModal);
+ $('#btnUserMenu').addEventListener('click', () => { renderHeader(); $('#userMenu').classList.toggle('hidden'); });
+ $('#userMenu').addEventListener('click', e => {
+  const b = e.target.closest('[data-umenu]');
+  const sw = e.target.closest('[data-switchuser]');
+  if (sw) {
+    const u = getUsers().find(x => x.id === sw.dataset.switchuser);
+    hide($('#userMenu'));
+    if (u) { logout(); showAuth('signin', u.username); toast(`Enter ${u.username}'s password to switch`, 'info'); }
+    return;
+  }
+  if (!b) return;
+  hide($('#userMenu'));
+  const act = b.dataset.umenu;
+  if (act === 'profile') openUserModal();
+  else if (act === 'add') { logout(); showAuth('signup'); }
+  else if (act === 'logout') logout();
+});
+
+// ─── composer ───
+inputEl.addEventListener('input', () => { autoResize(); updateSendState(); });
+inputEl.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); handleSend(); } });
+ $('#btnSend').addEventListener('click', handleSend);
+ $('#btnStop').addEventListener('click', () => { if (genState.controller) genState.controller.abort(); });
+ $('#btnWeb').addEventListener('click', () => {
+  webSearchOn = !webSearchOn;
+  $('#btnWeb').classList.toggle('web-on', webSearchOn);
+  toast(webSearchOn ? 'Web search on — live Wikipedia context will be added to your next message' : 'Web search off', 'info', 2500);
+});
+ $('#btnPlus').addEventListener('click', () => $('#plusMenu').classList.toggle('hidden'));
+ $('#plusAttach').addEventListener('click', () => { hide($('#plusMenu')); $('#fileInput').click(); });
+ $('#plusClear').addEventListener('click', async () => {
+  hide($('#plusMenu'));
+  const a = activeAgent(); if (!a) return;
+  const ok = await confirmDialog({ title:'Clear this conversation?', message:`All messages with ${a.name} will be removed. This cannot be undone.`, okText:'Clear' });
+  if (!ok) return;
+  chats[a.id] = []; editingIdx = null; threadError = null; persist(); renderThread();
+  toast('Conversation cleared', 'info');
+});
+ $('#replyCancel').addEventListener('click', () => { replyState = null; hide($('#replyBar')); });
+ $('#fileInput').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    let text = String(r.result || '');
+    if (text.length > 20000) { text = text.slice(0, 20000); toast('File truncated to 20,000 characters', 'warn'); }
+    inputEl.value += (inputEl.value ? '\n\n' : '') + `--- attached: ${f.name} ---\n` + text;
+    autoResize(); updateSendState(); inputEl.focus();
+  };
+  r.readAsText(f);
+  e.target.value = '';
+});
+let recognition = null, listening = false;
+ $('#btnMic').addEventListener('click', () => {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { toast('Speech recognition is not supported in this browser', 'warn'); return; }
+  if (listening) { recognition.stop(); return; }
+  recognition = new SR();
+  recognition.interimResults = true;
+  recognition.lang = navigator.language || 'en-US';
+  const base = inputEl.value;
+  recognition.onresult = e => { let t = ''; for (const r of e.results) t += r[0].transcript; inputEl.value = (base ? base + ' ' : '') + t; autoResize(); updateSendState(); };
+  recognition.onend = () => { listening = false; $('#btnMic').classList.remove('listening'); };
+  recognition.onerror = e => { toast('Mic error: ' + e.error, 'error'); listening = false; $('#btnMic').classList.remove('listening'); };
+  recognition.start();
+  listening = true; $('#btnMic').classList.add('listening');
+  toast('Listening…', 'info', 2000);
+});
+
+// ─── thread: actions, reply, reactions, swipe ───
+function jumpToMessage(mid) {
+  const el = document.querySelector(`.msg[data-mid="${mid}"]`);
+  if (!el) return;
+  el.scrollIntoView({ behavior:'smooth', block:'center' });
+  el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 1100);
+}
+ $('#thread').addEventListener('click', async e => {
+  const el = e.target.closest('[data-maction]');
+  if (!el) return;
+  const act = el.dataset.maction;
+  if (act === 'new-agent') { openTpl(); return; }
+  if (act === 'quick-template') { const p = PRESETS[+el.dataset.tpl]; if (p) { const a = presetToAgent(p); agents.push(a); persist(); openAgentChat(a.id); toast(`${a.name} joined your team 👻`, 'success'); } return; }
+  if (act === 'open-agent') { openAgentChat(el.dataset.id); return; }
+  if (act === 'open-profile') { const a = activeAgent(); if (a) openProfile(a.id); return; }
+  if (act === 'open-settings') { openSettings(); return; }
+  if (act === 'retry') { threadError = null; renderThread(); generateResponse(); return; }
+  if (act === 'starter') {
+    const wrap = el.closest('.starters');
+    const text = el.dataset.text || '';
+    if (wrap) { wrap.style.opacity = '0'; wrap.style.pointerEvents = 'none'; }
+    setTimeout(() => { inputEl.value = text; autoResize(); updateSendState(); handleSend(); }, 280);
+    return;
+  }
+  if (act === 'jump') { jumpToMessage(el.dataset.mid); return; }
+  if (genState.active) { toast('Wait for the current response to finish', 'info'); return; }
+  const a = activeAgent(); if (!a) return;
+  const list = getChat(a.id);
+  const i = +el.dataset.idx;
+  if (!Number.isNaN(i) && list[i]) {
+    if (act === 'copy') { if (await copyText(list[i].content || '')) flashCopied(el); else toast('Copy failed', 'error'); }
+    else if (act === 'reply') setReply(list[i].id || list[i]._i);
+    else if (act === 'react') { const r = el.getBoundingClientRect(); openReactPicker(r.left, r.top, i); }
+    else if (act === 'unreact') { list[i].reaction = null; persist(); renderThread(); }
+    else if (act === 'regen') regenerate(i);
+    else if (act === 'edit') { editingIdx = i; renderThread(); const ta = $('#editArea'); if (ta) { ta.focus(); ta.selectionStart = ta.value.length; } }
+    else if (act === 'edit-cancel') { editingIdx = null; renderThread(); }
+    else if (act === 'edit-save') {
+      const ta = $('#editArea');
+      const v = ta ? ta.value.trim() : '';
+      editingIdx = null;
+      if (v) { list[i].content = v; list[i].tokens = estTokens(v); persist(); }
+      renderThread();
+    }
+    else if (act === 'del') deleteMessageAt(i);
+  }
+});
+ $('#thread').addEventListener('dblclick', e => {
+  const wrap = e.target.closest('.msg');
+  if (!wrap || genState.active) return;
+  const i = +wrap.dataset.idx;
+  const r = wrap.getBoundingClientRect();
+  openReactPicker(e.clientX || r.left + r.width / 2, e.clientY || r.top, i);
+});
+ $('#reactPicker').addEventListener('click', e => {
+  const b = e.target.closest('[data-react]');
+  if (!b) return;
+  applyReaction(+b.dataset.idx, b.dataset.react);
+  hide($('#reactPicker'));
+});
+
+// swipe-right to reply (mobile)
+let sw = null;
+ $('#thread').addEventListener('touchstart', e => {
+  const wrap = e.target.closest('.msg');
+  if (!wrap) return;
+  sw = { wrap, x:e.touches[0].clientX, y:e.touches[0].clientY, dx:0 };
+}, { passive:true });
+ $('#thread').addEventListener('touchmove', e => {
+  if (!sw) return;
+  const dx = e.touches[0].clientX - sw.x;
+  const dy = e.touches[0].clientY - sw.y;
+  if (Math.abs(dy) > Math.abs(dx) || dx <= 0) { sw.dx = 0; sw.wrap.style.transform = ''; return; }
+  sw.dx = Math.min(dx, 80);
+  sw.wrap.style.transform = `translateX(${sw.dx}px)`;
+  const hint = $('#swipeHint');
+  const r = sw.wrap.getBoundingClientRect();
+  hint.style.left = (r.left - 44) + 'px';
+  hint.style.top = (r.top + r.height / 2 - 18) + 'px';
+  hint.innerHTML = icon('reply', 'w-4 h-4');
+  hint.style.opacity = String(Math.min(1, sw.dx / 60));
+  show(hint);
+  if (e.cancelable) e.preventDefault();
+}, { passive:false });
+ $('#thread').addEventListener('touchend', () => {
+  if (!sw) return;
+  hide($('#swipeHint'));
+  sw.wrap.style.transform = '';
+  if (sw.dx > 60) {
+    const list = getChat(ui.activeId);
+    const m = list[+sw.wrap.dataset.idx];
+    setReply(m && m.id ? m.id : sw.wrap.dataset.mid);
+  }
+  sw = null;
+}, { passive:true });
+
+// ─── template picker ───
+ $('#tplGrid').addEventListener('click', e => {
+  const b = e.target.closest('[data-tpl]');
+  if (!b) return;
+  closeModal('tplModal');
+  if (b.dataset.tpl === 'custom') openAgentModal(null, null);
+  else openAgentModal(null, PRESETS[+b.dataset.tpl]);
+});
+
+// ─── prompt modal ───
+ $('#btnPromptSave').addEventListener('click', savePromptFromModal);
+ $('#pfText').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); savePromptFromModal(); } });
+
+// ─── agent modal ───
+ $('#emojiRow').addEventListener('click', e => { const b = e.target.closest('[data-emoji]'); if (b) { selEmoji = b.dataset.emoji; renderPickerRows(); updateAgentPreview(); } });
+ $('#gradRow').addEventListener('click', e => { const b = e.target.closest('[data-grad]'); if (b) { selGrad = b.dataset.grad; renderPickerRows(); updateAgentPreview(); } });
+ $('#colorRow').addEventListener('click', e => { const b = e.target.closest('[data-color]'); if (b) { selColor = b.dataset.color; renderPickerRows(); updateAgentPreview(); } });
+ $('#afName').addEventListener('input', updateAgentPreview);
+ $('#afRole').addEventListener('input', updateAgentPreview);
+ $('#afTemp').addEventListener('input', () => { $('#afTempVal').textContent = `${(+$('#afTemp').value).toFixed(1)} · ${tempWord($('#afTemp').value)}`; });
+ $('#afMax').addEventListener('input', () => { $('#afMaxVal').textContent = `${$('#afMax').value} tokens`; });
+ $('#btnSaveAgent').addEventListener('click', saveAgentFromModal);
+ $('#btnDupAgent').addEventListener('click', () => { if (modalEditId) { duplicateAgent(modalEditId); closeModal('agentModal'); } });
+ $('#btnArchiveAgent').addEventListener('click', () => {
+  const a = agents.find(x => x.id === modalEditId);
+  if (!a) return;
+  a.archived = !a.archived;
+  persist(); closeModal('agentModal'); renderAll();
+  toast(a.archived ? `${a.name} archived` : `${a.name} restored`, 'info');
+});
+
+// ─── settings events ───
+ $('#providerList').addEventListener('input', e => {
+  const inp = e.target.closest('[data-keyid]');
+  if (!inp) return;
+  const val = inp.value;
+  if (settings.shareKeys) { sharedKeys[inp.dataset.keyid] = val; saveRaw(LS.SHARED, sharedKeys); }
+  else { settings.apiKeys[inp.dataset.keyid] = val; persist(); }
+  updateProviderBadges(); renderSidebar(); renderHeader();
+  queueModelFetch(inp.dataset.keyid, val);
+});
+ $('#providerList').addEventListener('click', e => {
+  const eye = e.target.closest('[data-eye]');
+  if (eye) { const inp = document.getElementById('key-' + eye.dataset.eye); if (inp) inp.type = inp.type === 'password' ? 'text' : 'password'; return; }
+  const t = e.target.closest('[data-test]');
+  if (t) runTest(t.dataset.test, t);
+});
+ $('#shareKeysToggle').addEventListener('change', e => {
+  settings.shareKeys = e.target.checked;
+  persist(); renderProviderList(); renderSidebar(); renderHeader();
+  if (settings.shareKeys) backgroundModelRefresh();
+  toast(settings.shareKeys ? 'API keys now shared across all users' : 'API keys are now private to this account', 'info');
+});
+ $('#toggleSounds').addEventListener('change', e => { settings.sounds = e.target.checked; persist(); if (e.target.checked) SFX.play('success'); });
+ $('#toggleHaptics').addEventListener('change', e => { settings.haptics = e.target.checked; persist(); if (e.target.checked) SFX.play('tap'); });
+ $('#setDefaultModel').addEventListener('change', e => { settings.defaultModel = e.target.value; persist(); renderHeader(); });
+ $('#setDefaultTemp').addEventListener('input', e => { settings.defaultTemp = +e.target.value; $('#setDefaultTempVal').textContent = `${settings.defaultTemp.toFixed(1)} · ${tempWord(settings.defaultTemp)}`; persist(); });
+ $('#setDefaultMax').addEventListener('input', e => { settings.defaultMaxTokens = +e.target.value; $('#setDefaultMaxVal').textContent = `${settings.defaultMaxTokens} tokens`; persist(); });
+ $('#accentRow').addEventListener('click', e => { const b = e.target.closest('[data-accent]'); if (b) { settings.accent = b.dataset.accent; persist(); applyAccent(); renderAccentRow(); } });
+ $('#btnExportAll').addEventListener('click', () => {
+  download(`phantom-backup-${new Date().toISOString().slice(0, 10)}.json`,
+    JSON.stringify({ app:'phantom', version:APP_VERSION, exportedAt:new Date().toISOString(), agents, chats, prompts,
+      settings: Object.assign({}, settings, { apiKeys: Object.fromEntries(FAILOVER.map(p => [p, ''])) }), latency, circuit }, null, 2));
+  toast('Backup exported — API keys excluded for safety', 'success');
+});
+
+// ─── user profile events ───
+ $('#upPresetRow').addEventListener('click', e => {
+  const b = e.target.closest('[data-upavatar]');
+  if (!b) return;
+  USER.avatar = (USER.avatar === b.dataset.upavatar) ? null : b.dataset.upavatar;
+  const users = getUsers(); const i = users.findIndex(x => x.id === USER.id);
+  if (i >= 0) { users[i] = USER; persistUsers(users); }
+  renderUserPresetRow(); renderUserAvatars(); renderHeader();
+});
+ $('#upUploadBtn').addEventListener('click', () => $('#upAvatarFile').click());
+ $('#upAvatarFile').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = c.height = 128;
+      const ctx = c.getContext('2d');
+      const s = Math.min(img.width, img.height);
+      ctx.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 128, 128);
+      USER.avatar = c.toDataURL('image/jpeg', 0.85);
+      const users = getUsers(); const i = users.findIndex(x => x.id === USER.id);
+      if (i >= 0) { users[i] = USER; persistUsers(users); }
+      renderUserPresetRow(); renderUserAvatars(); renderHeader();
+      toast('Avatar updated', 'success');
+    };
+    img.src = String(r.result);
+  };
+  r.readAsDataURL(f);
+  e.target.value = '';
+});
+ $('#upBio').addEventListener('input', () => { $('#upBioCount').textContent = `(${Math.min(200, $('#upBio').value.length)}/200)`; });
+ $('#upSave').addEventListener('click', saveUserProfile);
+ $('#upPwSave').addEventListener('click', changePassword);
+ $('#upRevoke').addEventListener('click', logout);
+ $('#upExport').addEventListener('click', () => {
+  download(`phantom-${USER.username}-data.json`, JSON.stringify({ app:'phantom', version:APP_VERSION, user:{ username:USER.username, email:USER.email, bio:USER.bio }, agents, chats, prompts,
+    settings: Object.assign({}, settings, { apiKeys: Object.fromEntries(FAILOVER.map(p => [p, ''])) }), latency, circuit }, null, 2));
+  toast('Data exported', 'success');
+});
+ $('#upImport').addEventListener('click', () => $('#upImportFile').click());
+ $('#upImportFile').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = async () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (d.app !== 'phantom') throw new Error('not a Phantom backup');
+      const ok = await confirmDialog({ title:'Import backup?', message:'This replaces your current agents, chats and settings. Existing API keys are kept.', okText:'Import', danger:false });
+      if (!ok) return;
+      const oldKeys = Object.assign({}, settings.apiKeys);
+      if (Array.isArray(d.agents)) agents = d.agents;
+      if (d.chats && typeof d.chats === 'object') chats = d.chats;
+      if (Array.isArray(d.prompts)) prompts = normPrompts(d.prompts);
+      if (d.settings && typeof d.settings === 'object') {
+        const imported = Object.assign({}, d.settings);
+        const impKeys = imported.apiKeys || {};
+        delete imported.apiKeys;
+        settings = Object.assign(defaultSettings(), imported);
+        settings.apiKeys = Object.assign({}, DEFAULT_KEYS, oldKeys);
+        FAILOVER.forEach(p => { if (impKeys[p]) settings.apiKeys[p] = impKeys[p]; });
+      }
+      latency = normLatency(d.latency); circuit = normCircuit(d.circuit);
+      Object.keys(chats).forEach(k => (Array.isArray(chats[k]) ? chats[k] : []).forEach(m => { if (!m.id) m.id = uid(); }));
+      persist();
+      resetTransient(); applyAccent(); renderAll(); populateModelSelects(); closeModal('userModal');
+      toast('Backup imported', 'success');
+    } catch (err) { toast('Import failed: ' + err.message, 'error'); }
+    e.target.value = '';
+  };
+  r.readAsText(f);
+});
+ $('#upClearChats').addEventListener('click', async () => {
+  const ok = await confirmDialog({ title:'Clear all chats?', message:'Every conversation with every agent will be deleted. Agents are kept.', okText:'Clear chats' });
+  if (!ok) return;
+  chats = {}; persist(); renderAll();
+  toast('All chats cleared', 'info');
+});
+ $('#upDelete').addEventListener('click', async () => {
+  const ok = await confirmDialog({ title:'Delete this account?', message:`${USER.username} and all associated data will be permanently removed from this device.`, okText:'Delete account' });
+  if (!ok) return;
+  const users = getUsers().filter(x => x.id !== USER.id);
+  persistUsers(users);
+  localStorage.removeItem(bucketKey());
+  localStorage.removeItem(LS.SESSION);
+  USER = null;
+  showAuth('signup');
+  toast('Account deleted', 'info');
+});
+
+// ─── auth events ───
+ $('#tabSignin').addEventListener('click', () => setAuthTab('signin'));
+ $('#tabSignup').addEventListener('click', () => setAuthTab('signup'));
+ $('#auUser').addEventListener('input', validateAuthForm);
+ $('#auEmail').addEventListener('input', validateAuthForm);
+ $('#auPass').addEventListener('input', validateAuthForm);
+ $('#auConfirm').addEventListener('input', validateAuthForm);
+ $('#btnAuthGo').addEventListener('click', submitAuth);
+ $('#authOverlay').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); submitAuth(); } });
+ $('#btnGuest').addEventListener('click', startGuest);
+
+// ─── confirm modal ───
+ $('#cfOk').addEventListener('click', () => settleConfirm(true));
+ $('#cfCancel').addEventListener('click', () => settleConfirm(false));
+
+// ─── PWA install ───
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const dismissed = load(LS.INSTALL, 0);
+  if (Date.now() - dismissed > 7 * 24 * 60 * 60 * 1000) show($('#installBanner'));
+});
+ $('#btnInstall').addEventListener('click', async () => {
+  hide($('#installBanner'));
+  if (deferredPrompt) { deferredPrompt.prompt(); const r = await deferredPrompt.userChoice; if (r.outcome === 'accepted') toast('Phantom installed 🎉', 'success'); deferredPrompt = null; }
+  else toast('Use your browser menu → "Install app" / "Add to Home Screen"', 'info', 5000);
+});
+ $('#btnInstallLater').addEventListener('click', () => { saveRaw(LS.INSTALL, Date.now()); hide($('#installBanner')); });
+ $('#installX').addEventListener('click', () => { saveRaw(LS.INSTALL, Date.now()); hide($('#installBanner')); });
+let iSw = null;
+ $('#installBanner').addEventListener('touchstart', e => { iSw = e.touches[0].clientY; }, { passive:true });
+ $('#installBanner').addEventListener('touchmove', e => {
+  if (iSw === null) return;
+  const dy = e.touches[0].clientY - iSw;
+  if (dy > 0) $('#installBanner').style.transform = `translateX(-50%) translateY(${dy}px)`;
+}, { passive:true });
+ $('#installBanner').addEventListener('touchend', e => {
+  if (iSw === null) return;
+  const t = $('#installBanner');
+  const dy = (e.changedTouches[0].clientY - iSw);
+  t.style.transform = '';
+  if (dy > 70) { saveRaw(LS.INSTALL, Date.now()); hide($('#installBanner')); }
+  iSw = null;
+}, { passive:true });
+
+function setupPWA() {
+  try {
+    const manifest = {
+      name:'Phantom - AI Ghost Team', short_name:'Phantom', start_url:'.', display:'standalone',
+      background_color:'#0a0a0a', theme_color:'#8b5cf6',
+      icons: [
+        { src:LOGO_URL, sizes:'192x192', type:'image/png', purpose:'any' },
+        { src:LOGO_URL, sizes:'512x512', type:'image/png', purpose:'any' },
+        { src:LOGO_URL, sizes:'512x512', type:'image/png', purpose:'maskable' },
+      ],
+    };
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(manifest));
+    document.head.appendChild(link);
+  } catch {}
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.navigator.standalone && !window.matchMedia('(display-mode: standalone)').matches;
+  if (isIOS && !load(LS.IOS, false)) setTimeout(() => { openModal('iosModal'); saveRaw(LS.IOS, true); }, 4000);
+}
+
+// ─── global clicks / keyboard / online ───
+document.addEventListener('click', e => {
+  const closer = e.target.closest('[data-close]');
+  if (closer) {
+    if (closer.dataset.close === 'confirmModal') settleConfirm(false);
+    else closeModal(closer.dataset.close);
+    return;
+  }
+  if (!e.target.closest('#ctxMenu')) closeCtxMenu();
+  if (!e.target.closest('#agentSwitcher') && !e.target.closest('#headerAgentBtn') && !e.target.closest('#headerSwitchChev')) hide($('#agentSwitcher'));
+  if (!e.target.closest('#exportMenu') && !e.target.closest('#btnExportChat')) hide($('#exportMenu'));
+  if (!e.target.closest('#plusMenu') && !e.target.closest('#btnPlus')) hide($('#plusMenu'));
+  if (!e.target.closest('#userMenu') && !e.target.closest('#btnUserMenu')) hide($('#userMenu'));
+  if (!e.target.closest('#reactPicker') && !e.target.closest('[data-maction="react"]')) hide($('#reactPicker'));
+});
+document.addEventListener('keydown', e => {
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    if (window.innerWidth < 1024) openSidebarMobile();
+    $('#agentSearch').focus(); $('#agentSearch').select();
+  } else if (mod && e.key.toLowerCase() === 'n') {
+    e.preventDefault(); openTpl();
+  } else if (mod && e.key === ',') {
+    e.preventDefault(); openSettings();
+  } else if (e.key === 'Escape') {
+    if (!modalOpen('authOverlay')) {
+      closeCtxMenu();
+      if (modalOpen('confirmModal')) settleConfirm(false);
+      else if (modalOpen('agentModal') || modalOpen('tplModal') || modalOpen('settingsModal') || modalOpen('userModal') || modalOpen('iosModal') || modalOpen('promptModal')) {
+        ['agentModal','tplModal','settingsModal','userModal','iosModal','promptModal'].forEach(id => { if (modalOpen(id)) closeModal(id); });
+      }
+      else if (profileId) closeProfile();
+      else {
+        hide($('#agentSwitcher')); hide($('#exportMenu')); hide($('#plusMenu')); hide($('#userMenu')); hide($('#reactPicker'));
+        if (editingIdx !== null) { editingIdx = null; renderThread(); }
+        else if (replyState !== null) { replyState = null; hide($('#replyBar')); }
+        else if (window.innerWidth < 1024 && !$('#sidebar').classList.contains('-translate-x-full')) closeSidebarMobile();
+      }
+    }
+  }
+});
+const updateOffline = () => $('#offlineBanner').classList.toggle('hidden', navigator.onLine);
+window.addEventListener('online', () => { updateOffline(); toast('Back online', 'success', 2000); });
+window.addEventListener('offline', () => { updateOffline(); toast('You are offline', 'error', 3000); });
+
+/* ═══════════════════════ // INIT ═══════════════════════ */
+function renderChrome() {
+  setHTML('#splashLogoWrap', logoState === 'fail'
+    ? pFallback('w-full h-full text-4xl')
+    : `<img src="${LOGO_URL}" alt="" crossorigin="anonymous" class="w-full h-full object-cover rounded-3xl" onerror="this.outerHTML=window.phantomLogoFallback('w-full h-full text-4xl rounded-3xl flex items-center justify-center')">`);
+  setHTML('#authBrandLogo', logoState === 'fail'
+    ? pFallback('w-28 h-28 text-4xl')
+    : `<img src="${LOGO_URL}" alt="" crossorigin="anonymous" class="w-28 h-28 object-cover rounded-3xl" onerror="this.outerHTML=window.phantomLogoFallback('w-28 h-28 text-4xl rounded-3xl flex items-center justify-center')">`);
+  setHTML('#authBrandLogoSm', logoHTML('w-16 h-16 object-cover rounded-2xl'));
+  setHTML('#sidebarLogo', logoHTML('w-10 h-10 object-cover rounded-xl'));
+  setHTML('#headerLogo', logoHTML('w-8 h-8 object-cover rounded-full'));
+  setHTML('#installLogo', logoHTML('w-10 h-10 object-cover rounded-xl'));
+  setHTML('#iosLogo', logoHTML('w-16 h-16 object-cover rounded-2xl'));
+  setHTML('#aboutLogo', logoHTML('w-16 h-16 object-cover rounded-2xl'));
+  setHTML('#aboutVersion', 'v' + APP_VERSION);
+}
+function initChromeIcons() {
+  $('#btnQuickAdd').innerHTML = icon('plus', 'w-5 h-5');
+  $('#searchIcon').innerHTML = icon('search', 'w-4 h-4');
+  $('#btnMenu').innerHTML = icon('menu', 'w-5 h-5');
+  $('#headerSwitchChev').innerHTML = icon('chev', 'w-4 h-4');
+  $('#btnExportChat').innerHTML = icon('download', 'w-5 h-5');
+  $('#btnSettings').innerHTML = icon('gear', 'w-5 h-5');
+  $('#btnWeb').innerHTML = icon('globe', 'w-5 h-5');
+  $('#btnPlus').innerHTML = icon('plus', 'w-5 h-5');
+  $('#btnMic').innerHTML = icon('mic', 'w-5 h-5');
+  $('#btnSend').innerHTML = icon('send', 'w-5 h-5');
+  $('#btnStop').innerHTML = icon('stop', 'w-5 h-5');
+  $('#btnCloseProfile').innerHTML = icon('x', 'w-5 h-5');
+  $('#replyCancel').innerHTML = icon('x', 'w-4 h-4');
+  $('#installX').innerHTML = icon('x', 'w-4 h-4');
+  $('#plusAttachIcon').innerHTML = icon('doc', 'w-4 h-4');
+  $('#plusClearIcon').innerHTML = icon('trash', 'w-4 h-4');
+  $('#btnAddAgent').innerHTML = `${icon('plus', 'w-4 h-4')} Add Agent`;
+  document.querySelectorAll('#tplModal [data-close], #agentModal [data-close], #settingsModal [data-close], #userModal [data-close], #iosModal [data-close], #promptModal [data-close]').forEach(b => { if (!b.innerHTML.trim()) b.innerHTML = icon('x', 'w-4 h-4'); });
+}
+let splashDone = false;
+function hideSplash() {
+  if (splashDone) return;
+  const el = $('#splash');
+  const wait = Math.max(0, 1500 - (performance.now() - PAGE_T0));
+  const finish = () => { if (el) { el.style.opacity = '0'; setTimeout(() => el.remove(), 320); } splashDone = true; };
+  if (wait === 0) finish(); else setTimeout(finish, wait);
+}
+const PAGE_T0 = performance.now();
+
+function boot() {
+  initChromeIcons();
+  renderChrome();
+  setupPWA();
+  updateOffline();
+  populateModelSelects();
+  const s = load(LS.SESSION, null);
+  if (s && s.expiry > Date.now()) {
+    const u = getUsers().find(x => x.id === s.userId);
+    if (u) { startSession(u, false); backgroundModelRefresh(); hideSplash(); return; }
+  }
+  showAuth('signin');
+  hideSplash();
+}
+document.addEventListener('logo-ok', renderChrome);
+boot();
+</script>
+</body>
+                                                                                                                                                                     </html>
