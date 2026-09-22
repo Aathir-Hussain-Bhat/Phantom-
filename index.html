@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src https://res.cloudinary.com data: blob:; connect-src https://generativelanguage.googleapis.com https://open.bigmodel.cn https://openrouter.ai https://api.groq.com https://api.cerebras.ai https://api.mistral.ai https://router.huggingface.co https://api.together.xyz https://en.wikipedia.org; manifest-src data: blob:; worker-src blob:; base-uri 'none'; form-action 'none'">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com data:; img-src https://res.cloudinary.com data: blob:; connect-src https://generativelanguage.googleapis.com https://open.bigmodel.cn https://openrouter.ai https://api.groq.com https://api.cerebras.ai https://api.mistral.ai https://router.huggingface.co https://api.together.xyz https://en.wikipedia.org; manifest-src data: blob:; worker-src blob:; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,9 +14,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 tailwind.config = { theme: { extend: {
   colors: { base:'#0a0a0a', panel:'#171717', bubble:'#1f2937', ink:'#e5e5e5' },
@@ -24,7 +26,7 @@ tailwind.config = { theme: { extend: {
 }}};
 </script>
 <style>
-  :root { --accent:#8b5cf6; }
+  :root { --accent:#8b5cf6; color-scheme:dark; }
   body { height:100vh; height:100dvh; }
   ::-webkit-scrollbar { width:4px; height:4px; }
   ::-webkit-scrollbar-thumb { background:#7c5cd6; border-radius:4px; }
@@ -36,14 +38,12 @@ tailwind.config = { theme: { extend: {
   .soft-shadow { box-shadow:0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06); }
   .btn { transition:all .2s ease-in-out; } .btn:active { transform:scale(.95); }
 
-  /* Ripple touch feedback */
   button:not(.act):not([data-noripple]) { position:relative; overflow:hidden; }
   .agent-item { overflow:hidden; }
   @keyframes rip { to { transform:scale(3.2); opacity:0; } }
   .ripple { position:absolute; border-radius:9999px; background:rgba(255,255,255,.28); transform:scale(0); opacity:.75;
     pointer-events:none; animation:rip .55s ease-out forwards; }
 
-  /* Premium avatars */
   .ava { position:relative;
     box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -12px 20px rgba(0,0,0,.3), 0 3px 10px -2px rgba(0,0,0,.5); }
   .ava::after { content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
@@ -52,8 +52,6 @@ tailwind.config = { theme: { extend: {
   .agent-item .ava { transition:transform .2s ease; }
   .agent-item:hover .ava { transform:scale(1.07) rotate(-3deg); }
 
-  /* Message entrance: applied ONLY to genuinely new messages via .msg-enter.
-     Never re-runs on scroll, touch, or thread re-renders (fixes the fade bug). */
   @keyframes msgIn { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:none;} }
   .msg-enter { animation: msgIn .22s ease both; }
   @keyframes dotB { 0%,80%,100% { transform:translateY(0); opacity:.35;} 40% { transform:translateY(-4px); opacity:1;} }
@@ -69,6 +67,7 @@ tailwind.config = { theme: { extend: {
   .stream-caret { display:inline-block; width:8px; height:15px; background:var(--accent); margin-left:3px; vertical-align:text-bottom; border-radius:2px; animation:blink 1s steps(2) infinite; }
   @keyframes pulseR { 0% { box-shadow:0 0 0 0 rgba(248,113,113,.55);} 100% { box-shadow:0 0 0 12px rgba(248,113,113,0);} }
   .listening { color:#f87171 !important; animation:pulseR 1.4s infinite; }
+  .speaking { color:var(--accent) !important; animation:pulseR 1.4s infinite; }
   .web-on { color:var(--accent); background:rgba(139,92,246,.14); }
   .drop-above { box-shadow: inset 0 2px 0 var(--accent); }
   .act { padding:.25rem; border-radius:.5rem; color:#71717a; transition:all .15s; position:relative; }
@@ -82,7 +81,6 @@ tailwind.config = { theme: { extend: {
   @keyframes fadeUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:none;} }
   .stagger > * { opacity:0; animation: fadeUp .45s ease forwards; }
 
-  /* SPLASH */
   #splash { transition:opacity .3s ease; }
   @keyframes splashIn { from { opacity:0; } to { opacity:1; } }
   @keyframes splashFloat { 0% { transform:scale(1) rotate(0deg);} 25% { transform:scale(1.02) rotate(5deg);} 50% { transform:scale(1.05) rotate(0deg);} 75% { transform:scale(1.02) rotate(-5deg);} 100% { transform:scale(1) rotate(0deg);} }
@@ -106,14 +104,25 @@ tailwind.config = { theme: { extend: {
   .md code { background:#111827; border:1px solid rgba(255,255,255,.08); padding:.1em .35em; border-radius:6px; font-size:.85em; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
   .md pre { background:#111827; border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:.8em; overflow-x:auto; margin:.5em 0; }
   .md pre code { background:none; border:none; padding:0; }
+  .md pre code.hljs { background:transparent; padding:0; }
   .md a { color:var(--accent); text-decoration:underline; overflow-wrap:anywhere; }
   .md blockquote { border-left:3px solid #3f3f46; padding-left:.8em; color:#a1a1aa; margin:.4em 0; }
   .md table { border-collapse:collapse; margin:.5em 0; font-size:.9em; }
   .md th, .md td { border:1px solid rgba(255,255,255,.1); padding:.3em .6em; }
   .md hr { border-color:rgba(255,255,255,.08); margin:.8em 0; }
   .md strong { color:#fff; font-weight:600; }
+  details > summary { list-style:none; } details > summary::-webkit-details-marker { display:none; }
 
-  /* ═══ POLISH LAYER ═══ */
+  pre.codeblock { position:relative; }
+  .code-copy { position:absolute; top:6px; right:6px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+    border-radius:8px; padding:.3rem; color:#a1a1aa; opacity:0; transition:opacity .15s, color .15s; z-index:2; }
+  .code-copy:hover { color:#fff; background:rgba(255,255,255,.12); }
+  pre.codeblock:hover .code-copy { opacity:1; }
+  @media (pointer: coarse) { .code-copy { opacity:.85; } }
+  .code-lang { position:absolute; top:9px; left:12px; font-size:10px; text-transform:uppercase; letter-spacing:.06em;
+    color:#71717a; pointer-events:none; user-select:none; }
+  pre.codeblock:has(.code-lang) { padding-top:1.6em; }
+
   ::selection { background:rgba(139,92,246,.4); color:#fff; }
   @supports (color: color-mix(in srgb, red, blue)) {
     ::selection { background:color-mix(in srgb, var(--accent) 40%, transparent); }
@@ -122,7 +131,6 @@ tailwind.config = { theme: { extend: {
     outline:2px solid var(--accent); outline-offset:2px; border-radius:8px; }
   .tnum { font-variant-numeric: tabular-nums; }
 
-  /* Long-press feedback + context menu */
   .msg { transition:transform .15s ease; }
   .msg.pressing { transform:scale(.985); }
   .agent-item.pressing { transform:translateX(4px) scale(.98); }
@@ -136,7 +144,6 @@ tailwind.config = { theme: { extend: {
     .msg, .agent-item, .prompt-item { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
   }
 
-  /* Composer focus glow (accent-aware) */
   .composer { transition:border-color .2s ease, box-shadow .25s ease; }
   .composer:focus-within {
     border-color:rgba(139,92,246,.5);
@@ -147,11 +154,69 @@ tailwind.config = { theme: { extend: {
       box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent),
                  0 12px 32px -14px color-mix(in srgb, var(--accent) 40%, transparent); }
   }
+  .composer.dragover { border-color:var(--accent); box-shadow:0 0 0 3px rgba(139,92,246,.18); }
 
-  /* Soft edge fade on the agent list scroll area */
   #agentList {
     -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 10px, #000 calc(100% - 12px), transparent 100%);
     mask-image:linear-gradient(to bottom, transparent 0, #000 10px, #000 calc(100% - 12px), transparent 100%); }
+
+  /* iOS keyboard: app shell slides above the keyboard */
+  #appRoot { transition:transform .18s ease; will-change:transform; }
+
+  /* @mention chips + popover */
+  .mention { background:rgba(139,92,246,.28); border-radius:6px; padding:0 4px; }
+  #mentionMenu .mrow { transition:background .12s ease; }
+
+  /* ═══ LIGHT THEME ═══ */
+  body.light { background:#f4f4f6; color:#27272a; color-scheme:light; }
+  body.light .bg-base { background:#f4f4f6; }
+  body.light .bg-panel { background:#ffffff; }
+  body.light .bg-panel\/95 { background:rgba(255,255,255,.92); }
+  body.light .bg-bubble { background:#eceef3; }
+  body.light .text-ink { color:#27272a; }
+  body.light .text-white { color:#1a1a1f; }
+  body.light [style].text-white { color:#fff; }
+  body.light .hover\:text-white:hover { color:#111114; }
+  body.light .text-zinc-200 { color:#3f3f46; }
+  body.light .text-zinc-300 { color:#52525b; }
+  body.light .text-zinc-300\/80 { color:#6b6b76; }
+  body.light .text-zinc-400 { color:#71717a; }
+  body.light .text-zinc-500 { color:#8a8a93; }
+  body.light .text-zinc-600 { color:#9d9da6; }
+  body.light .text-zinc-700 { color:#b0b0b8; }
+  body.light .placeholder-zinc-500::placeholder { color:#9d9da6; }
+  body.light .bg-\[\#101010\] { background:#f1f1f4; }
+  body.light .bg-\[\#0a0a0a\] { background:#ececef; }
+  body.light .bg-white\/5 { background:rgba(0,0,0,.04); }
+  body.light .bg-white\/10 { background:rgba(0,0,0,.07); }
+  body.light .bg-white\/15 { background:rgba(0,0,0,.1); }
+  body.light .hover\:bg-white\/5:hover { background:rgba(0,0,0,.045); }
+  body.light .hover\:bg-white\/10:hover { background:rgba(0,0,0,.08); }
+  body.light .hover\:bg-white\/20:hover { background:rgba(0,0,0,.12); }
+  body.light .border-white\/5 { border-color:rgba(0,0,0,.06); }
+  body.light .border-white\/10 { border-color:rgba(0,0,0,.1); }
+  body.light .border-white\/15 { border-color:rgba(0,0,0,.13); }
+  body.light .border-white\/20 { border-color:rgba(0,0,0,.16); }
+  body.light .border-white\/25 { border-color:rgba(0,0,0,.2); }
+  body.light .border-white\/35 { border-color:rgba(0,0,0,.28); }
+  body.light .hover\:border-white\/20:hover { border-color:rgba(0,0,0,.2); }
+  body.light .hover\:border-white\/25:hover { border-color:rgba(0,0,0,.22); }
+  body.light .hover\:border-white\/30:hover { border-color:rgba(0,0,0,.25); }
+  body.light .hover\:border-white\/35:hover { border-color:rgba(0,0,0,.3); }
+  body.light .focus\:border-white\/20:focus { border-color:rgba(0,0,0,.2); }
+  body.light .focus\:border-white\/25:focus { border-color:rgba(0,0,0,.25); }
+  body.light .glass { background:rgba(255,255,255,.86); }
+  body.light .ring-white { --tw-ring-color:rgba(24,24,27,.45); }
+  body.light .ring-white\/50 { --tw-ring-color:rgba(24,24,27,.4); }
+  body.light .md code { background:#eef0f4; border-color:rgba(0,0,0,.08); color:#1f2937; }
+  body.light .md h1, body.light .md h2, body.light .md h3 { color:#111827; }
+  body.light .md strong { color:#0b0b0f; }
+  body.light .md blockquote { color:#52525b; border-color:#d4d4d8; }
+  body.light .md th, body.light .md td { border-color:rgba(0,0,0,.12); }
+  body.light .md hr { border-color:rgba(0,0,0,.08); }
+  body.light ::-webkit-scrollbar-thumb { background:#c4b5fd; }
+  body.light ::-webkit-scrollbar-thumb:hover { background:#a78bfa; }
+  body.light .web-on { background:rgba(139,92,246,.12); }
 </style>
 </head>
 <body class="bg-base text-ink antialiased overflow-hidden font-sans">
@@ -174,7 +239,7 @@ tailwind.config = { theme: { extend: {
       <div class="relative mt-10 space-y-3 text-[13px] text-zinc-400 max-w-xs">
         <div class="flex items-center gap-3"><span class="text-violet-400">👻</span> Build a team of specialized AI agents</div>
         <div class="flex items-center gap-3"><span class="text-violet-400">⚡</span> 8 free AI providers with auto-failover</div>
-        <div class="flex items-center gap-3"><span class="text-violet-400">🔒</span> 100% local — your keys never leave this device</div>
+        <div class="flex items-center gap-3"><span class="text-violet-400">🔒</span> Keys are encrypted at rest on this device</div>
       </div>
       <p class="relative text-[11px] text-zinc-600 mt-12">Created by <span class="text-zinc-400">BHAT BOYKA</span></p>
     </div>
@@ -235,7 +300,7 @@ tailwind.config = { theme: { extend: {
 </div>
 
 <!-- ═══════════════ APP ═══════════════ -->
-<div class="flex h-full">
+<div id="appRoot" class="flex h-full">
   <!-- SIDEBAR -->
   <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-80 glass border-r border-white/5 flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-300">
     <div class="px-5 pt-4 pb-3 shrink-0">
@@ -244,7 +309,7 @@ tailwind.config = { theme: { extend: {
           <span id="sidebarLogo" class="logo-glow w-10 h-10 flex items-center justify-center shrink-0"></span>
           <span class="text-left min-w-0">
             <span class="block text-[15px] font-bold text-white leading-tight">Phantom</span>
-            <span class="block text-[10px] text-zinc-500">Your AI Ghost Team · v1.3.0</span>
+            <span class="block text-[10px] text-zinc-500">Your AI Ghost Team · v1.5.0</span>
           </span>
         </button>
         <button id="btnQuickAdd" title="New agent (Ctrl+N)" aria-label="New agent" class="btn p-2 rounded-xl text-zinc-500 hover:text-white hover:bg-white/10 shrink-0"></button>
@@ -321,24 +386,27 @@ tailwind.config = { theme: { extend: {
 
     <div class="px-4 pb-4 lg:px-6 shrink-0">
       <div class="max-w-3xl mx-auto relative">
+        <button id="scrollFab" class="hidden absolute -top-14 right-0 z-30 btn w-10 h-10 rounded-full glass border border-white/10 shadow-2xl items-center justify-center text-zinc-300 hover:text-white" title="Scroll to latest" aria-label="Scroll to bottom"></button>
+        <div id="attachBar" class="hidden mb-2 flex flex-wrap gap-2"></div>
         <div id="replyBar" class="hidden mb-2 flex items-center gap-2 bg-panel border border-white/10 rounded-xl px-3 py-2">
           <span class="text-xs text-zinc-500 flex-1 min-w-0 truncate" id="replyBarText"></span>
           <button id="replyCancel" aria-label="Cancel reply" class="btn p-1 rounded text-zinc-500 hover:text-white"></button>
         </div>
+        <div id="mentionMenu" class="hidden absolute bottom-20 left-0 w-64 glass border border-white/10 rounded-xl shadow-2xl p-1 z-50 pop"></div>
         <div id="plusMenu" class="hidden absolute bottom-16 left-0 w-56 glass border border-white/10 rounded-xl shadow-2xl p-1 z-50 pop">
-          <button id="plusAttach" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-zinc-300 rounded-lg hover:bg-white/5"><span id="plusAttachIcon"></span>Attach text file</button>
+          <button id="plusAttach" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-zinc-300 rounded-lg hover:bg-white/5"><span id="plusAttachIcon"></span>Attach files</button>
           <button id="plusClear" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-zinc-300 rounded-lg hover:bg-white/5"><span id="plusClearIcon"></span>Clear conversation</button>
         </div>
         <div class="composer flex items-end gap-1.5 glass border border-white/10 rounded-[26px] pl-2 pr-2 py-2 soft-shadow">
           <button id="btnWeb" title="Web search — adds live Wikipedia context to your next message" aria-label="Toggle web search" class="btn p-2.5 rounded-full text-zinc-500 hover:text-white hover:bg-white/10 shrink-0"></button>
-          <button id="btnPlus" title="More" aria-label="More options" class="btn p-2.5 rounded-full text-zinc-500 hover:text-white hover:bg-white/10 shrink-0"></button>
-          <textarea id="input" rows="1" placeholder="Message…" aria-label="Message input" class="flex-1 bg-transparent resize-none outline-none text-[15px] leading-relaxed py-2 placeholder-zinc-500 max-h-40"></textarea>
+          <button id="btnPlus" title="More — attach files, clear chat" aria-label="More options" class="btn p-2.5 rounded-full text-zinc-500 hover:text-white hover:bg-white/10 shrink-0"></button>
+          <textarea id="input" rows="1" placeholder="Message… (@ to mention teammates)" aria-label="Message input" class="flex-1 bg-transparent resize-none outline-none text-[15px] leading-relaxed py-2 placeholder-zinc-500 max-h-40"></textarea>
           <button id="btnMic" title="Voice input" aria-label="Voice input" class="btn p-2.5 rounded-full text-zinc-500 hover:text-white hover:bg-white/10 shrink-0"></button>
           <button id="btnSend" data-sfx="send" title="Send" aria-label="Send" class="btn hidden p-2.5 rounded-full text-white shrink-0 hover:scale-105" style="background:var(--accent)"></button>
           <button id="btnStop" title="Stop generating" aria-label="Stop" class="btn hidden p-2.5 rounded-full text-white bg-red-500 hover:bg-red-600 shrink-0"></button>
         </div>
         <div id="statusBar" class="text-[11px] text-zinc-600 text-center mt-2 transition-opacity duration-300"></div>
-        <input type="file" id="fileInput" accept=".txt,.md,.json,.csv,.log" class="hidden">
+        <input type="file" id="fileInput" multiple accept="image/*,.pdf,.txt,.md,.json,.csv,.log,text/*" class="hidden">
       </div>
     </div>
   </main>
@@ -350,6 +418,10 @@ tailwind.config = { theme: { extend: {
 <div id="reactPicker" class="hidden fixed z-[66] glass border border-white/10 rounded-full shadow-2xl px-2 py-1.5 flex gap-1 pop"></div>
 <!-- Long-press / right-click context menu -->
 <div id="ctxMenu" class="hidden fixed z-[96] min-w-[190px] glass border border-white/10 rounded-2xl shadow-2xl p-1.5"></div>
+<!-- Image lightbox -->
+<div id="lightbox" class="hidden fixed inset-0 z-[94] bg-black/90 backdrop-blur-sm items-center justify-center p-4 cursor-zoom-out">
+  <img id="lightboxImg" class="max-h-[90vh] max-w-full rounded-xl shadow-2xl" alt="Attachment preview">
+</div>
 
 <!-- PWA INSTALL BANNER -->
 <div id="installBanner" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-[75] w-[min(420px,92vw)] glass border border-white/10 rounded-2xl shadow-2xl p-4" style="transition:transform .3s ease, opacity .3s ease">
@@ -379,6 +451,21 @@ tailwind.config = { theme: { extend: {
       <p>3. Tap <b class="text-white">Add</b> — done!</p>
     </div>
     <button data-close="iosModal" class="btn w-full mt-5 py-2.5 rounded-xl text-sm font-medium text-white" style="background:var(--accent)">Got it</button>
+  </div>
+</div>
+
+<!-- VAULT UNLOCK MODAL -->
+<div id="unlockModal" class="fixed inset-0 z-[72] hidden items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="unlockModal"></div>
+  <div class="relative w-full max-w-sm glass border border-white/10 rounded-2xl shadow-2xl p-5 pop">
+    <div class="flex items-center gap-2"><span>🔒</span><h3 class="font-semibold text-white">Unlock API keys</h3></div>
+    <p id="unlockMsg" class="text-xs text-zinc-400 mt-1.5 leading-relaxed">Enter your password to decrypt your saved API keys for this session.</p>
+    <div id="unlockErr" class="hidden text-xs text-red-400 mt-2"></div>
+    <input id="unlockPw" type="password" autocomplete="current-password" placeholder="Password" class="w-full mt-3 bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25">
+    <div class="flex gap-2 mt-4">
+      <button data-close="unlockModal" class="btn flex-1 text-sm py-2.5 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10">Not now</button>
+      <button id="btnUnlockGo" class="btn flex-1 text-sm py-2.5 rounded-xl font-medium text-white" style="background:var(--accent)">Unlock</button>
+    </div>
   </div>
 </div>
 
@@ -551,11 +638,13 @@ tailwind.config = { theme: { extend: {
     <div class="overflow-y-auto px-5 py-5 space-y-7">
       <section>
         <h3 class="text-sm font-semibold text-white mb-1">API Providers</h3>
-        <p class="text-xs text-zinc-500 mb-3">Model lists are fetched live from each provider using your key. Failover order: Gemini → Groq → Cerebras → GLM-4 → Mistral → OpenRouter → Hugging Face → Together.</p>
-        <label class="flex items-center gap-2.5 mb-3 text-xs text-zinc-300 bg-[#101010] border border-white/5 rounded-xl px-3 py-2.5 cursor-pointer">
+        <p class="text-xs text-zinc-500 mb-2">Model lists are fetched live from each provider using your key. Failover order: Gemini → Groq → Cerebras → GLM-4 → Mistral → OpenRouter → Hugging Face → Together.</p>
+        <div id="vaultLine" class="text-[11px] mb-3"></div>
+        <label class="flex items-center gap-2.5 mb-1 text-xs text-zinc-300 bg-[#101010] border border-white/5 rounded-xl px-3 py-2.5 cursor-pointer">
           <input id="shareKeysToggle" type="checkbox" class="accent-violet-500 w-4 h-4">
           <span>Share API keys across all users on this device</span>
         </label>
+        <p class="text-[10px] text-zinc-600 mb-3 px-1">Note: shared keys are stored unencrypted on this device (any local user can read them).</p>
         <div id="providerList" class="space-y-3"></div>
       </section>
       <section>
@@ -570,6 +659,12 @@ tailwind.config = { theme: { extend: {
             <input id="setDefaultMax" type="range" min="256" max="4096" step="256" value="2048" class="w-full mt-3"><div id="setDefaultMaxVal" class="text-[11px] text-zinc-500 mt-1">2048</div></div>
         </div>
         <div class="mt-4"><label class="block text-xs text-zinc-400 mb-2">Theme accent</label><div id="accentRow" class="flex flex-wrap gap-2"></div></div>
+        <div class="mt-4"><label class="block text-xs text-zinc-400 mb-2">Theme</label>
+          <div class="flex gap-2">
+            <button data-theme-set="dark" class="btn text-xs px-4 py-2 rounded-xl">🌙 Dark</button>
+            <button data-theme-set="light" class="btn text-xs px-4 py-2 rounded-xl">☀️ Light</button>
+          </div>
+        </div>
       </section>
       <section>
         <h3 class="text-sm font-semibold text-white mb-1">Sound & Feedback</h3>
@@ -582,6 +677,10 @@ tailwind.config = { theme: { extend: {
           <label class="flex items-center gap-2.5 text-xs text-zinc-300 bg-[#101010] border border-white/5 rounded-xl px-3 py-2.5 cursor-pointer">
             <input id="toggleHaptics" type="checkbox" class="accent-violet-500 w-4 h-4">
             <span>Haptic feedback <span class="text-zinc-500">(vibration on supported devices)</span></span>
+          </label>
+          <label class="flex items-center gap-2.5 text-xs text-zinc-300 bg-[#101010] border border-white/5 rounded-xl px-3 py-2.5 cursor-pointer">
+            <input id="toggleTTS" type="checkbox" class="accent-violet-500 w-4 h-4">
+            <span>Read replies aloud automatically <span class="text-zinc-500">(on-device speech, free)</span></span>
           </label>
         </div>
       </section>
@@ -640,7 +739,7 @@ tailwind.config = { theme: { extend: {
 'use strict';
 
 /* ═══════════════════════ // CONFIG ═══════════════════════ */
-const APP_VERSION = '1.3.0';
+const APP_VERSION = '1.5.0';
 const LOGO_URL = 'https://res.cloudinary.com/prjgzqvy/image/upload/v1790017986/file_000000007bec8208a53dc97b3142afb6_bxd7tt.png';
 
 const LS = { USERS:'phantom_users', SESSION:'phantom_session', SHARED:'phantom_shared_keys', INSTALL:'phantom_install_dismissed', IOS:'phantom_ios_hint', MIG:'phantom_migrated', MODELS:'phantom_model_cache' };
@@ -706,6 +805,12 @@ const REACTIONS = ['❤️','👍','😂','😮','😢','🙏'];
 const CONTEXT_MESSAGES = 24, CIRCUIT_THRESHOLD = 3, CIRCUIT_COOLDOWN = 10*60*1000, TEST_TIMEOUT = 10000;
 const MODEL_REFRESH_MS = 24*60*60*1000;
 const LONGPRESS_MS = 480;
+const MAX_FILES = 6, MAX_FILE_BYTES = 8*1024*1024;
+const IMAGE_KEEP_BYTES = 400*1024, IMAGE_MAX_EDGE = 1280;
+const FILE_STORE_CHARS = 48000, FILE_CONTEXT_CHARS = 12000;
+const TEXT_EXT = /\.(txt|md|markdown|json|csv|tsv|log|xml|yml|yaml|html?|css|js|jsx|ts|tsx|py|rb|go|rs|java|kt|c|h|cpp|cs|php|sh|sql|toml|ini|env)$/i;
+const VISION_RE = /(vision|llava|-vl\b|glm-4v|pixtral|gpt-4o|gpt-4\.1|omni|gemini|claude-[34]|llama-3\.2-(11|90)|llama-4|molmo|qwen.*-vl)/i;
+const HUDDLE_MAX = 2, HUDDLE_TOKENS = 700;
 
 const PRESETS = [
   { name:'Inbox Manager', emoji:'👻', gradient:'violet', color:'violet', role:'Email triage & drafts', model:'gemini-2.0-flash', temp:0.3, maxTokens:1024,
@@ -744,6 +849,17 @@ const humanModel = id => String(id || '').split('/').pop().replace(/:free$/, '')
   .split(' ').map(w => w ? (w[0].toUpperCase() + w.slice(1)) : w).join(' ');
 const modelLabel = m => (MODELS[m] && MODELS[m].label) || humanModel(m) || m;
 const tempWord = v => { v = +v; return v <= 0.3 ? 'precise' : v <= 0.7 ? 'balanced' : 'creative'; };
+const fmtBytes = n => n >= 1048576 ? (n/1048576).toFixed(1) + ' MB' : n >= 1024 ? Math.round(n/1024) + ' KB' : n + ' B';
+// Darken a hex color by factor f (0..1) — used for accent-aware user bubbles
+function shade(hex, f) {
+  const n = parseInt(String(hex).slice(1), 16);
+  const r = Math.round(((n >> 16) & 255) * f), g = Math.round(((n >> 8) & 255) * f), b = Math.round((n & 255) * f);
+  return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+function userBubbleCSS() {
+  const acc = COLORS[settings && settings.accent] || '#8b5cf6';
+  return `background:linear-gradient(135deg,${acc},${shade(acc, 0.68)})`;
+}
 
 const ICONS = {
   plus:'<path d="M12 5v14M5 12h14"/>', search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
@@ -766,6 +882,7 @@ const ICONS = {
   key:'<path d="m21 2-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3-3.5 3.5z"/>',
   reply:'<polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/>',
   smile:'<circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
+  speak:'<path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.4 5.6a9 9 0 0 1 0 12.8"/>',
 };
 const icon = (n, cls='w-4 h-4') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
 const ghost = (cls='w-5 h-5') => `<svg class="${cls}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a8 8 0 0 0-8 8v11.3c0 .5.6.8 1 .5l2-1.6 2.1 1.7c.3.3.7.3 1 0l1.9-1.5 1.9 1.5c.3.3.7.3 1 0L19 20.2l2 1.6c.4.3 1 0 1-.5V10a8 8 0 0 0-8-8z"/><circle cx="9.3" cy="10.5" r="1.4" fill="#171717"/><circle cx="14.7" cy="10.5" r="1.4" fill="#171717"/></svg>`;
@@ -914,7 +1031,6 @@ function storageMB() {
   return bytes / 1048576;
 }
 
-// confirm dialog
 let confirmResolve = null;
 function confirmDialog({ title, message, okText='Delete', danger=true }) {
   $('#cfTitle').textContent = title; $('#cfMsg').textContent = message; $('#cfOk').textContent = okText;
@@ -960,12 +1076,42 @@ const typingHTML = () => `<div class="flex items-center gap-2.5 py-1">
   <span class="text-xs text-zinc-400">Phantom is typing</span>
   <span class="flex items-center gap-1"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></span></div>`;
 
-/* ═══════════════════════ // AUTH & STATE MANAGEMENT ═══════════════════════ */
+/* ─── CODE BLOCK ENHANCEMENT (highlight + copy) ─── */
+let lastEnhance = 0;
+function enhanceCodeBlocks(root) {
+  if (!root || !root.querySelectorAll) return;
+  root.querySelectorAll('pre').forEach(pre => {
+    if (pre.dataset.enhanced) return;
+    const code = pre.querySelector('code');
+    if (!code) return;
+    pre.dataset.enhanced = '1';
+    pre.classList.add('codeblock');
+    const lang = (code.className.match(/language-([\w+#.-]+)/) || [])[1];
+    if (lang) { const tag = document.createElement('span'); tag.className = 'code-lang'; tag.textContent = lang; pre.appendChild(tag); }
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'code-copy act'; btn.title = 'Copy code'; btn.setAttribute('aria-label', 'Copy code');
+    btn.innerHTML = icon('copy', 'w-3.5 h-3.5');
+    pre.appendChild(btn);
+    if (window.hljs) { try { hljs.highlightElement(code); } catch {} }
+  });
+}
+function maybeEnhance(el) {
+  const now = performance.now();
+  if (now - lastEnhance > 400) { lastEnhance = now; enhanceCodeBlocks(el); }
+}
+
+/* ═══════════════════════ // AUTH, VAULT & STATE ═══════════════════════ */
 const enc = new TextEncoder();
 const bytesToHex = b => Array.from(b).map(x => x.toString(16).padStart(2, '0')).join('');
 const hexToBytes = h => new Uint8Array((h.match(/../g) || []).map(x => parseInt(x, 16)));
 const PBKDF2_ITER = 150000;
+const cryptoOK = () => typeof crypto !== 'undefined' && crypto.subtle && crypto.getRandomValues;
 function randomSalt() { return bytesToHex(crypto.getRandomValues(new Uint8Array(16))); }
+function bufToB64(buf) { const b = new Uint8Array(buf); let s = '';
+  for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
+  return btoa(s); }
+function b64ToBuf(s) { const bin = atob(s); const b = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i); return b.buffer; }
 async function sha256Hex(s) {
   const buf = await crypto.subtle.digest('SHA-256', enc.encode(s));
   return bytesToHex(new Uint8Array(buf));
@@ -976,7 +1122,7 @@ async function pbkdf2Hex(pass, saltHex, iterations) {
   return bytesToHex(new Uint8Array(bits));
 }
 async function makePasswordRecord(pass) {
-  if (crypto.subtle) {
+  if (cryptoOK()) {
     const salt = randomSalt();
     return { algo:'pbkdf2', salt, iterations:PBKDF2_ITER, passHash: await pbkdf2Hex(pass, salt, PBKDF2_ITER) };
   }
@@ -1006,6 +1152,63 @@ async function upgradeHash(u, pass) {
   } catch {}
 }
 
+let vaultKey = null, vaultLocked = false;
+async function deriveVaultKey(pass, saltHex) {
+  const seed = await crypto.subtle.importKey('raw', enc.encode('vault::' + pass), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name:'PBKDF2', hash:'SHA-256', salt:hexToBytes(saltHex), iterations:PBKDF2_ITER }, seed, 256);
+  return crypto.subtle.importKey('raw', bits, 'AES-GCM', false, ['encrypt', 'decrypt']);
+}
+async function encryptJSON(key, obj) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, key, enc.encode(JSON.stringify(obj)));
+  return { v:1, iv: bufToB64(iv.buffer), ct: bufToB64(ct) };
+}
+async function decryptJSON(key, blob) {
+  const pt = await crypto.subtle.decrypt({ name:'AES-GCM', iv:new Uint8Array(b64ToBuf(blob.iv)) }, key, b64ToBuf(blob.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+async function setupVaultKey(u, password) {
+  vaultKey = null;
+  if (!cryptoOK() || !password || !(u && u.salt)) return;
+  try { vaultKey = await deriveVaultKey(password, u.salt); } catch { vaultKey = null; }
+}
+const hasPlainKeys = o => FAILOVER.some(p => (o && o[p] || '').trim());
+async function keysChanged() {
+  if (vaultKey && cryptoOK()) {
+    try { settings.encKeys = await encryptJSON(vaultKey, settings.apiKeys); } catch {}
+    persist();
+  }
+}
+async function decryptKeysInto() {
+  if (!settings.encKeys || !vaultKey) return false;
+  try {
+    const dec = await decryptJSON(vaultKey, settings.encKeys);
+    settings.apiKeys = Object.assign({}, DEFAULT_KEYS, dec || {});
+    vaultLocked = false;
+    return true;
+  } catch { return false; }
+}
+function openUnlock(msg) {
+  $('#unlockPw').value = ''; hide($('#unlockErr'));
+  $('#unlockMsg').textContent = msg || 'Enter your password to decrypt your saved API keys for this session.';
+  openModal('unlockModal');
+  setTimeout(() => $('#unlockPw').focus(), 60);
+}
+async function submitUnlock() {
+  const pw = $('#unlockPw').value;
+  if (!pw || !USER) return;
+  if (!(await verifyPassword(USER, pw))) { $('#unlockErr').textContent = 'Wrong password'; show($('#unlockErr')); return; }
+  await setupVaultKey(USER, pw);
+  const ok = await decryptKeysInto();
+  closeModal('unlockModal');
+  if (ok) {
+    toast('API keys unlocked 🔓', 'success');
+    renderProviderList(); renderSidebar(); renderHeader();
+  } else {
+    toast('Could not decrypt stored keys — re-enter them in Settings', 'error', 6000);
+  }
+}
+
 const getUsers = () => load(LS.USERS, []) || [];
 const persistUsers = list => saveRaw(LS.USERS, list);
 
@@ -1023,13 +1226,17 @@ function providerOf(modelId) {
   return null;
 }
 const isGuest = () => !!USER && USER.id === 'guest';
-const persist = () => { if (USER && !isGuest()) saveRaw(bucketKey(), { agents, chats, settings, latency, circuit, ui, prompts }); };
+const persist = () => { if (USER && !isGuest()) {
+  let s = settings;
+  if (vaultKey && settings.encKeys) { s = Object.assign({}, settings); delete s.apiKeys; }
+  saveRaw(bucketKey(), { agents, chats, settings:s, latency, circuit, ui, prompts });
+}};
 const saveAgents = persist, saveChats = persist, saveSettings = persist, saveCircuit = persist, saveLatency = persist, saveUI = persist;
 
 function defaultSettings() {
   return { apiKeys: Object.assign({}, DEFAULT_KEYS), shareKeys:false, theme:'dark',
     defaultModel:'gemini-2.0-flash', defaultTemp:0.6, defaultMaxTokens:2048, accent:'violet',
-    sounds:true, haptics:true };
+    sounds:true, haptics:true, autoSpeak:false };
 }
 function normLatency(o) {
   if (!o || typeof o !== 'object' || Array.isArray(o)) return {};
@@ -1072,10 +1279,11 @@ function presetToAgent(p) {
     model:p.model || settings.defaultModel, temp:p.temp ?? settings.defaultTemp, maxTokens:p.maxTokens ?? settings.defaultMaxTokens,
     color:p.color||'violet', pinned:false, archived:false, createdAt:Date.now(), starter:p.starter||'' };
 }
-function loadForUser(u) {
+async function loadForUser(u) {
   settings = defaultSettings(); agents = []; chats = {}; latency = {}; circuit = {};
   ui = { activeId:null, collapsed:{ pinned:false, all:false, archived:true, prompts:false } };
   prompts = defaultPrompts();
+  vaultLocked = false;
   if (u.id === 'guest') { agents = [presetToAgent(PRESETS[0])]; return; }
   const d = load(bucketKey(), null);
   if (d) {
@@ -1088,6 +1296,18 @@ function loadForUser(u) {
     if (!ui.collapsed || typeof ui.collapsed !== 'object') ui.collapsed = { pinned:false, all:false, archived:true, prompts:false };
     if (typeof ui.collapsed.prompts !== 'boolean') ui.collapsed.prompts = false;
     prompts = Array.isArray(d.prompts) ? normPrompts(d.prompts) : defaultPrompts();
+    if (settings.encKeys && settings.encKeys.ct) {
+      if (vaultKey) {
+        const ok = await decryptKeysInto();
+        if (!ok) { vaultLocked = true; settings.apiKeys = Object.assign({}, DEFAULT_KEYS); }
+      } else {
+        vaultLocked = true;
+        settings.apiKeys = Object.assign({}, DEFAULT_KEYS);
+      }
+    } else if (hasPlainKeys(settings.apiKeys) && vaultKey && cryptoOK()) {
+      await keysChanged();
+      setTimeout(() => toast('API keys are now encrypted on this device 🔐', 'success'), 1200);
+    }
   } else if (localStorage.getItem('phantom_agents') && !load(LS.MIG, false)) {
     try {
       agents = JSON.parse(localStorage.getItem('phantom_agents')) || [];
@@ -1100,6 +1320,7 @@ function loadForUser(u) {
       saveRaw(LS.MIG, true);
       setTimeout(() => toast('Imported your previous Phantom data into this account', 'success'), 800);
     } catch {}
+    if (vaultKey && hasPlainKeys(settings.apiKeys)) await keysChanged();
     persist();
   } else {
     agents = PRESETS.slice(0, 4).map(presetToAgent);
@@ -1190,7 +1411,7 @@ async function submitAuth() {
     const u = users.find(x => x.username.toLowerCase() === un.toLowerCase() || (x.email || '').toLowerCase() === un.toLowerCase());
     if (!u) return authError('No account found with that username or email');
     if (!(await verifyPassword(u, pw))) return authError('Wrong password — try again');
-    startSession(u);
+    await startSession(u, true, pw);
   } else {
     const em = $('#auEmail').value.trim(), cf = $('#auConfirm').value;
     if (users.some(x => x.username.toLowerCase() === un.toLowerCase())) return authError('That username is taken');
@@ -1201,39 +1422,82 @@ async function submitAuth() {
     const rec = await makePasswordRecord(pw);
     const u = Object.assign({ id:uid(), username:un, email:em, avatar:null, bio:'', createdAt:Date.now(), lastLogin:Date.now() }, rec);
     users.push(u); persistUsers(users);
-    startSession(u);
+    await startSession(u, true, pw);
   }
 }
-function startSession(u, announce=true) {
+async function startSession(u, announce=true, password=null) {
   USER = u;
   u.lastLogin = Date.now();
   const users = getUsers(); const i = users.findIndex(x => x.id === u.id);
   if (i >= 0) { users[i] = u; persistUsers(users); }
   saveRaw(LS.SESSION, { userId:u.id, token:uid() + uid(), expiry:Date.now() + 24*60*60*1000 });
-  loadForUser(u);
+  await setupVaultKey(u, password);
+  await loadForUser(u);
   hideAuth();
   resetTransient();
-  applyAccent(); renderChrome(); renderAll();
+  applyTheme(); applyAccent(); renderChrome(); renderAll();
   if (announce) toast(`Welcome back, ${u.username} 👻`, 'success');
 }
 function startGuest() {
   USER = { id:'guest', username:'Guest', email:'', avatar:'👻', bio:'Browsing as guest', createdAt:Date.now(), lastLogin:Date.now() };
   localStorage.removeItem(LS.SESSION);
+  vaultKey = null; vaultLocked = false;
   loadForUser(USER);
   hideAuth();
   resetTransient();
-  applyAccent(); renderChrome(); renderAll();
+  applyTheme(); applyAccent(); renderChrome(); renderAll();
   toast('Guest mode — data clears when you refresh', 'info', 5000);
 }
 function logout() {
+  if (window.speechSynthesis) speechSynthesis.cancel(); speakingId = null;
   localStorage.removeItem(LS.SESSION);
-  USER = null;
+  USER = null; vaultKey = null; vaultLocked = false;
   showAuth('signin');
   toast('Signed out', 'info', 2000);
 }
 function resetTransient() {
-  profileId = null; editingIdx = null; replyState = null; threadError = null;
+  profileId = null; editingIdx = null; replyState = null; threadError = null; pendingFiles = []; renderAttachBar();
   closeProfile(); hide($('#userModal'));
+}
+
+/* ═══════════════════════ // THEME & TTS ═══════════════════════ */
+function applyTheme() { document.body.classList.toggle('light', !!(settings && settings.theme === 'light')); }
+function renderThemeRow() {
+  document.querySelectorAll('[data-theme-set]').forEach(b => {
+    const on = (settings.theme === 'light') === (b.dataset.themeSet === 'light');
+    b.className = `btn text-xs px-4 py-2 rounded-xl ${on ? 'font-semibold text-white' : 'bg-white/5 text-zinc-400 hover:bg-white/10'}`;
+    b.style.background = on ? 'var(--accent)' : '';
+  });
+}
+let speakingId = null;
+function ttsClean(text) {
+  return String(text || '')
+    .replace(/```[\s\S]*?```/g, ' Code block. ')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/https?:\/\/\S+/g, 'link')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/^\s*[✓✔⚠✖]\s*/gm, '')
+    .replace(/[*_#>|]/g, '')
+    .replace(/\s+/g, ' ').trim();
+}
+function setSpeakIcons() {
+  document.querySelectorAll('[data-speak]').forEach(el =>
+    el.classList.toggle('speaking', el.dataset.speak === speakingId));
+}
+function stopSpeaking() { if (window.speechSynthesis) { speechSynthesis.cancel(); } speakingId = null; setSpeakIcons(); }
+function speakMessage(i) {
+  if (!('speechSynthesis' in window)) { toast('Speech synthesis is not supported in this browser', 'warn'); return; }
+  const a = activeAgent(); if (!a) return;
+  const list = getChat(a.id);
+  const m = list[i]; if (!m || !m.content) return;
+  if (speakingId === m.id && speechSynthesis.speaking) { stopSpeaking(); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(ttsClean(m.content).slice(0, 4000));
+  u.rate = 1.03;
+  u.onend = u.onerror = () => { speakingId = null; setSpeakIcons(); };
+  speakingId = m.id;
+  speechSynthesis.speak(u);
+  setSpeakIcons();
 }
 
 /* ═══════════════════════ // API ROTATION ═══════════════════════ */
@@ -1303,7 +1567,14 @@ async function streamSSE(response, onEvent) {
   }
 }
 async function callGemini({ model, system, messages, temp, maxTokens, apiKey, signal, onDelta }) {
-  const contents = messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
+  const contents = messages.map(m => {
+    const parts = [{ text: m.content }];
+    if (m.images) for (const im of m.images) {
+      const b64 = String(im.data).split(',')[1];
+      if (b64) parts.push({ inline_data: { mime_type: im.mime || 'image/jpeg', data: b64 } });
+    }
+    return { role: m.role === 'assistant' ? 'model' : 'user', parts };
+  });
   const body = { contents, generationConfig: { temperature: temp, maxOutputTokens: maxTokens } };
   if (system) body.systemInstruction = { parts: [{ text: system }] };
   const res = await fetch(`${PROVIDERS.gemini.endpoint}/${encodeURIComponent(model)}:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`,
@@ -1316,10 +1587,18 @@ async function callGemini({ model, system, messages, temp, maxTokens, apiKey, si
   });
   return full;
 }
-async function callOpenAI(endpoint, model, extraHeaders, { system, messages, temp, maxTokens, apiKey, signal, onDelta }) {
+async function callOpenAI(endpoint, model, extraHeaders, { system, messages, temp, maxTokens, apiKey, signal, onDelta, vision }) {
   const msgs = [];
   if (system) msgs.push({ role:'system', content: system });
-  msgs.push(...messages.map(m => ({ role:m.role, content:m.content })));
+  msgs.push(...messages.map(m => {
+    if (vision && m.images && m.images.length) {
+      return { role:m.role, content: [
+        { type:'text', text:m.content },
+        ...m.images.map(im => ({ type:'image_url', image_url:{ url: im.data } })),
+      ]};
+    }
+    return { role:m.role, content:m.content };
+  }));
   const res = await fetch(endpoint, { method:'POST',
     headers: Object.assign({ 'Content-Type':'application/json', 'Authorization': `Bearer ${apiKey}` }, extraHeaders),
     body: JSON.stringify({ model, messages: msgs, stream:true, temperature: temp, max_tokens: maxTokens }), signal });
@@ -1439,7 +1718,7 @@ const isNearBottom = () => threadEl().scrollHeight - threadEl().scrollTop - thre
 const autoScroll = force => { if (force || isNearBottom()) threadEl().scrollTop = threadEl().scrollHeight; };
 function createStreamRenderer(containerEl) {
   let target = '', shown = '', rafId = null, finished = false;
-  const paint = () => { containerEl.innerHTML = renderAssistantContent(shown, true); };
+  const paint = () => { containerEl.innerHTML = renderAssistantContent(shown, true); maybeEnhance(containerEl); };
   const tick = () => {
     if (finished) return;
     if (shown.length < target.length) {
@@ -1453,21 +1732,18 @@ function createStreamRenderer(containerEl) {
   return {
     push(d) { target += d; },
     clear() { target = ''; shown = ''; containerEl.innerHTML = typingHTML(); },
-    finish() { finished = true; if (rafId) cancelAnimationFrame(rafId); shown = target; paint(); },
+    finish() { finished = true; if (rafId) cancelAnimationFrame(rafId); shown = target; paint(); enhanceCodeBlocks(containerEl); },
     text() { return target; },
   };
 }
 let genState = { active:false, controller:null, typewriter:null };
 
-/* ─── REAL LINK ENRICHMENT ───
-   Fetches related, guaranteed-valid Wikipedia article links for a message.
-   Cached per message id. Injected into the system prompt and appended as a
-   "Sources" footer so replies always carry working links. */
+/* ─── REAL LINK ENRICHMENT ─── */
 const sourceCache = {};
 async function fetchSources(msg, outerSignal) {
   const key = msg.id || ('k:' + (msg.content || '').slice(0, 64));
   if (sourceCache[key]) return sourceCache[key];
-  const q = (msg.content || '').replace(/\s+/g, ' ').trim().slice(0, 220);
+  const q = (msg.content || '').replace(/@\S+\s*/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 220);
   if (!q || q.split(' ').filter(Boolean).length < 4) return [];
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 6000);
@@ -1491,9 +1767,7 @@ async function fetchSources(msg, outerSignal) {
   finally { clearTimeout(timer); if (outerSignal) outerSignal.removeEventListener('abort', onAbort); }
 }
 
-/* ─── AGENT AUTO-REACTION ───
-   After a successful reply, react on the user's message based on the tone of
-   the agent's response. Never overrides a reaction the user set themselves. */
+/* ─── AGENT AUTO-REACTION ─── */
 function pickAgentReaction(text) {
   const t = String(text || '');
   const low = t.toLowerCase();
@@ -1507,12 +1781,62 @@ function pickAgentReaction(text) {
   return null;
 }
 
+/* ─── @MENTIONS / TEAM MODE ─── */
+function nameRegex(name) {
+  const safe = String(name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/[\s_-]+/g, '[\\s_-]+');
+  return new RegExp('@' + safe + '\\b', 'i');
+}
+function detectMentions(text) {
+  const t = String(text || '');
+  const found = agents.filter(a => !a.archived && nameRegex(a.name).test(t));
+  const all = /@(all|everyone|team|allhands|all-hands)\b/i.test(t) || found.length >= 2;
+  return { agents: found, all };
+}
+function stripMentions(text) {
+  let out = String(text || '');
+  out = out.replace(/@(all|everyone|team|allhands|all-hands)\b/gi, '');
+  agents.forEach(a => { try { out = out.replace(new RegExp('@' + a.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/[\s_-]+/g, '[\\s_-]+'), 'gi'), ''); } catch {} });
+  return out.replace(/\s{2,}/g, ' ').trim();
+}
+function highlightMentions(content) {
+  let html = esc(content);
+  agents.forEach(a => {
+    try { html = html.replace(new RegExp('@' + esc(a.name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/[\s_-]+/g, '[\\s_-]+'), 'g'), m => `<span class="mention">${m}</span>`); } catch {}
+  });
+  html = html.replace(/@(all|everyone|team|allhands|all-hands)\b/gi, m => `<span class="mention">${m}</span>`);
+  return html;
+}
+function huddleHTML(m, live=false) {
+  const rows = m.huddle || [];
+  if (!rows.length) return '';
+  const items = rows.map(r => r.status === 'ok'
+    ? `<div class="flex items-start gap-2 py-1"><span class="text-emerald-400 font-bold shrink-0">✓</span><div class="min-w-0"><div class="text-[11px] font-semibold text-zinc-300">${esc(r.name)}</div><div class="text-[11px] text-zinc-500 whitespace-pre-wrap leading-snug">${esc(r.text)}</div></div></div>`
+    : `<div class="flex items-center gap-2 py-1 text-[11px] ${r.status === 'pending' ? 'text-zinc-500' : 'text-amber-400'}">${r.status === 'pending' ? '⏳' : '⚠'} <span>${esc(r.name)}${r.status === 'fail' ? ' — unavailable' : ''}</span></div>`).join('');
+  const names = rows.filter(r => r.status === 'ok').map(r => r.name).join(', ');
+  return `<details${live ? ' open' : ''} class="mt-2 rounded-xl bg-black/20 border border-white/5 huddle-box">
+    <summary class="cursor-pointer px-3 py-2 text-[11px] text-zinc-400 select-none">🤝 Team huddle${names ? ' · ' + esc(names) : ''}</summary>
+    <div class="px-3 pb-2">${items}</div></details>`;
+}
+
 async function generateResponse() {
   const agent = activeAgent();
   if (!agent || genState.active) return;
   const list = getChat(agent.id);
   if (!list.some(m => m.role === 'user')) { renderThread(); return; }
-  const preferred = providerOf(agent.model) || 'gemini';
+  stopSpeaking();
+  const targetMsg = [...list].reverse().find(m => m.role === 'user');
+  // ── Team mode routing ──
+  const mention = targetMsg ? detectMentions(targetMsg.content) : { agents:[], all:false };
+  let responder = agent, huddlePlan = null;
+  if (mention.all) {
+    const others = (mention.agents.length ? mention.agents : agents.filter(a => !a.archived && a.id !== agent.id))
+      .filter(a => a.id !== agent.id).slice(0, HUDDLE_MAX);
+    if (others.length) huddlePlan = { participants: others, synth: agent };
+  } else if (mention.agents.length === 1 && mention.agents[0].id !== agent.id) {
+    responder = mention.agents[0];
+  }
+  const strippedQ = targetMsg ? (stripMentions(targetMsg.content) || targetMsg.content) : '';
+  const preferred = providerOf(responder.model) || 'gemini';
   const order = providerOrder(preferred);
   if (!order.length) {
     threadError = { title: hasAnyKey() ? 'All providers cooling down' : 'No API key configured',
@@ -1520,16 +1844,27 @@ async function generateResponse() {
     renderThread(); return;
   }
   genState.active = true; genState.controller = new AbortController(); updateSendState();
-  const targetMsg = [...list].reverse().find(m => m.role === 'user');
   const ph = { id:uid(), role:'assistant', content:'', ts:Date.now(), model:'', tokens:0, streaming:true };
+  if (huddlePlan) { ph.agentName = 'All Hands'; ph.huddle = []; }
+  else if (responder.id !== agent.id) { ph.agentId = responder.id; ph.agentName = responder.name; }
   list.push(ph); renderThread();
-  const bodyEl = document.querySelector(`.msg[data-idx="${list.length - 1}"] .msg-body`);
+  const phIdx = list.length - 1;
+  const bodyEl = document.querySelector(`.msg[data-idx="${phIdx}"] .msg-body`);
   const tw = createStreamRenderer(bodyEl);
   genState.typewriter = tw;
-  const context = list.slice(0, -1).slice(-CONTEXT_MESSAGES)
-    .map(m => ({ role:m.role, content:m.content }));
-  let system = agent.systemPrompt || '';
-  // Real-link enrichment (automatic + cached). The 🌐 toggle adds the stronger instruction.
+  // Context includes attachment text; images ride along for vision-capable providers.
+  const context = list.slice(0, -1).slice(-CONTEXT_MESSAGES).map(m => {
+    let content = m.content || '';
+    if (m === targetMsg) content = strippedQ;
+    const images = [];
+    (m.attachments || []).forEach(a => {
+      if (a.kind === 'image') images.push({ mime:a.mime, data:a.data });
+      else if (a.text) content += `\n\n[Attached file: ${a.name}]\n${a.text.slice(0, FILE_CONTEXT_CHARS)}`;
+      else content += `\n\n[Attached file: ${a.name} (${a.mime || 'file'}) — binary, not readable as text]`;
+    });
+    return { role:m.role, content, images: images.length ? images : null };
+  });
+  let system = responder.systemPrompt || '';
   const srcs = targetMsg ? await fetchSources(targetMsg, genState.controller.signal) : [];
   if (srcs.length) {
     const header = targetMsg && targetMsg.web
@@ -1538,15 +1873,72 @@ async function generateResponse() {
     system += '\n\n' + header + '\n' + srcs.map(s => `- ${s.title} — ${s.snippet}\n  ${s.url}`).join('\n');
   }
   if (targetMsg && targetMsg.web && !srcs.length) toast('Web search found nothing usable — answering from model knowledge', 'warn', 2500);
+  // ── Huddle: gather teammate briefs, then synthesize ──
+  if (huddlePlan) {
+    const histCtx = list.slice(0, -1).slice(-6).map(m => ({ role:m.role, content:(m === targetMsg ? strippedQ : (m.content || '')) }));
+    for (const tm of huddlePlan.participants) {
+      if (genState.controller.signal.aborted) break;
+      const entry = { name:tm.name, status:'pending', text:'' };
+      ph.huddle.push(entry);
+      updateHuddleLive(phIdx, ph, true);
+      const t0 = performance.now();
+      try {
+        const pP = providerOf(tm.model) || 'gemini';
+        const ord = providerOrder(pP);
+        if (!ord.length) throw new Error('No key for this teammate');
+        let txt = '';
+        for (const p of ord) {
+          try {
+            const mdl = providerOf(tm.model) === p ? tm.model : PROVIDERS[p].model;
+            txt = await callProvider(p, { model:mdl,
+              system:(tm.systemPrompt || '') + '\n\nYou are contributing a short expert brief to a team huddle. Answer in under 120 words: dense, specific, actionable. No preamble.',
+              messages:[...histCtx, { role:'user', content:strippedQ }],
+              temp:tm.temp ?? 0.5, maxTokens:Math.min(tm.maxTokens || HUDDLE_TOKENS, HUDDLE_TOKENS),
+              apiKey:keyFor(p).trim(), signal:genState.controller.signal, onDelta: () => {} });
+            if (txt.trim()) { recordSuccess(p, performance.now() - t0); break; }
+          } catch (e) { if (e && e.name === 'AbortError') throw e; recordFail(p, e); }
+        }
+        if (!txt.trim()) throw new Error('Empty response');
+        entry.status = 'ok'; entry.text = txt.trim();
+      } catch (e) {
+        if (e && e.name === 'AbortError') { entry.status = 'fail'; break; }
+        entry.status = 'fail'; entry.error = friendlyTestError(e);
+      }
+      updateHuddleLive(phIdx, ph, true);
+    }
+    if (genState.controller.signal.aborted) {
+      tw.finish();
+      Object.assign(ph, { content:'', streaming:false, stopped:true, model:'team huddle' });
+      genState.active = false; genState.typewriter = null; updateSendState();
+      persist(); renderThread();
+      toast('Huddle stopped', 'info', 2000);
+      return;
+    }
+    const transcript = ph.huddle.filter(h => h.status === 'ok').map(h => `[${h.name}] ${h.text}`).join('\n\n');
+    if (!transcript) {
+      tw.finish();
+      Object.assign(ph, { content:'⚠ **Huddle failed** → no teammate could respond. Check that your other agents have working models/keys.', streaming:false, model:'team huddle', tokens:20 });
+      genState.active = false; genState.typewriter = null; updateSendState();
+      persist(); renderThread();
+      return;
+    }
+    system += `\n\nYou are moderating a team huddle inside Phantom. Teammate briefs on the user's question:\n\n${transcript}\n\nSynthesize the best final answer for the user. Credit teammates by name when you use their points. If briefs conflict, resolve them and note the disagreement briefly.`;
+    tw.clear(); // swap huddle progress for streaming synthesis (huddle rows stay in ph)
+  }
   let lastErr = null;
   for (let i = 0; i < order.length; i++) {
     const p = order[i];
-    const model = providerOf(agent.model) === p ? agent.model : PROVIDERS[p].model;
+    const model = providerOf(responder.model) === p ? responder.model : PROVIDERS[p].model;
+    const imagesOk = p === 'gemini' || VISION_RE.test(model || '');
+    const useCtx = imagesOk ? context : context.map(m => {
+      if (!m.images) return m;
+      return { role:m.role, images:null, content: m.content + `\n[${m.images.length} image${m.images.length > 1 ? 's' : ''} attached — not viewable by this model]` };
+    });
     tw.clear();
     const t0 = performance.now();
     try {
-      const full = await callProvider(p, { model, system, messages:context, temp:agent.temp, maxTokens:agent.maxTokens,
-        apiKey:keyFor(p).trim(), signal:genState.controller.signal, onDelta: d => tw.push(d) });
+      const full = await callProvider(p, { model, system, messages:useCtx, temp:responder.temp ?? agent.temp, maxTokens:responder.maxTokens ?? agent.maxTokens,
+        apiKey:keyFor(p).trim(), signal:genState.controller.signal, onDelta: d => tw.push(d), vision:imagesOk });
       const ms = performance.now() - t0;
       if (!full.trim()) throw new Error('Empty response');
       recordSuccess(p, ms);
@@ -1562,13 +1954,17 @@ async function generateResponse() {
       genState.active = false; genState.typewriter = null; updateSendState();
       SFX.play('receive');
       persist(); renderThread();
+      if (settings.autoSpeak && 'speechSynthesis' in window) {
+        const idx = list.indexOf(ph);
+        if (idx >= 0) speakMessage(idx);
+      }
       return;
     } catch (err) {
       if (err && err.name === 'AbortError') {
         tw.finish();
         const partial = tw.text();
         if (partial.trim()) Object.assign(ph, { content:partial, streaming:false, model:modelLabel(model), tokens:estTokens(partial), stopped:true });
-        else list.pop();
+        else Object.assign(ph, { content:'', streaming:false, stopped:true });
         genState.active = false; genState.typewriter = null; updateSendState();
         persist(); renderThread();
         toast('Generation stopped', 'info', 2000);
@@ -1586,6 +1982,111 @@ async function generateResponse() {
   threadError = { title:'All systems busy', detail:(lastErr && lastErr.message) || 'Every configured provider failed.', retry:true };
   persist(); renderThread();
 }
+function updateHuddleLive(idx, ph, live) {
+  const el = document.querySelector(`.msg[data-idx="${idx}"] .huddle`);
+  if (el) el.innerHTML = huddleHTML(ph, live);
+}
+
+/* ═══════════════════════ // ATTACHMENTS ═══════════════════════ */
+let pendingFiles = [];
+function readFileAs(f, mode) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = () => rej(r.error);
+    mode === 'text' ? r.readAsText(f) : r.readAsDataURL(f);
+  });
+}
+function downscaleImage(dataUrl, mime) {
+  return new Promise(res => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const scale = Math.min(1, IMAGE_MAX_EDGE / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL('image/jpeg', 0.78));
+      } catch { res(dataUrl); }
+    };
+    img.onerror = () => res(dataUrl);
+    img.src = dataUrl;
+  });
+}
+async function makeImageAtt(f) {
+  let data = await readFileAs(f, 'data');
+  let mime = f.type || 'image/png';
+  if (f.size > IMAGE_KEEP_BYTES) { data = await downscaleImage(data, mime); mime = 'image/jpeg'; }
+  return { id:uid(), kind:'image', name:f.name || 'image', mime, size:Math.round(data.length * 0.75), data };
+}
+async function makeTextAtt(f) {
+  let text = String(await readFileAs(f, 'text') || '');
+  if (text.length > FILE_STORE_CHARS) { text = text.slice(0, FILE_STORE_CHARS) + '\n…[truncated]'; }
+  const mime = f.type || 'text/plain';
+  let data;
+  try { data = `data:${mime};charset=utf-8;base64,` + bufToB64(new TextEncoder().encode(text).buffer); }
+  catch { data = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text); }
+  return { id:uid(), kind:'file', name:f.name || 'file.txt', mime, size:Math.round(data.length * 0.75), data, text };
+}
+async function makeRawAtt(f) {
+  const data = await readFileAs(f, 'data');
+  return { id:uid(), kind:'file', name:f.name || 'file', mime:f.type || 'application/octet-stream', size:Math.round(data.length * 0.75), data };
+}
+async function addFiles(list) {
+  let added = 0;
+  for (const f of Array.from(list || [])) {
+    if (pendingFiles.length >= MAX_FILES) { toast(`Max ${MAX_FILES} attachments per message`, 'warn'); break; }
+    if (f.size > MAX_FILE_BYTES) { toast(`"${f.name}" is too large (max 8 MB)`, 'error'); continue; }
+    try {
+      if (/^image\//.test(f.type)) pendingFiles.push(await makeImageAtt(f));
+      else if ((f.type && f.type.startsWith('text/')) || f.type === 'application/json' || TEXT_EXT.test(f.name)) pendingFiles.push(await makeTextAtt(f));
+      else pendingFiles.push(await makeRawAtt(f));
+      added++;
+    } catch { toast(`Couldn't read "${f.name}"`, 'error'); }
+  }
+  if (added) SFX.play('pop');
+  renderAttachBar(); updateSendState();
+}
+function renderAttachBar() {
+  const bar = $('#attachBar');
+  if (!bar) return;
+  if (!pendingFiles.length) { bar.classList.add('hidden'); bar.innerHTML = ''; return; }
+  bar.classList.remove('hidden');
+  bar.innerHTML = pendingFiles.map(a => `
+    <div class="att-chip flex items-center gap-2 bg-[#101010] border border-white/10 rounded-xl pl-1.5 pr-1.5 py-1.5 text-xs text-zinc-300 pop">
+      ${a.kind === 'image'
+        ? `<img src="${a.data}" alt="" class="w-8 h-8 rounded-lg object-cover">`
+        : `<span class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-zinc-400 shrink-0">${icon('doc','w-4 h-4')}</span>`}
+      <span class="min-w-0"><span class="block max-w-[120px] truncate font-medium">${esc(a.name)}</span><span class="block text-[10px] text-zinc-500 tnum">${fmtBytes(a.size)}</span></span>
+      <button data-unattach="${a.id}" class="btn p-1 rounded-lg text-zinc-500 hover:text-red-400" aria-label="Remove attachment">${icon('x','w-3.5 h-3.5')}</button>
+    </div>`).join('');
+}
+function attachmentsHTML(m) {
+  const atts = m.attachments || [];
+  if (!atts.length) return '';
+  const imgs = atts.filter(a => a.kind === 'image');
+  const files = atts.filter(a => a.kind !== 'image');
+  const align = m.role === 'user' ? 'justify-end' : '';
+  let html = '';
+  if (imgs.length) html += `<div class="flex flex-wrap gap-1.5 mb-1.5 ${align}">` + imgs.map(a =>
+    `<button data-lightbox="${esc(a.id)}" class="btn rounded-xl overflow-hidden border border-white/10 shrink-0" title="${esc(a.name)}">
+      <img src="${a.data}" alt="${esc(a.name)}" class="w-28 h-28 object-cover"></button>`).join('') + `</div>`;
+  if (files.length) html += `<div class="flex flex-wrap gap-1.5 mb-1.5 ${align}">` + files.map(a =>
+    `<a href="${esc(a.data)}" download="${esc(a.name)}" title="Download ${esc(a.name)}"
+      class="flex items-center gap-2 bg-black/25 border border-white/10 rounded-xl px-2.5 py-1.5 text-[11px] text-zinc-200 hover:border-white/30 transition-colors">
+      ${icon('doc','w-3.5 h-3.5 shrink-0')}<span class="max-w-[140px] truncate">${esc(a.name)}</span><span class="text-zinc-500 tnum">${fmtBytes(a.size)}</span></a>`).join('') + `</div>`;
+  return html;
+}
+function openLightbox(attId) {
+  const a = activeAgent(); if (!a) return;
+  let att = null;
+  for (const m of (chats[a.id] || [])) { att = (m.attachments || []).find(x => x.id === attId); if (att) break; }
+  if (!att) return;
+  $('#lightboxImg').src = att.data;
+  const lb = $('#lightbox');
+  lb.classList.remove('hidden'); lb.classList.add('flex');
+}
+function closeLightbox() { const lb = $('#lightbox'); lb.classList.add('hidden'); lb.classList.remove('flex'); }
 
 /* ═══════════════════════ // UI RENDERING ═══════════════════════ */
 let webSearchOn = false, threadError = null, dragId = null;
@@ -1593,7 +2094,6 @@ let modalEditId = null, selEmoji = '👻', selGrad = 'violet', selColor = 'viole
 let editingIdx = null, profileId = null, replyState = null, promptEditId = null;
 const testState = {};
 const inputEl = $('#input');
-// Tracks the last rendered chat so the entrance animation only plays for NEW messages
 let lastRender = { id:null, count:0 };
 
 function applyAccent() { document.documentElement.style.setProperty('--accent', COLORS[settings.accent] || '#8b5cf6'); }
@@ -1613,9 +2113,13 @@ function agentItemHTML(a, isArchived=false) {
   const active = a.id === ui.activeId;
   const accent = COLORS[a.color] || '#8b5cf6';
   const st = isArchived ? null : statusOf(a);
-  const preview = last
-    ? ((last.content || '').split('\n').map(l => l.replace(/^\s*[✓✔⚠✖]\s*/, '').replace(/\*\*/g, '')).find(l => l.trim()) || '…').slice(0, 44)
-    : esc(a.role);
+  let preview;
+  if (!last) preview = esc(a.role);
+  else {
+    const line = (last.content || '').split('\n').map(l => l.replace(/^\s*[✓✔⚠✖]\s*/, '').replace(/\*\*/g, '')).find(l => l.trim());
+    preview = line ? line.slice(0, 44)
+      : (last.attachments && last.attachments.length ? `📎 ${last.attachments[last.attachments.length - 1].name}`.slice(0, 44) : '…');
+  }
   const actions = isArchived
     ? `<button data-action="restore" title="Unarchive" class="act">${icon('restore','w-3.5 h-3.5')}</button><button data-action="del" title="Delete" class="act">${icon('trash','w-3.5 h-3.5')}</button>`
     : `<button data-action="edit" title="Edit" class="act">${icon('pencil','w-3.5 h-3.5')}</button><button data-action="pin" title="${a.pinned?'Unpin':'Pin'}" class="act ${a.pinned?'text-amber-400':''}">${icon('star','w-3.5 h-3.5')}</button><button data-action="del" title="Delete" class="act">${icon('trash','w-3.5 h-3.5')}</button>`;
@@ -1679,10 +2183,10 @@ function renderHeader() {
     ? `${agentAvatarHTML(a, 'w-9 h-9 rounded-xl')}
        <span class="min-w-0 text-left"><span class="flex items-center gap-2"><span class="text-[15px] font-semibold text-white truncate">${esc(a.name)}</span>
        <span class="w-2 h-2 rounded-full ${statusOf(a).cls} shrink-0" title="${statusOf(a).label}"></span></span>
-       <span class="block text-[11px] text-zinc-500 truncate">${esc(a.role)}</span></span>`
+       <span class="block text-[11px] text-zinc-500 truncate">${esc(a.role)}<span id="headerThinking" class="hidden" style="color:var(--accent)"> · Thinking<span class="ellipsis"></span></span></span></span>`
     : `<span class="text-[15px] font-semibold text-white">Home</span><span class="hidden sm:block text-[11px] text-zinc-500">your dashboard</span>`;
   $('#headerModel').textContent = a ? modelLabel(a.model) : '';
-  $('#input').placeholder = a ? `Message ${a.name}` : 'Pick an agent to start';
+  $('#input').placeholder = a ? `Message ${a.name} — @ to mention teammates` : 'Pick an agent to start';
 
   const u = USER || { username:'…', avatar:null };
   fillAvatarSlot('#headerUserAvatar', userAvatarInner(u, 'text-xs'));
@@ -1709,11 +2213,14 @@ function renderHeader() {
 }
 
 function metaRowHTML(m, i, role) {
-  const btns = [
+  const btns = [];
+  if (role === 'assistant' && m.content && !m.streaming)
+    btns.push(`<button data-maction="speak" data-speak="${esc(m.id || '')}" data-idx="${i}" title="Read aloud" aria-label="Read aloud" class="act">${icon('speak','w-3.5 h-3.5')}</button>`);
+  btns.push(
     `<button data-maction="copy" data-idx="${i}" title="Copy" aria-label="Copy" class="act">${icon('copy','w-3.5 h-3.5')}</button>`,
     `<button data-maction="reply" data-idx="${i}" title="Reply" aria-label="Reply" class="act">${icon('reply','w-3.5 h-3.5')}</button>`,
     `<button data-maction="react" data-idx="${i}" title="React" aria-label="React" class="act">${icon('smile','w-3.5 h-3.5')}</button>`,
-  ];
+  );
   if (role === 'user') btns.push(`<button data-maction="edit" data-idx="${i}" title="Edit" class="act">${icon('pencil','w-3.5 h-3.5')}</button>`);
   else if (m.content && !m.streaming) btns.push(`<button data-maction="regen" data-idx="${i}" title="Regenerate" class="act">${icon('refresh','w-3.5 h-3.5')}</button>`);
   btns.push(`<button data-maction="del" data-idx="${i}" title="Delete" class="act">${icon('trash','w-3.5 h-3.5')}</button>`);
@@ -1742,7 +2249,7 @@ function bubbleHTML(m, i, grouped, isNew=false) {
     return `<div class="msg group flex justify-end ${grouped ? 'mt-1' : 'mt-4'} ${enter}" data-idx="${i}" data-mid="${m.id || ''}">
       <div class="max-w-[85%] sm:max-w-[75%] flex items-end gap-2">
         <div class="min-w-0">
-          <div class="rounded-2xl rounded-br-sm px-3.5 py-2.5" style="background:linear-gradient(135deg,#059669,#15803d)">
+          <div class="rounded-2xl rounded-br-sm px-3.5 py-2.5" style="${userBubbleCSS()}">
             <textarea id="editArea" rows="3" class="w-full bg-black/25 text-white text-[15px] leading-relaxed resize-none outline-none rounded-lg px-2">${esc(m.content)}</textarea>
             <div class="flex justify-end gap-2 pt-1.5">
               <button data-maction="edit-cancel" class="btn text-xs px-3 py-1.5 rounded-full text-white/70 hover:bg-white/10">Cancel</button>
@@ -1757,9 +2264,10 @@ function bubbleHTML(m, i, grouped, isNew=false) {
     return `<div class="msg group flex justify-end ${grouped ? 'mt-1' : 'mt-4'} ${enter}" data-idx="${i}" data-mid="${m.id || ''}">
       <div class="max-w-[85%] sm:max-w-[75%] flex items-end gap-2">
         <div class="min-w-0">
-          <div class="rounded-2xl rounded-br-sm px-4 py-2.5 text-[15px] leading-relaxed text-white soft-shadow" style="background:linear-gradient(135deg,#059669,#15803d)">
+          <div class="rounded-2xl rounded-br-sm px-4 py-2.5 text-[15px] leading-relaxed text-white soft-shadow" style="${userBubbleCSS()}">
             ${replyPreviewHTML(m)}
-            <div class="whitespace-pre-wrap break-words">${esc(m.content)}${m.web ? ' <span class="text-[10px] bg-black/20 rounded-full px-2 py-0.5 align-middle">🌐 web</span>' : ''}</div>
+            ${attachmentsHTML(m)}
+            ${m.content ? `<div class="whitespace-pre-wrap break-words">${highlightMentions(m.content)}${m.web ? ' <span class="text-[10px] bg-black/20 rounded-full px-2 py-0.5 align-middle">🌐 web</span>' : ''}</div>` : ''}
             <div class="flex items-center justify-end gap-1 mt-0.5 text-[10px] text-white/60">
               <span class="tnum">${fmtTime(m.ts)}</span>${m.stopped ? '<span>· stopped</span>' : ''}${tickHTML(m.status || 'sent')}
             </div>
@@ -1770,14 +2278,19 @@ function bubbleHTML(m, i, grouped, isNew=false) {
         ${grouped ? '<span class="w-7 shrink-0"></span>' : `<span class="w-7 h-7 rounded-full overflow-hidden shrink-0 flex">${userAvatarInner(u, 'text-[10px]')}</span>`}
       </div></div>`;
   }
+  // Assistant — with delegated-agent avatar/name (team mode) and huddle section
+  const ra = m.agentId ? agents.find(x => x.id === m.agentId) : null;
+  const avatarBlock = ra ? agentAvatarHTML(ra, 'w-7 h-7 rounded-lg') : logoHTML('w-7 h-7 object-cover');
   return `<div class="msg group flex ${grouped ? 'mt-1' : 'mt-4'} ${enter}" data-idx="${i}" data-mid="${m.id || ''}">
-      ${grouped ? '<span class="w-7 shrink-0"></span>' : `<span class="w-7 h-7 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">${logoHTML('w-7 h-7 object-cover')}</span>`}
+      ${grouped ? '<span class="w-7 shrink-0"></span>' : `<span class="w-7 h-7 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">${avatarBlock}</span>`}
       <div class="max-w-[85%] sm:max-w-[75%] min-w-0">
         <div class="msg-body rounded-2xl rounded-bl-sm px-4 py-3 text-[15px] leading-relaxed text-ink bg-bubble soft-shadow">
           ${replyPreviewHTML(m)}
-          ${m.content ? renderAssistantContent(m.content) : typingHTML()}
+          ${m.content ? renderAssistantContent(m.content) : (m.huddle ? '<span class="text-xs text-zinc-500">Team huddle in progress…</span>' : typingHTML())}
+          ${m.huddle ? huddleHTML(m, m.streaming) : ''}
           <div class="flex items-center justify-end gap-1 mt-1 text-[10px] text-zinc-500">
             <span class="tnum">${fmtTime(m.ts)}</span>
+            ${m.agentName ? `<span>· ${m.huddle ? '🤝 ' : ''}${esc(m.agentName)}</span>` : ''}
             ${m.model ? `<span>· ${esc(m.model)}</span>` : ''}${m.tokens ? `<span class="tnum">· ≈${m.tokens} tok</span>` : ''}${m.ms ? `<span class="tnum">· ${(m.ms/1000).toFixed(1)}s</span>` : ''}
           </div>
         </div>
@@ -1864,18 +2377,24 @@ function updateStatusBar() {
     setTimeout(() => { const cur = activeAgent(); const n = cur ? (chats[cur.id] || []).length : 1; if (n > 0 || !cur) bar.classList.add('hidden'); }, 300);
   }
 }
+function updateScrollFab() {
+  const fab = $('#scrollFab');
+  if (!fab) return;
+  const show = !isNearBottom() && (chats[ui.activeId] || []).length > 0;
+  fab.classList.toggle('hidden', !show);
+  fab.classList.toggle('flex', show);
+}
 function renderThread() {
   const inner = $('#threadInner');
   const a = activeAgent();
   if (!a) { inner.innerHTML = agents.length ? homeHTML() : noAgentHTML(); updateStatusBar(); return; }
   const msgs = getChat(a.id);
-  if (!msgs.length) { lastRender = { id:a.id, count:0 }; inner.innerHTML = hasAnyKey() ? emptyChatHTML(a) : setupCardHTML(); updateStatusBar(); return; }
+  if (!msgs.length) { lastRender = { id:a.id, count:0 }; inner.innerHTML = hasAnyKey() ? emptyChatHTML(a) : setupCardHTML(); updateStatusBar(); updateScrollFab(); return; }
   let html = '', lastTs = 0, lastRole = null;
   msgs.forEach((m, i) => {
     if (lastTs && m.ts - lastTs > 30 * 60 * 1000) html += `<div class="flex justify-center my-4"><span class="text-[11px] text-zinc-600 bg-panel px-3 py-1 rounded-full tnum">${fmtDivider(m.ts)}</span></div>`;
     const grouped = lastRole === m.role && lastTs && (m.ts - lastTs) < 120000;
     lastTs = m.ts; lastRole = m.role;
-    // Animate ONLY messages appended since the previous render of this same chat
     const isNew = lastRender.id === a.id && i >= lastRender.count;
     html += bubbleHTML(m, i, grouped, isNew);
   });
@@ -1883,8 +2402,11 @@ function renderThread() {
   if (threadError) html += errorCardHTML(threadError);
   if (!hasAnyKey()) html = `<div class="max-w-md mx-auto mb-4 bg-amber-400/10 border border-amber-400/20 rounded-xl px-4 py-3 text-xs text-amber-300 flex items-center gap-2">⚠ No API keys configured — <button data-maction="open-settings" class="underline hover:text-white">open settings</button></div>` + html;
   inner.innerHTML = html;
+  enhanceCodeBlocks(inner);
+  setSpeakIcons();
   updateStatusBar();
   autoScroll(true);
+  updateScrollFab();
 }
 function renderAll() { ensureActive(); renderSidebar(); renderHeader(); renderThread(); updateSendState(); }
 
@@ -2075,7 +2597,16 @@ function providerBadge(p) {
   if (testState[p] === 'fail' || (c && c.fails > 0)) return { txt:'Error', dot:'bg-amber-400', txtCls:'text-amber-400' };
   return { txt:'Key saved', dot:'bg-emerald-500', txtCls:'text-zinc-400' };
 }
+function renderVaultLine() {
+  const el = $('#vaultLine');
+  if (!el) return;
+  if (vaultKey) { el.className = 'text-[11px] mb-3 text-emerald-400'; el.innerHTML = '🔒 API keys are encrypted at rest (AES-GCM) on this device.'; }
+  else if (vaultLocked) { el.className = 'text-[11px] mb-3 text-amber-400'; el.innerHTML = '🔒 Keys are locked — <button id="btnUnlockKeys" class="underline hover:text-white">unlock with your password</button>'; }
+  else if (!cryptoOK()) { el.className = 'text-[11px] mb-3 text-amber-400'; el.textContent = '⚠ Encryption unavailable in this context — keys are stored in plain text.'; }
+  else { el.className = 'text-[11px] mb-3 text-zinc-500'; el.textContent = 'Keys will be encrypted with your password at next sign-in.'; }
+}
 function renderProviderList() {
+  const locked = vaultLocked && !vaultKey;
   $('#providerList').innerHTML = FAILOVER.map((p, i) => { const pr = PROVIDERS[p]; const b = providerBadge(p); return `
     <div class="p-3 bg-[#101010] rounded-xl border border-white/5">
       <div class="flex items-center justify-between mb-2 gap-2">
@@ -2088,8 +2619,8 @@ function renderProviderList() {
       </div>
       <div class="flex gap-2">
         <div class="relative flex-1">
-          <input id="key-${p}" data-keyid="${p}" type="password" placeholder="${p === 'gemini' ? 'AIza…' : p === 'openrouter' ? 'sk-or-…' : 'API key'}" autocomplete="off" value="${esc(keyFor(p))}"
-            class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 py-2 text-sm pr-9 focus:outline-none focus:border-white/25 transition-colors">
+          <input id="key-${p}" data-keyid="${p}" type="password" placeholder="${locked ? '🔒 Unlock to edit' : p === 'gemini' ? 'AIza…' : p === 'openrouter' ? 'sk-or-…' : 'API key'}" autocomplete="off" value="${locked ? '' : esc(keyFor(p))}" ${locked ? 'disabled' : ''}
+            class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 py-2 text-sm pr-9 focus:outline-none focus:border-white/25 transition-colors disabled:opacity-50">
           <button data-eye="${p}" title="Show/hide" class="btn absolute right-2 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300">${icon('eye','w-4 h-4')}</button>
         </div>
         <button data-test="${p}" class="btn text-xs px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300 shrink-0 min-w-[64px]">Test</button>
@@ -2101,6 +2632,8 @@ function renderProviderList() {
   $('#shareKeysToggle').checked = !!settings.shareKeys;
   $('#toggleSounds').checked = settings.sounds !== false;
   $('#toggleHaptics').checked = settings.haptics !== false;
+  $('#toggleTTS').checked = !!settings.autoSpeak;
+  renderVaultLine();
   FAILOVER.forEach(updateModelInfo);
 }
 function updateProviderBadges() {
@@ -2146,7 +2679,8 @@ function openSettings() {
   $('#setDefaultMaxVal').textContent = `${settings.defaultMaxTokens} tokens`;
   $('#toggleSounds').checked = settings.sounds !== false;
   $('#toggleHaptics').checked = settings.haptics !== false;
-  renderAccentRow(); updateStorageUI();
+  $('#toggleTTS').checked = !!settings.autoSpeak;
+  renderAccentRow(); renderThemeRow(); updateStorageUI();
   openModal('settingsModal');
 }
 function renderAccentRow() {
@@ -2184,9 +2718,10 @@ function exportChat(fmt) {
   else {
     let md = `# ${a.name} — ${a.role}\n\n> Exported from Phantom · ${new Date().toLocaleString()}\n\n---\n\n`;
     msgs.forEach(m => {
+      const atts = (m.attachments || []).map(x => x.name).join(', ');
       md += m.role === 'user'
-        ? `**You** · ${fmtTime(m.ts)}${m.web ? ' · 🌐 web' : ''}\n\n${m.content}\n\n---\n\n`
-        : `**${a.name}** · ${m.model || ''} · ${fmtTime(m.ts)}\n\n${m.content}\n\n---\n\n`;
+        ? `**You** · ${fmtTime(m.ts)}${m.web ? ' · 🌐 web' : ''}${atts ? ` · 📎 ${atts}` : ''}\n\n${m.content || (atts ? '*(attachments only)*' : '')}\n\n---\n\n`
+        : `**${m.agentName || a.name}** · ${m.model || ''} · ${fmtTime(m.ts)}\n\n${m.content}\n\n---\n\n`;
     });
     download(`${a.name.replace(/\s+/g, '-')}-chat.md`, md, 'text/markdown');
   }
@@ -2234,17 +2769,19 @@ async function changePassword() {
   if (nw !== cf) { toast('New passwords do not match', 'error'); return; }
   const rec = await makePasswordRecord(nw);
   Object.assign(USER, rec);
+  if (cryptoOK() && rec.salt) { await setupVaultKey(USER, nw); await keysChanged(); }
   const users = getUsers(); const i = users.findIndex(x => x.id === USER.id);
   if (i >= 0) { users[i] = USER; persistUsers(users); }
   $('#upPwCur').value = $('#upPwNew').value = $('#upPwConf').value = '';
-  toast('Password updated', 'success');
+  renderProviderList();
+  toast('Password updated — keys re-encrypted', 'success');
 }
 
 /* ═══════════════════════ // CONTEXT MENUS & LONG-PRESS ═══════════════════════ */
 function openCtxMenu(x, y, items) {
   const m = $('#ctxMenu');
   m._items = items;
-  ctxArm = false; // menu must see a real pointerdown before its first click counts
+  ctxArm = false;
   m.innerHTML = items.map((it, i) => it.sep
     ? '<div class="my-1 mx-2 border-t border-white/5"></div>'
     : `<button data-ctx="${i}" class="ctx-item w-full flex items-center gap-2.5 px-3 py-2 text-[13px] rounded-xl ${it.danger ? 'text-red-400 hover:bg-red-500/10' : 'text-zinc-200 hover:bg-white/10'}">${icon(it.icon, 'w-4 h-4 shrink-0')}<span class="flex-1 text-left font-medium">${esc(it.label)}</span></button>`).join('');
@@ -2274,8 +2811,6 @@ let ctxArm = false;
 });
 
 let pressTimer = null, pressState = null, suppressNextClick = false;
-// Swallow the synthetic click that can fire after a long-press — but NEVER a real
-// tap inside an armed context menu (this was the "buttons don't work" bug).
 document.addEventListener('click', e => {
   if (suppressNextClick) {
     suppressNextClick = false;
@@ -2330,6 +2865,8 @@ function openMessageCtx(x, y, idx) {
         openReactPicker(r.left + r.width / 2, r.top, idx);
       } },
   ];
+  if (m.role === 'assistant' && m.content && !m.streaming)
+    items.push({ icon:'speak', label:'Read aloud', fn: () => speakMessage(idx) });
   if (m.role === 'user')
     items.push({ icon:'pencil', label:'Edit', fn: () => { editingIdx = idx; renderThread(); const ta = $('#editArea'); if (ta) { ta.focus(); ta.selectionStart = ta.value.length; } } });
   else if (m.content && !m.streaming)
@@ -2384,7 +2921,6 @@ function openPromptCtx(x, y, id) {
 wirePressArea($('#agentList'), '.agent-item', (x, y, el) => openAgentCtx(x, y, el.dataset.id));
 wirePressArea($('#agentList'), '.prompt-item', (x, y, el) => openPromptCtx(x, y, el.dataset.pid));
 wirePressArea($('#thread'), '.msg', (x, y, el) => openMessageCtx(x, y, +el.dataset.idx));
-// Desktop right-click; on touch, long-press handles it and the native menu is blocked
 document.addEventListener('contextmenu', e => {
   const msg = e.target.closest('.msg');
   const item = e.target.closest('.agent-item');
@@ -2405,9 +2941,12 @@ window.addEventListener('resize', () => { closeCtxMenu(); if (window.innerWidth 
 const autoResize = () => { inputEl.style.height = 'auto'; inputEl.style.height = Math.min(inputEl.scrollHeight, 160) + 'px'; };
 function updateSendState() {
   const active = genState.active;
-  $('#btnSend').classList.toggle('hidden', active || !inputEl.value.trim());
-  $('#btnMic').classList.toggle('hidden', active || !!inputEl.value.trim());
+  const canSend = !!inputEl.value.trim() || pendingFiles.length > 0;
+  $('#btnSend').classList.toggle('hidden', active || !canSend);
+  $('#btnMic').classList.toggle('hidden', active || !!canSend);
   $('#btnStop').classList.toggle('hidden', !active);
+  const th = document.getElementById('headerThinking');
+  if (th) th.classList.toggle('hidden', !active);
 }
 function setReply(mid) {
   replyState = mid;
@@ -2418,25 +2957,31 @@ function setReply(mid) {
   show($('#replyBar'));
   inputEl.focus();
 }
-// Opens a chat and, on mobile, slides the sidebar away by itself
 function openAgentChat(id) {
   setActive(id);
   if (window.innerWidth < 1024) closeSidebarMobile();
 }
 async function handleSend() {
-  const text = inputEl.value.trim();
-  if (!text || genState.active) return;
+  if ((!inputEl.value.trim() && !pendingFiles.length) || genState.active) return;
   if (!navigator.onLine) { toast('You are offline — message not sent', 'error'); return; }
+  if (vaultLocked && !vaultKey) { openUnlock('Your API keys are locked — unlock them to send messages.'); return; }
   const agent = activeAgent();
   if (!agent) { toast('Pick an agent first', 'warn'); return; }
   if (!hasAnyKey()) { toast('Add an API key in Settings first', 'warn'); openSettings(); return; }
+  stopSpeaking();
+  hide($('#mentionMenu'));
   SFX.play('send');
   threadError = null;
   const list = getChat(agent.id);
-  const msg = { id:uid(), role:'user', content:text, ts:Date.now(), tokens:estTokens(text), web:webSearchOn, status:'sent', replyTo: replyState || null };
+  const attachments = pendingFiles.length
+    ? pendingFiles.map(a => ({ id:a.id, kind:a.kind, name:a.name, mime:a.mime, size:a.size, data:a.data, text:a.text }))
+    : undefined;
+  const msg = { id:uid(), role:'user', content: inputEl.value.trim(), ts:Date.now(), tokens:estTokens(inputEl.value), web:webSearchOn, status:'sent', replyTo: replyState || null };
+  if (attachments) msg.attachments = attachments;
   list.push(msg);
   persist();
   replyState = null; hide($('#replyBar'));
+  pendingFiles = []; renderAttachBar();
   inputEl.value = ''; autoResize(); updateSendState();
   renderThread();
   setTimeout(() => {
@@ -2449,6 +2994,7 @@ async function handleSend() {
 function regenerate(i) {
   if (genState.active) return;
   const a = activeAgent(); if (!a) return;
+  stopSpeaking();
   const list = getChat(a.id);
   const prevUser = [...list.slice(0, i)].reverse().find(m => m.role === 'user');
   if (prevUser) prevUser.status = 'delivered';
@@ -2459,9 +3005,11 @@ function regenerate(i) {
 }
 function setActive(id) {
   if (genState.active) { toast('Stop the current response first', 'warn'); return; }
+  stopSpeaking();
   if (id && !agents.find(a => a.id === id)) return;
   const changed = id !== ui.activeId;
   ui.activeId = id; editingIdx = null; threadError = null; replyState = null; hide($('#replyBar'));
+  pendingFiles = []; renderAttachBar();
   saveUI();
   renderSidebar(); renderHeader(); renderThread(); updateSendState();
   if (changed && id) SFX.play('pop');
@@ -2469,6 +3017,41 @@ function setActive(id) {
 }
 const openSidebarMobile = () => { $('#sidebar').classList.remove('-translate-x-full'); show($('#scrim')); };
 const closeSidebarMobile = () => { $('#sidebar').classList.add('-translate-x-full'); hide($('#scrim')); };
+
+// ─── @mention autocomplete popover ───
+let mentionItems = [];
+function updateMentionMenu() {
+  const menu = $('#mentionMenu');
+  const upTo = inputEl.value.slice(0, inputEl.selectionStart || inputEl.value.length);
+  const m = upTo.match(/(^|\s)@([\w-]*)$/);
+  const list = agents.filter(a => !a.archived);
+  if (!m || !list.length) { hide(menu); mentionItems = []; return; }
+  const q = m[2].toLowerCase();
+  mentionItems = [];
+  if ('all hands'.startsWith(q) || 'all'.startsWith(q) || !q) mentionItems.push({ tag:'all', name:'All Hands', sub:'Roundtable — 2 teammates answer, your agent synthesizes' });
+  list.filter(a => a.name.toLowerCase().includes(q)).slice(0, 6).forEach(a => mentionItems.push({ id:a.id, name:a.name, sub:a.role }));
+  if (!mentionItems.length) { hide(menu); return; }
+  menu.innerHTML = mentionItems.map((it, i) => `
+    <button data-mi="${i}" class="mrow w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/10">
+      <span class="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-xs text-white" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">${it.tag === 'all' ? '🤝' : esc(it.name[0].toUpperCase())}</span>
+      <span class="min-w-0"><span class="block text-[13px] font-medium text-zinc-200 truncate">${esc('@' + it.name)}</span>
+      <span class="block text-[10px] text-zinc-500 truncate">${esc(it.sub || '')}</span></span>
+    </button>`).join('');
+  show(menu);
+}
+function applyMentionItem(it) {
+  const pos = inputEl.selectionStart || inputEl.value.length;
+  const before = inputEl.value.slice(0, pos).replace(/@[\w-]*$/, it.tag === 'all' ? '@all ' : `@${it.name} `);
+  inputEl.value = before + inputEl.value.slice(pos);
+  hide($('#mentionMenu')); mentionItems = [];
+  autoResize(); updateSendState(); inputEl.focus();
+}
+ $('#mentionMenu').addEventListener('click', e => {
+  const b = e.target.closest('[data-mi]');
+  if (!b) return;
+  const it = mentionItems[+b.dataset.mi];
+  if (it) applyMentionItem(it);
+});
 
 // ─── reaction picker ───
 function openReactPicker(x, y, idx) {
@@ -2562,7 +3145,6 @@ function applyReaction(idx, emoji) {
 
 // ─── header / user menu ───
  $('#brandHome').addEventListener('click', () => setActive(null));
- // Clicking the agent in the chat header opens its profile; the chevron switches agents
  $('#headerAgentBtn').addEventListener('click', () => { const a = activeAgent(); if (a) openProfile(a.id); });
  $('#headerSwitchChev').addEventListener('click', () => { renderHeader(); $('#agentSwitcher').classList.toggle('hidden'); });
  $('#agentSwitcher').addEventListener('click', e => {
@@ -2595,11 +3177,35 @@ function applyReaction(idx, emoji) {
   else if (act === 'logout') logout();
 });
 
-// ─── composer ───
-inputEl.addEventListener('input', () => { autoResize(); updateSendState(); });
-inputEl.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); handleSend(); } });
+// ─── composer & attachments ───
+inputEl.addEventListener('input', () => { autoResize(); updateSendState(); updateMentionMenu(); });
+inputEl.addEventListener('keydown', e => {
+  if (mentionItems.length && !$('#mentionMenu').classList.contains('hidden')) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); applyMentionItem(mentionItems[0]); return; }
+    if (e.key === 'Escape') { hide($('#mentionMenu')); mentionItems = []; return; }
+  }
+  if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); handleSend(); }
+});
+inputEl.addEventListener('paste', e => {
+  const files = e.clipboardData && e.clipboardData.files;
+  if (files && files.length) { e.preventDefault(); addFiles(files); }
+});
+ $('#attachBar').addEventListener('click', e => {
+  const b = e.target.closest('[data-unattach]');
+  if (!b) return;
+  pendingFiles = pendingFiles.filter(a => a.id !== b.dataset.unattach);
+  renderAttachBar(); updateSendState();
+});
+const composerEl = document.querySelector('.composer');
+['dragenter', 'dragover'].forEach(ev => composerEl.addEventListener(ev, e => { e.preventDefault(); composerEl.classList.add('dragover'); }));
+['dragleave', 'drop'].forEach(ev => composerEl.addEventListener(ev, () => composerEl.classList.remove('dragover')));
+composerEl.addEventListener('drop', e => {
+  e.preventDefault();
+  if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+});
+['dragover', 'drop'].forEach(ev => document.addEventListener(ev, e => e.preventDefault()));
  $('#btnSend').addEventListener('click', handleSend);
- $('#btnStop').addEventListener('click', () => { if (genState.controller) genState.controller.abort(); });
+ $('#btnStop').addEventListener('click', () => { stopSpeaking(); if (genState.controller) genState.controller.abort(); });
  $('#btnWeb').addEventListener('click', () => {
   webSearchOn = !webSearchOn;
   $('#btnWeb').classList.toggle('web-on', webSearchOn);
@@ -2617,17 +3223,11 @@ inputEl.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey 
 });
  $('#replyCancel').addEventListener('click', () => { replyState = null; hide($('#replyBar')); });
  $('#fileInput').addEventListener('change', e => {
-  const f = e.target.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = () => {
-    let text = String(r.result || '');
-    if (text.length > 20000) { text = text.slice(0, 20000); toast('File truncated to 20,000 characters', 'warn'); }
-    inputEl.value += (inputEl.value ? '\n\n' : '') + `--- attached: ${f.name} ---\n` + text;
-    autoResize(); updateSendState(); inputEl.focus();
-  };
-  r.readAsText(f);
+  if (e.target.files && e.target.files.length) addFiles(e.target.files);
   e.target.value = '';
 });
+
+// ─── voice input ───
 let recognition = null, listening = false;
  $('#btnMic').addEventListener('click', () => {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -2645,7 +3245,7 @@ let recognition = null, listening = false;
   toast('Listening…', 'info', 2000);
 });
 
-// ─── thread: actions, reply, reactions, swipe ───
+// ─── thread: actions, lightbox, code copy, TTS, reply, reactions, swipe ───
 function jumpToMessage(mid) {
   const el = document.querySelector(`.msg[data-mid="${mid}"]`);
   if (!el) return;
@@ -2654,6 +3254,15 @@ function jumpToMessage(mid) {
   setTimeout(() => el.classList.remove('flash'), 1100);
 }
  $('#thread').addEventListener('click', async e => {
+  const lbBtn = e.target.closest('[data-lightbox]');
+  if (lbBtn) { openLightbox(lbBtn.dataset.lightbox); return; }
+  const cb = e.target.closest('.code-copy');
+  if (cb) {
+    const pre = cb.closest('pre');
+    const code = pre && pre.querySelector('code');
+    if (code && await copyText(code.textContent)) flashCopied(cb);
+    return;
+  }
   const el = e.target.closest('[data-maction]');
   if (!el) return;
   const act = el.dataset.maction;
@@ -2663,6 +3272,7 @@ function jumpToMessage(mid) {
   if (act === 'open-profile') { const a = activeAgent(); if (a) openProfile(a.id); return; }
   if (act === 'open-settings') { openSettings(); return; }
   if (act === 'retry') { threadError = null; renderThread(); generateResponse(); return; }
+  if (act === 'speak') { speakMessage(+el.dataset.idx); return; }
   if (act === 'starter') {
     const wrap = el.closest('.starters');
     const text = el.dataset.text || '';
@@ -2706,6 +3316,8 @@ function jumpToMessage(mid) {
   applyReaction(+b.dataset.idx, b.dataset.react);
   hide($('#reactPicker'));
 });
+ $('#lightbox').addEventListener('click', closeLightbox);
+ $('#scrollFab').addEventListener('click', () => threadEl().scrollTo({ top:threadEl().scrollHeight, behavior:'smooth' }));
 
 // swipe-right to reply (mobile)
 let sw = null;
@@ -2779,7 +3391,7 @@ let sw = null;
   if (!inp) return;
   const val = inp.value;
   if (settings.shareKeys) { sharedKeys[inp.dataset.keyid] = val; saveRaw(LS.SHARED, sharedKeys); }
-  else { settings.apiKeys[inp.dataset.keyid] = val; persist(); }
+  else { settings.apiKeys[inp.dataset.keyid] = val; keysChanged(); }
   updateProviderBadges(); renderSidebar(); renderHeader();
   queueModelFetch(inp.dataset.keyid, val);
 });
@@ -2789,18 +3401,25 @@ let sw = null;
   const t = e.target.closest('[data-test]');
   if (t) runTest(t.dataset.test, t);
 });
+ $('#vaultLine').addEventListener('click', e => { if (e.target.closest('#btnUnlockKeys')) openUnlock(); });
  $('#shareKeysToggle').addEventListener('change', e => {
   settings.shareKeys = e.target.checked;
-  persist(); renderProviderList(); renderSidebar(); renderHeader();
+  persist(); keysChanged(); renderProviderList(); renderSidebar(); renderHeader();
   if (settings.shareKeys) backgroundModelRefresh();
   toast(settings.shareKeys ? 'API keys now shared across all users' : 'API keys are now private to this account', 'info');
 });
  $('#toggleSounds').addEventListener('change', e => { settings.sounds = e.target.checked; persist(); if (e.target.checked) SFX.play('success'); });
  $('#toggleHaptics').addEventListener('change', e => { settings.haptics = e.target.checked; persist(); if (e.target.checked) SFX.play('tap'); });
+ $('#toggleTTS').addEventListener('change', e => { settings.autoSpeak = e.target.checked; persist(); if (!e.target.checked) stopSpeaking(); toast(e.target.checked ? 'Replies will be read aloud automatically' : 'Auto read-aloud off', 'info', 2000); });
+ document.querySelectorAll('[data-theme-set]').forEach(b => b.addEventListener('click', () => {
+  settings.theme = b.dataset.themeSet;
+  persist(); applyTheme(); renderThemeRow();
+  toast(settings.theme === 'light' ? 'Light theme on ☀️' : 'Dark theme on 🌙', 'info', 1800);
+}));
  $('#setDefaultModel').addEventListener('change', e => { settings.defaultModel = e.target.value; persist(); renderHeader(); });
  $('#setDefaultTemp').addEventListener('input', e => { settings.defaultTemp = +e.target.value; $('#setDefaultTempVal').textContent = `${settings.defaultTemp.toFixed(1)} · ${tempWord(settings.defaultTemp)}`; persist(); });
  $('#setDefaultMax').addEventListener('input', e => { settings.defaultMaxTokens = +e.target.value; $('#setDefaultMaxVal').textContent = `${settings.defaultMaxTokens} tokens`; persist(); });
- $('#accentRow').addEventListener('click', e => { const b = e.target.closest('[data-accent]'); if (b) { settings.accent = b.dataset.accent; persist(); applyAccent(); renderAccentRow(); } });
+ $('#accentRow').addEventListener('click', e => { const b = e.target.closest('[data-accent]'); if (b) { settings.accent = b.dataset.accent; persist(); applyAccent(); renderAccentRow(); renderThread(); } });
  $('#btnExportAll').addEventListener('click', () => {
   download(`phantom-backup-${new Date().toISOString().slice(0, 10)}.json`,
     JSON.stringify({ app:'phantom', version:APP_VERSION, exportedAt:new Date().toISOString(), agents, chats, prompts,
@@ -2873,8 +3492,9 @@ let sw = null;
       }
       latency = normLatency(d.latency); circuit = normCircuit(d.circuit);
       Object.keys(chats).forEach(k => (Array.isArray(chats[k]) ? chats[k] : []).forEach(m => { if (!m.id) m.id = uid(); }));
+      if (vaultKey) await keysChanged();
       persist();
-      resetTransient(); applyAccent(); renderAll(); populateModelSelects(); closeModal('userModal');
+      resetTransient(); applyTheme(); applyAccent(); renderAll(); populateModelSelects(); closeModal('userModal');
       toast('Backup imported', 'success');
     } catch (err) { toast('Import failed: ' + err.message, 'error'); }
     e.target.value = '';
@@ -2909,6 +3529,10 @@ let sw = null;
  $('#btnAuthGo').addEventListener('click', submitAuth);
  $('#authOverlay').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); submitAuth(); } });
  $('#btnGuest').addEventListener('click', startGuest);
+
+// ─── vault unlock events ───
+ $('#btnUnlockGo').addEventListener('click', submitUnlock);
+ $('#unlockPw').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submitUnlock(); } });
 
 // ─── confirm modal ───
  $('#cfOk').addEventListener('click', () => settleConfirm(true));
@@ -2965,6 +3589,26 @@ function setupPWA() {
   if (isIOS && !load(LS.IOS, false)) setTimeout(() => { openModal('iosModal'); saveRaw(LS.IOS, true); }, 4000);
 }
 
+/* ─── iOS/Android keyboard handling via visualViewport ─── */
+function setupKeyboard() {
+  if (!window.visualViewport) return;
+  const vv = window.visualViewport;
+  const app = document.getElementById('appRoot');
+  const isTouch = 'ontouchstart' in window;
+  const apply = () => {
+    const overlap = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    if (isTouch && overlap > 60) {
+      app.style.transform = `translateY(-${overlap}px)`;
+      autoScroll();
+    } else if (app.style.transform) {
+      app.style.transform = '';
+    }
+  };
+  vv.addEventListener('resize', apply);
+  vv.addEventListener('scroll', apply);
+  apply();
+}
+
 // ─── global clicks / keyboard / online ───
 document.addEventListener('click', e => {
   const closer = e.target.closest('[data-close]');
@@ -2974,6 +3618,7 @@ document.addEventListener('click', e => {
     return;
   }
   if (!e.target.closest('#ctxMenu')) closeCtxMenu();
+  if (!e.target.closest('#mentionMenu') && !e.target.closest('#input')) { hide($('#mentionMenu')); mentionItems = []; }
   if (!e.target.closest('#agentSwitcher') && !e.target.closest('#headerAgentBtn') && !e.target.closest('#headerSwitchChev')) hide($('#agentSwitcher'));
   if (!e.target.closest('#exportMenu') && !e.target.closest('#btnExportChat')) hide($('#exportMenu'));
   if (!e.target.closest('#plusMenu') && !e.target.closest('#btnPlus')) hide($('#plusMenu'));
@@ -2993,13 +3638,15 @@ document.addEventListener('keydown', e => {
   } else if (e.key === 'Escape') {
     if (!modalOpen('authOverlay')) {
       closeCtxMenu();
+      const lb = $('#lightbox');
+      if (!lb.classList.contains('hidden')) { closeLightbox(); return; }
       if (modalOpen('confirmModal')) settleConfirm(false);
-      else if (modalOpen('agentModal') || modalOpen('tplModal') || modalOpen('settingsModal') || modalOpen('userModal') || modalOpen('iosModal') || modalOpen('promptModal')) {
-        ['agentModal','tplModal','settingsModal','userModal','iosModal','promptModal'].forEach(id => { if (modalOpen(id)) closeModal(id); });
+      else if (modalOpen('agentModal') || modalOpen('tplModal') || modalOpen('settingsModal') || modalOpen('userModal') || modalOpen('iosModal') || modalOpen('promptModal') || modalOpen('unlockModal')) {
+        ['agentModal','tplModal','settingsModal','userModal','iosModal','promptModal','unlockModal'].forEach(id => { if (modalOpen(id)) closeModal(id); });
       }
       else if (profileId) closeProfile();
       else {
-        hide($('#agentSwitcher')); hide($('#exportMenu')); hide($('#plusMenu')); hide($('#userMenu')); hide($('#reactPicker'));
+        hide($('#agentSwitcher')); hide($('#exportMenu')); hide($('#plusMenu')); hide($('#userMenu')); hide($('#reactPicker')); hide($('#mentionMenu')); mentionItems = [];
         if (editingIdx !== null) { editingIdx = null; renderThread(); }
         else if (replyState !== null) { replyState = null; hide($('#replyBar')); }
         else if (window.innerWidth < 1024 && !$('#sidebar').classList.contains('-translate-x-full')) closeSidebarMobile();
@@ -3042,10 +3689,11 @@ function initChromeIcons() {
   $('#btnCloseProfile').innerHTML = icon('x', 'w-5 h-5');
   $('#replyCancel').innerHTML = icon('x', 'w-4 h-4');
   $('#installX').innerHTML = icon('x', 'w-4 h-4');
+  $('#scrollFab').innerHTML = icon('chev', 'w-5 h-5');
   $('#plusAttachIcon').innerHTML = icon('doc', 'w-4 h-4');
   $('#plusClearIcon').innerHTML = icon('trash', 'w-4 h-4');
   $('#btnAddAgent').innerHTML = `${icon('plus', 'w-4 h-4')} Add Agent`;
-  document.querySelectorAll('#tplModal [data-close], #agentModal [data-close], #settingsModal [data-close], #userModal [data-close], #iosModal [data-close], #promptModal [data-close]').forEach(b => { if (!b.innerHTML.trim()) b.innerHTML = icon('x', 'w-4 h-4'); });
+  document.querySelectorAll('#tplModal [data-close], #agentModal [data-close], #settingsModal [data-close], #userModal [data-close], #iosModal [data-close], #promptModal [data-close], #unlockModal [data-close]').forEach(b => { if (!b.innerHTML.trim()) b.innerHTML = icon('x', 'w-4 h-4'); });
 }
 let splashDone = false;
 function hideSplash() {
@@ -3057,22 +3705,30 @@ function hideSplash() {
 }
 const PAGE_T0 = performance.now();
 
-function boot() {
+async function boot() {
   initChromeIcons();
   renderChrome();
   setupPWA();
+  setupKeyboard();
   updateOffline();
   populateModelSelects();
   const s = load(LS.SESSION, null);
   if (s && s.expiry > Date.now()) {
     const u = getUsers().find(x => x.id === s.userId);
-    if (u) { startSession(u, false); backgroundModelRefresh(); hideSplash(); return; }
+    if (u) {
+      await startSession(u, false);
+      backgroundModelRefresh();
+      if (vaultLocked && !vaultKey) setTimeout(() => openUnlock('Welcome back! Your API keys are locked — enter your password to use them.'), 900);
+      hideSplash();
+      return;
+    }
   }
   showAuth('signin');
   hideSplash();
 }
 document.addEventListener('logo-ok', renderChrome);
+window.addEventListener('beforeunload', () => { if (window.speechSynthesis) speechSynthesis.cancel(); });
 boot();
 </script>
 </body>
-                                                                                                                                                                     </html>
+          </html>
