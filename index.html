@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com data:; img-src https://res.cloudinary.com data: blob:; connect-src https://generativelanguage.googleapis.com https://open.bigmodel.cn https://openrouter.ai https://api.groq.com https://api.cerebras.ai https://api.mistral.ai https://router.huggingface.co https://api.together.xyz https://en.wikipedia.org; manifest-src data: blob:; worker-src blob:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com data:; img-src https://res.cloudinary.com data: blob:; connect-src https:; manifest-src data: blob:; worker-src blob:; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -160,14 +160,11 @@ tailwind.config = { theme: { extend: {
     -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 10px, #000 calc(100% - 12px), transparent 100%);
     mask-image:linear-gradient(to bottom, transparent 0, #000 10px, #000 calc(100% - 12px), transparent 100%); }
 
-  /* iOS keyboard: app shell slides above the keyboard */
   #appRoot { transition:transform .18s ease; will-change:transform; }
 
-  /* @mention chips + popover */
   .mention { background:rgba(139,92,246,.28); border-radius:6px; padding:0 4px; }
   #mentionMenu .mrow { transition:background .12s ease; }
 
-  /* ═══ LIGHT THEME ═══ */
   body.light { background:#f4f4f6; color:#27272a; color-scheme:light; }
   body.light .bg-base { background:#f4f4f6; }
   body.light .bg-panel { background:#ffffff; }
@@ -221,14 +218,12 @@ tailwind.config = { theme: { extend: {
 </head>
 <body class="bg-base text-ink antialiased overflow-hidden font-sans">
 
-<!-- ═══════════════ SPLASH SCREEN ═══════════════ -->
 <div id="splash" class="fixed inset-0 z-[100] flex flex-col items-center justify-center" style="background:#121212">
   <div id="splashLogoWrap" class="splash-logo w-[120px] h-[120px] flex items-center justify-center"></div>
   <div class="mt-7 text-sm text-zinc-400 tracking-wide">Initializing Phantom<span class="ellipsis"></span></div>
   <div class="splash-bar mt-6"><div></div></div>
 </div>
 
-<!-- ═══════════════ AUTH OVERLAY ═══════════════ -->
 <div id="authOverlay" class="fixed inset-0 z-[90] bg-base hidden overflow-y-auto">
   <div class="min-h-full flex">
     <div class="hidden lg:flex w-[45%] flex-col items-center justify-center p-10 border-r border-white/5 relative overflow-hidden">
@@ -237,9 +232,9 @@ tailwind.config = { theme: { extend: {
       <h1 class="relative text-3xl font-bold text-white mt-6">Phantom</h1>
       <p class="relative text-sm text-zinc-400 mt-2">Your AI Ghost Team</p>
       <div class="relative mt-10 space-y-3 text-[13px] text-zinc-400 max-w-xs">
-        <div class="flex items-center gap-3"><span class="text-violet-400">👻</span> Build a team of specialized AI agents</div>
-        <div class="flex items-center gap-3"><span class="text-violet-400">⚡</span> 8 free AI providers with auto-failover</div>
-        <div class="flex items-center gap-3"><span class="text-violet-400">🔒</span> Keys are encrypted at rest on this device</div>
+        <div class="flex items-center gap-3"><span class="text-violet-400">👻</span> Agents that remember you — locally</div>
+        <div class="flex items-center gap-3"><span class="text-violet-400">⚡</span> 8 free providers · bring ANY key · even offline</div>
+        <div class="flex items-center gap-3"><span class="text-violet-400">🔒</span> Your data never leaves this device. Ever.</div>
       </div>
       <p class="relative text-[11px] text-zinc-600 mt-12">Created by <span class="text-zinc-400">BHAT BOYKA</span></p>
     </div>
@@ -299,9 +294,7 @@ tailwind.config = { theme: { extend: {
   </div>
 </div>
 
-<!-- ═══════════════ APP ═══════════════ -->
 <div id="appRoot" class="flex h-full">
-  <!-- SIDEBAR -->
   <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-80 glass border-r border-white/5 flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-300">
     <div class="px-5 pt-4 pb-3 shrink-0">
       <div class="flex items-center justify-between gap-2 mb-3">
@@ -309,7 +302,7 @@ tailwind.config = { theme: { extend: {
           <span id="sidebarLogo" class="logo-glow w-10 h-10 flex items-center justify-center shrink-0"></span>
           <span class="text-left min-w-0">
             <span class="block text-[15px] font-bold text-white leading-tight">Phantom</span>
-            <span class="block text-[10px] text-zinc-500">Your AI Ghost Team · v1.5.0</span>
+            <span class="block text-[10px] text-zinc-500">Your AI Ghost Team · v1.7.1</span>
           </span>
         </button>
         <button id="btnQuickAdd" title="New agent (Ctrl+N)" aria-label="New agent" class="btn p-2 rounded-xl text-zinc-500 hover:text-white hover:bg-white/10 shrink-0"></button>
@@ -320,9 +313,7 @@ tailwind.config = { theme: { extend: {
           class="w-full bg-[#101010]/80 border border-white/5 rounded-xl pl-9 pr-3 py-2.5 text-sm placeholder-zinc-500 focus:outline-none focus:border-white/20 transition-all">
       </div>
     </div>
-
     <div id="agentList" class="flex-1 overflow-y-auto px-3 pb-2"></div>
-
     <div class="p-3 border-t border-white/5 shrink-0">
       <button id="btnAddAgent" class="btn w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-dashed border-white/15 text-sm text-zinc-400 hover:text-white hover:border-white/35"></button>
       <button id="btnUserChip" class="btn w-full flex items-center gap-3 px-1 pt-3 pb-1 rounded-xl hover:bg-white/5" aria-label="Account menu">
@@ -334,10 +325,8 @@ tailwind.config = { theme: { extend: {
   </aside>
   <div id="scrim" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden lg:hidden"></div>
 
-  <!-- MAIN -->
   <main class="flex-1 flex flex-col min-w-0 relative">
-    <div id="offlineBanner" class="hidden bg-red-500/15 text-red-300 text-xs text-center py-1.5 px-4">You're offline — sending messages is disabled until your connection returns</div>
-
+    <div id="offlineBanner" class="hidden bg-red-500/15 text-red-300 text-xs text-center py-1.5 px-4">You're offline — messages will be queued and sent when you reconnect</div>
     <header class="h-16 shrink-0 flex items-center gap-2 px-3 lg:px-5 border-b border-white/5 glass relative z-20">
       <button id="btnMenu" class="lg:hidden btn p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10" aria-label="Menu"></button>
       <button id="brandHome" class="btn group flex items-center gap-2.5 pr-2" aria-label="Phantom home" title="Home">
@@ -412,18 +401,13 @@ tailwind.config = { theme: { extend: {
   </main>
 </div>
 
-<!-- Swipe reply hint -->
 <div id="swipeHint" class="hidden fixed z-[65] w-9 h-9 rounded-full bg-violet-500 flex items-center justify-center text-white pointer-events-none" style="transition:opacity .1s"></div>
-<!-- Reaction picker -->
 <div id="reactPicker" class="hidden fixed z-[66] glass border border-white/10 rounded-full shadow-2xl px-2 py-1.5 flex gap-1 pop"></div>
-<!-- Long-press / right-click context menu -->
 <div id="ctxMenu" class="hidden fixed z-[96] min-w-[190px] glass border border-white/10 rounded-2xl shadow-2xl p-1.5"></div>
-<!-- Image lightbox -->
 <div id="lightbox" class="hidden fixed inset-0 z-[94] bg-black/90 backdrop-blur-sm items-center justify-center p-4 cursor-zoom-out">
   <img id="lightboxImg" class="max-h-[90vh] max-w-full rounded-xl shadow-2xl" alt="Attachment preview">
 </div>
 
-<!-- PWA INSTALL BANNER -->
 <div id="installBanner" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-[75] w-[min(420px,92vw)] glass border border-white/10 rounded-2xl shadow-2xl p-4" style="transition:transform .3s ease, opacity .3s ease">
   <button id="installX" aria-label="Dismiss" class="btn absolute top-2 right-2 p-1.5 rounded-lg text-zinc-500 hover:text-white"></button>
   <div class="flex items-center gap-3">
@@ -439,7 +423,6 @@ tailwind.config = { theme: { extend: {
   </div>
 </div>
 
-<!-- iOS A2HS MODAL -->
 <div id="iosModal" class="hidden fixed inset-0 z-[80] items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="iosModal"></div>
   <div class="relative w-full max-w-sm glass border border-white/10 rounded-2xl shadow-2xl p-6 text-center pop">
@@ -454,7 +437,6 @@ tailwind.config = { theme: { extend: {
   </div>
 </div>
 
-<!-- VAULT UNLOCK MODAL -->
 <div id="unlockModal" class="fixed inset-0 z-[72] hidden items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="unlockModal"></div>
   <div class="relative w-full max-w-sm glass border border-white/10 rounded-2xl shadow-2xl p-5 pop">
@@ -469,7 +451,6 @@ tailwind.config = { theme: { extend: {
   </div>
 </div>
 
-<!-- AGENT PROFILE PANEL -->
 <div id="profileScrim" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden"></div>
 <aside id="profilePanel" class="fixed top-0 right-0 bottom-0 w-full sm:w-[400px] glass border-l border-white/10 z-50 translate-x-full transition-transform duration-300 flex flex-col">
   <div class="flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
@@ -485,7 +466,6 @@ tailwind.config = { theme: { extend: {
   </div>
 </aside>
 
-<!-- PROMPT LIBRARY MODAL -->
 <div id="promptModal" class="fixed inset-0 z-[56] hidden items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="promptModal"></div>
   <div class="relative w-full max-w-md glass border border-white/10 rounded-2xl shadow-2xl pop flex flex-col max-h-[90vh]">
@@ -510,7 +490,6 @@ tailwind.config = { theme: { extend: {
   </div>
 </div>
 
-<!-- USER PROFILE MODAL -->
 <div id="userModal" class="fixed inset-0 z-[55] hidden items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="userModal"></div>
   <div class="relative w-full max-w-lg glass border border-white/10 rounded-2xl shadow-2xl pop max-h-[92vh] flex flex-col">
@@ -541,7 +520,6 @@ tailwind.config = { theme: { extend: {
       <div><label class="block text-xs font-medium text-zinc-400 mb-1.5">Bio <span id="upBioCount" class="text-zinc-600">(0/200)</span></label>
         <textarea id="upBio" rows="2" maxlength="200" class="w-full bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm resize-none focus:outline-none focus:border-white/25"></textarea></div>
       <button id="upSave" class="btn text-sm px-4 py-2 rounded-xl font-medium text-white" style="background:var(--accent)">Save Profile</button>
-
       <div class="border-t border-white/5 pt-5">
         <h3 class="text-sm font-semibold text-white mb-3">Change Password</h3>
         <div class="space-y-2">
@@ -553,13 +531,11 @@ tailwind.config = { theme: { extend: {
         </div>
         <button id="upPwSave" class="btn mt-2 text-xs px-3.5 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300">Update password</button>
       </div>
-
       <div class="border-t border-white/5 pt-5">
         <h3 class="text-sm font-semibold text-white mb-1">Session</h3>
         <p id="upSessionInfo" class="text-[11px] text-zinc-500 mb-2"></p>
         <button id="upRevoke" class="btn text-xs px-3.5 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300">Revoke session (sign out)</button>
       </div>
-
       <div class="border-t border-white/5 pt-5">
         <h3 class="text-sm font-semibold text-white mb-3">Data</h3>
         <div class="flex flex-wrap gap-2">
@@ -574,7 +550,6 @@ tailwind.config = { theme: { extend: {
   </div>
 </div>
 
-<!-- TEMPLATE PICKER -->
 <div id="tplModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="tplModal"></div>
   <div class="relative w-full max-w-lg glass border border-white/10 rounded-2xl shadow-2xl pop max-h-[90vh] flex flex-col">
@@ -586,7 +561,6 @@ tailwind.config = { theme: { extend: {
   </div>
 </div>
 
-<!-- AGENT MODAL -->
 <div id="agentModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="agentModal"></div>
   <div class="relative w-full max-w-xl glass border border-white/10 rounded-2xl shadow-2xl pop max-h-[92vh] flex flex-col">
@@ -627,7 +601,6 @@ tailwind.config = { theme: { extend: {
   </div>
 </div>
 
-<!-- SETTINGS MODAL -->
 <div id="settingsModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="settingsModal"></div>
   <div class="relative w-full max-w-2xl glass border border-white/10 rounded-2xl shadow-2xl pop max-h-[92vh] flex flex-col">
@@ -638,8 +611,12 @@ tailwind.config = { theme: { extend: {
     <div class="overflow-y-auto px-5 py-5 space-y-7">
       <section>
         <h3 class="text-sm font-semibold text-white mb-1">API Providers</h3>
-        <p class="text-xs text-zinc-500 mb-2">Model lists are fetched live from each provider using your key. Failover order: Gemini → Groq → Cerebras → GLM-4 → Mistral → OpenRouter → Hugging Face → Together.</p>
-        <div id="vaultLine" class="text-[11px] mb-3"></div>
+        <p class="text-xs text-zinc-500 mb-2">Failover order: built-ins ranked by latency → your custom providers → the Offline Brain as last resort.</p>
+        <div id="vaultLine" class="text-[11px] mb-2"></div>
+        <label class="flex items-center gap-2.5 mb-1 text-xs text-zinc-300 bg-[#101010] border border-white/5 rounded-xl px-3 py-2.5 cursor-pointer">
+          <input id="strictVaultToggle" type="checkbox" class="accent-violet-500 w-4 h-4">
+          <span>Require password to unlock keys every session <span class="text-zinc-500">(highest security — keys lock when Phantom closes)</span></span>
+        </label>
         <label class="flex items-center gap-2.5 mb-1 text-xs text-zinc-300 bg-[#101010] border border-white/5 rounded-xl px-3 py-2.5 cursor-pointer">
           <input id="shareKeysToggle" type="checkbox" class="accent-violet-500 w-4 h-4">
           <span>Share API keys across all users on this device</span>
@@ -647,6 +624,34 @@ tailwind.config = { theme: { extend: {
         <p class="text-[10px] text-zinc-600 mb-3 px-1">Note: shared keys are stored unencrypted on this device (any local user can read them).</p>
         <div id="providerList" class="space-y-3"></div>
       </section>
+
+      <section>
+        <h3 class="text-sm font-semibold text-white mb-1">Bring Any Provider</h3>
+        <p class="text-xs text-zinc-500 mb-3">Paste any API key — Phantom detects the provider, endpoint and model list on its own. Recognizes xAI (Grok), Anthropic, DeepSeek, SiliconFlow, self-hosted vLLM/Ollama and any OpenAI-compatible API. Known keys (Groq, OpenRouter…) auto-fill their built-in slot.</p>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input id="cpKey" type="password" placeholder="Paste API key (sk-…, xai-…, sk-ant-…)" autocomplete="off" class="flex-1 bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25">
+          <input id="cpBase" type="text" placeholder="Base URL (optional, e.g. https://api.x.ai/v1)" class="sm:w-56 bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25">
+          <input id="cpLabel" type="text" placeholder="Label (optional)" class="sm:w-36 bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25">
+          <button id="btnCpAdd" class="btn text-sm px-4 py-2.5 rounded-xl font-medium text-white shrink-0" style="background:var(--accent)">Detect & Add</button>
+        </div>
+        <div id="cpOut" class="text-[11px] mt-1.5"></div>
+        <div id="cpList" class="space-y-3 mt-3"></div>
+      </section>
+
+      <section>
+        <h3 class="text-sm font-semibold text-white mb-1">👻 Offline Brain <span class="text-[10px] font-normal align-middle px-1.5 py-0.5 rounded-full bg-white/5 text-zinc-400">WebGPU</span></h3>
+        <p class="text-xs text-zinc-500 mb-3">Runs an LLM entirely on this device — no API key, no internet, free forever. It waits at the end of the failover chain and catches you when every cloud provider is down, rate-limited, or you're on a plane.</p>
+        <div id="localStatus" class="text-[11px] mb-2"></div>
+        <div class="flex flex-col sm:flex-row gap-2 items-start">
+          <select id="localModel" class="flex-1 bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25"></select>
+          <button id="btnLocalToggle" class="btn text-sm px-4 py-2.5 rounded-xl font-medium text-white shrink-0" style="background:var(--accent)">Enable</button>
+        </div>
+        <div id="localProgWrap" class="hidden mt-2">
+          <div class="h-1.5 bg-white/10 rounded-full overflow-hidden"><div id="localBar" class="h-full rounded-full transition-all" style="width:0%;background:var(--accent)"></div></div>
+          <div id="localProgText" class="text-[10px] text-zinc-500 mt-1 truncate"></div>
+        </div>
+      </section>
+
       <section>
         <h3 class="text-sm font-semibold text-white mb-1">Global Defaults</h3>
         <p class="text-xs text-zinc-500 mb-3">Applied to newly created agents.</p>
@@ -668,7 +673,7 @@ tailwind.config = { theme: { extend: {
       </section>
       <section>
         <h3 class="text-sm font-semibold text-white mb-1">Sound & Feedback</h3>
-        <p class="text-xs text-zinc-500 mb-3">Tactile touch feedback and subtle interaction sounds, generated on-device.</p>
+        <p class="text-xs text-zinc-500 mb-3">Tactile touch feedback, subtle on-device sounds, and natural read-aloud.</p>
         <div class="space-y-2">
           <label class="flex items-center gap-2.5 text-xs text-zinc-300 bg-[#101010] border border-white/5 rounded-xl px-3 py-2.5 cursor-pointer">
             <input id="toggleSounds" type="checkbox" class="accent-violet-500 w-4 h-4">
@@ -682,13 +687,30 @@ tailwind.config = { theme: { extend: {
             <input id="toggleTTS" type="checkbox" class="accent-violet-500 w-4 h-4">
             <span>Read replies aloud automatically <span class="text-zinc-500">(on-device speech, free)</span></span>
           </label>
+          <div class="bg-[#101010] border border-white/5 rounded-xl px-3 py-3 space-y-3">
+            <div>
+              <label class="block text-[11px] text-zinc-400 mb-1">Voice <span class="text-zinc-600">(natural voices sound best — try "Natural" or "Google")</span></label>
+              <select id="ttsVoiceSel" class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-white/25"></select>
+            </div>
+            <div>
+              <label class="block text-[11px] text-zinc-400 mb-1">Speed <span id="ttsRateVal" class="text-zinc-500 tnum">1.00×</span></label>
+              <input id="ttsRate" type="range" min="0.7" max="1.6" step="0.05" value="1" class="w-full">
+            </div>
+            <button id="btnTtsTest" class="btn text-xs px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300">🔊 Test voice</button>
+          </div>
         </div>
       </section>
       <section>
+        <h3 class="text-sm font-semibold text-white mb-1">Usage & Cost</h3>
+        <p class="text-xs text-zinc-500 mb-3">Every request from your ghost team, counted on-device. With free-tier keys, your estimated spend: <b class="text-emerald-400">$0.00</b>.</p>
+        <div id="usageTable" class="space-y-2"></div>
+        <button id="btnResetUsage" class="btn text-xs px-3.5 py-2 mt-3 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300">Reset usage stats</button>
+      </section>
+      <section>
         <h3 class="text-sm font-semibold text-white mb-1">Data</h3>
-        <p class="text-xs text-zinc-500 mb-3">Manage this account's local data. Full controls live in My Profile.</p>
+        <p class="text-xs text-zinc-500 mb-3">Stored on-device in IndexedDB — no server, no size ceiling. Full controls live in My Profile.</p>
         <div class="mb-4">
-          <div class="flex justify-between text-[11px] text-zinc-500 mb-1.5"><span>Storage used</span><span id="storageText" class="tnum">0 MB / 5 MB</span></div>
+          <div class="flex justify-between text-[11px] text-zinc-500 mb-1.5"><span>Storage used</span><span id="storageText" class="tnum">calculating…</span></div>
           <div class="h-1.5 bg-white/10 rounded-full overflow-hidden"><div id="storageBar" class="h-full rounded-full transition-all" style="width:0%;background:var(--accent)"></div></div>
         </div>
         <button id="btnExportAll" class="btn text-xs px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300">Export all data</button>
@@ -720,7 +742,6 @@ tailwind.config = { theme: { extend: {
   </div>
 </div>
 
-<!-- CONFIRM MODAL -->
 <div id="confirmModal" class="fixed inset-0 z-[60] hidden items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" data-close="confirmModal"></div>
   <div class="relative w-full max-w-sm glass border border-white/10 rounded-2xl shadow-2xl p-5 pop">
@@ -739,10 +760,10 @@ tailwind.config = { theme: { extend: {
 'use strict';
 
 /* ═══════════════════════ // CONFIG ═══════════════════════ */
-const APP_VERSION = '1.5.0';
+const APP_VERSION = '1.7.1';
 const LOGO_URL = 'https://res.cloudinary.com/prjgzqvy/image/upload/v1790017986/file_000000007bec8208a53dc97b3142afb6_bxd7tt.png';
 
-const LS = { USERS:'phantom_users', SESSION:'phantom_session', SHARED:'phantom_shared_keys', INSTALL:'phantom_install_dismissed', IOS:'phantom_ios_hint', MIG:'phantom_migrated', MODELS:'phantom_model_cache' };
+const LS = { USERS:'phantom_users', SESSION:'phantom_session', SHARED:'phantom_shared_keys', INSTALL:'phantom_install_dismissed', IOS:'phantom_ios_hint', MIG:'phantom_migrated', MODELS:'phantom_model_cache', LOCAL:'phantom_local', SPLASH:'phantom_splash_seen', DEVKEY:'phantom_devkey', DWRAP:'phantom_dwrap' };
 const bucketKey = () => 'phantom_u_' + (USER ? USER.id : 'guest');
 
 const DEFAULT_KEYS = { gemini:'', groq:'', cerebras:'', glm:'', mistral:'', openrouter:'', huggingface:'', together:'' };
@@ -756,6 +777,7 @@ const PROVIDERS = {
   openrouter:  { label:'OpenRouter',    model:'meta-llama/llama-3.1-70b-instruct',       keyUrl:'https://openrouter.ai/keys',                tier:'Free fallback models',tint:'linear-gradient(135deg,#a855f7,#c026d3)' },
   huggingface: { label:'Hugging Face',  model:'meta-llama/Llama-3.1-8B-Instruct',        keyUrl:'https://huggingface.co/settings/tokens',    tier:'Free monthly credits',tint:'linear-gradient(135deg,#facc15,#ca8a04)' },
   together:    { label:'Together AI',   model:'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo', keyUrl:'https://api.together.ai/settings/api-keys', tier:'Free starter credit', tint:'linear-gradient(135deg,#38bdf8,#0284c7)' },
+  local:       { label:'Offline Brain', model:'Llama-3.2-1B-Instruct-q4f32_1-MLC',       keyUrl:null, tier:'On-device · free forever', tint:'linear-gradient(135deg,#a3e635,#16a34a)', local:true },
 };
 PROVIDERS.gemini.endpoint = 'https://generativelanguage.googleapis.com/v1beta/models';
 PROVIDERS.groq.endpoint = 'https://api.groq.com/openai/v1';
@@ -766,6 +788,8 @@ PROVIDERS.openrouter.endpoint = 'https://openrouter.ai/api/v1';
 PROVIDERS.huggingface.endpoint = 'https://router.huggingface.co/v1';
 PROVIDERS.together.endpoint = 'https://api.together.xyz/v1';
 const FAILOVER = ['gemini','groq','cerebras','glm','mistral','openrouter','huggingface','together'];
+const customIds = () => (settings && settings.customProviders || []).map(c => c.id);
+const ALL_IDS = () => [...FAILOVER, ...customIds(), 'local'];
 
 const MODELS = {
   'gemini-2.0-flash':                     { label:'Gemini 2.0 Flash',      provider:'gemini' },
@@ -785,6 +809,12 @@ const LEGACY_PROVIDER = {
   'llama-3.1-70b-versatile': 'groq',
   'mistralai/Mistral-7B-Instruct-v0.2': 'huggingface',
   'meta-llama/Llama-3-8b-chat-hf': 'together',
+};
+const LOCAL_MODELS = {
+  'Llama-3.2-1B-Instruct-q4f32_1-MLC':   { label:'Llama 3.2 1B · ~0.9 GB' },
+  'Llama-3.2-3B-Instruct-q4f32_1-MLC':   { label:'Llama 3.2 3B · ~2.2 GB' },
+  'Qwen2.5-1.5B-Instruct-q4f32_1-MLC':   { label:'Qwen 2.5 1.5B · ~1.4 GB' },
+  'gemma-2-2b-it-q4f32_1-MLC':           { label:'Gemma 2 2B · ~1.7 GB' },
 };
 
 const GRADIENTS = [
@@ -811,6 +841,8 @@ const FILE_STORE_CHARS = 48000, FILE_CONTEXT_CHARS = 12000;
 const TEXT_EXT = /\.(txt|md|markdown|json|csv|tsv|log|xml|yml|yaml|html?|css|js|jsx|ts|tsx|py|rb|go|rs|java|kt|c|h|cpp|cs|php|sh|sql|toml|ini|env)$/i;
 const VISION_RE = /(vision|llava|-vl\b|glm-4v|pixtral|gpt-4o|gpt-4\.1|omni|gemini|claude-[34]|llama-3\.2-(11|90)|llama-4|molmo|qwen.*-vl)/i;
 const HUDDLE_MAX = 2, HUDDLE_TOKENS = 700;
+const MAX_MEMORIES = 20;
+const WEBLLM_URL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm';
 
 const PRESETS = [
   { name:'Inbox Manager', emoji:'👻', gradient:'violet', color:'violet', role:'Email triage & drafts', model:'gemini-2.0-flash', temp:0.3, maxTokens:1024,
@@ -833,7 +865,74 @@ const PRESETS = [
     systemPrompt:`You are Study Buddy, a Socratic tutor for university exam prep.\n\nRules:\n- Never dump the full answer. Guide with one focused question at a time.\n- Break topics into a checklist; track progress with badges:\n  ✓ **Covered** → unit 3: CPU scheduling\n  ⚠ **Revisit** → paging vs segmentation\n- After each concept, give one practice question scaled to the user's level.\n- If the user is stuck twice, give a hint — not the answer.` },
 ];
 
-/* ═══════════════════════ // UTILITIES ═══════════════════════ */
+/* ═══════════════════════ // STORAGE ENGINE (IndexedDB + memory mirror) ═══════════════════════ */
+const DB = {
+  db:null, useIDB:false, mem:{}, dirty:new Set(), flushTimer:null, STORE:'kv',
+  seed() {
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('phantom_')) this.mem[k] = localStorage.getItem(k);
+      }
+    } catch {}
+  },
+  async init() {
+    if (!('indexedDB' in window)) { this.useIDB = false; return; }
+    try {
+      this.db = await new Promise((res, rej) => {
+        const req = indexedDB.open('phantom', 1);
+        req.onupgradeneeded = () => { if (!req.result.objectStoreNames.contains(this.STORE)) req.result.createObjectStore(this.STORE); };
+        req.onsuccess = () => res(req.result);
+        req.onerror = () => rej(req.error);
+        req.onblocked = () => rej(new Error('blocked'));
+      });
+      const keys = await new Promise((res, rej) => { const r = this.db.transaction(this.STORE).objectStore(this.STORE).getAllKeys(); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+      const vals = await new Promise((res, rej) => { const r = this.db.transaction(this.STORE).objectStore(this.STORE).getAll(); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+      keys.forEach((k, i) => { this.mem[k] = vals[i]; });
+      const idbSet = new Set(keys);
+      const lsOnly = Object.keys(this.mem).filter(k => k.startsWith('phantom_') && !idbSet.has(k));
+      if (lsOnly.length) await this.putMany(lsOnly);
+      Object.keys(this.mem).forEach(k => { if (k.startsWith('phantom_')) { try { localStorage.removeItem(k); } catch {} } });
+      this.useIDB = true;
+    } catch { this.useIDB = false; }
+    refreshGlobalCaches();
+  },
+  putMany(ks) {
+    return new Promise((res, rej) => {
+      const t = this.db.transaction(this.STORE, 'readwrite');
+      const st = t.objectStore(this.STORE);
+      ks.forEach(k => st.put(this.mem[k], k));
+      t.oncomplete = () => res(); t.onerror = () => rej(t.error);
+    });
+  },
+  get(k) { return Object.prototype.hasOwnProperty.call(this.mem, k) ? this.mem[k] : null; },
+  set(k, v) {
+    const s = JSON.stringify(v);
+    if (this.mem[k] === s) return;
+    this.mem[k] = s;
+    this.dirty.add(k);
+    if (!this.flushTimer) this.flushTimer = setTimeout(() => this.flush(), 350);
+  },
+  del(k) {
+    delete this.mem[k];
+    this.dirty.delete(k);
+    if (this.useIDB && this.db) { try { this.db.transaction(this.STORE, 'readwrite').objectStore(this.STORE).delete(k); } catch {} }
+    try { localStorage.removeItem(k); } catch {}
+  },
+  async flush() {
+    this.flushTimer = null;
+    const ks = [...this.dirty]; this.dirty.clear();
+    if (!ks.length) return;
+    if (!this.useIDB) {
+      ks.forEach(k => { try { localStorage.setItem(k, this.mem[k]); } catch { toast('Storage full — export a backup and clear old data', 'error'); } });
+      return;
+    }
+    try { await this.putMany(ks); }
+    catch { ks.forEach(k => { try { localStorage.setItem(k, this.mem[k]); } catch {} }); }
+  },
+};
+DB.seed();
+
 const $ = s => document.querySelector(s);
 const esc = (s = '') => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 const show = el => el.classList.remove('hidden');
@@ -841,16 +940,18 @@ const hide = el => el.classList.add('hidden');
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 const setHTML = (sel, html) => { const el = document.querySelector(sel); if (el) el.innerHTML = html; };
 const fillAvatarSlot = (sel, html) => setHTML(sel, html);
-const load = (k, fb) => { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? fb; } catch { return fb; } };
-const saveRaw = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { toast('Storage full — export a backup and clear old data', 'error'); } };
+const load = (k, fb) => { try { const v = JSON.parse(DB.get(k)); return v ?? fb; } catch { return fb; } };
+const saveRaw = (k, v) => { DB.set(k, v); };
+// Never let a single await stall the app — race anything against a hard timeout
+const withTimeout = (p, ms) => Promise.race([Promise.resolve(p), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
 const estTokens = t => Math.max(1, Math.round((t || '').length / 4));
 const isFreeId = id => /:free$/.test(id);
 const humanModel = id => String(id || '').split('/').pop().replace(/:free$/, '').replace(/[-_]+/g, ' ').trim()
   .split(' ').map(w => w ? (w[0].toUpperCase() + w.slice(1)) : w).join(' ');
-const modelLabel = m => (MODELS[m] && MODELS[m].label) || humanModel(m) || m;
+const modelLabel = m => (MODELS[m] && MODELS[m].label) || (LOCAL_MODELS[m] && LOCAL_MODELS[m].label) || humanModel(m) || m;
 const tempWord = v => { v = +v; return v <= 0.3 ? 'precise' : v <= 0.7 ? 'balanced' : 'creative'; };
 const fmtBytes = n => n >= 1048576 ? (n/1048576).toFixed(1) + ' MB' : n >= 1024 ? Math.round(n/1024) + ' KB' : n + ' B';
-// Darken a hex color by factor f (0..1) — used for accent-aware user bubbles
+const fmtK = n => n >= 1000 ? (n/1000).toFixed(1) + 'k' : String(n);
 function shade(hex, f) {
   const n = parseInt(String(hex).slice(1), 16);
   const r = Math.round(((n >> 16) & 255) * f), g = Math.round(((n >> 8) & 255) * f), b = Math.round((n & 255) * f);
@@ -883,11 +984,11 @@ const ICONS = {
   reply:'<polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/>',
   smile:'<circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
   speak:'<path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.4 5.6a9 9 0 0 1 0 12.8"/>',
+  brain:'<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44A2.5 2.5 0 0 1 4.5 17.5 2.5 2.5 0 0 1 3 13a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 1.5-4.5A2.5 2.5 0 0 1 9.5 2z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.54-2.44 2.5 2.5 0 0 0 1.5-4.5 2.5 2.5 0 0 0 0-5 2.5 2.5 0 0 0-1.5-4.5A2.5 2.5 0 0 0 14.5 2z"/>',
 };
 const icon = (n, cls='w-4 h-4') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
 const ghost = (cls='w-5 h-5') => `<svg class="${cls}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a8 8 0 0 0-8 8v11.3c0 .5.6.8 1 .5l2-1.6 2.1 1.7c.3.3.7.3 1 0l1.9-1.5 1.9 1.5c.3.3.7.3 1 0L19 20.2l2 1.6c.4.3 1 0 1-.5V10a8 8 0 0 0-8-8z"/><circle cx="9.3" cy="10.5" r="1.4" fill="#171717"/><circle cx="14.7" cy="10.5" r="1.4" fill="#171717"/></svg>`;
 
-// ─── LOGO (with fallback) ───
 let logoState = 'pending';
 (() => { const t = new Image(); t.crossOrigin = 'anonymous';
   t.onload = () => { logoState = 'ok'; document.dispatchEvent(new CustomEvent('logo-ok')); };
@@ -922,7 +1023,7 @@ function fmtTime(ts) {
 const fmtDivider = ts => { const d = new Date(ts); const t = d.toLocaleTimeString([], { hour:'numeric', minute:'2-digit' });
   return d.toDateString() === new Date().toDateString() ? t : `${d.toLocaleDateString([], { month:'short', day:'numeric' })}, ${t}`; };
 
-/* ═══════════════════════ // SFX ENGINE (Web Audio, on-device) ═══════════════════════ */
+/* ═══════════════════════ // SFX ═══════════════════════ */
 const SFX = {
   ctx: null, last: { name:'', t:0 },
   unlock() {
@@ -1027,7 +1128,7 @@ function download(filename, content, type='application/json') {
 }
 function storageMB() {
   let bytes = 0;
-  for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('phantom_')) bytes += (localStorage.getItem(k) || '').length * 2; }
+  for (const k in DB.mem) { if (k.startsWith('phantom_')) bytes += (DB.mem[k] || '').length * 2; }
   return bytes / 1048576;
 }
 
@@ -1076,7 +1177,6 @@ const typingHTML = () => `<div class="flex items-center gap-2.5 py-1">
   <span class="text-xs text-zinc-400">Phantom is typing</span>
   <span class="flex items-center gap-1"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></span></div>`;
 
-/* ─── CODE BLOCK ENHANCEMENT (highlight + copy) ─── */
 let lastEnhance = 0;
 function enhanceCodeBlocks(root) {
   if (!root || !root.querySelectorAll) return;
@@ -1152,7 +1252,10 @@ async function upgradeHash(u, pass) {
   } catch {}
 }
 
+/* ─── VAULT: password-derived key, auto-unlocked on this device via a
+   device-wrapped copy. Strict mode (Settings) disables the auto-unlock. ─── */
 let vaultKey = null, vaultLocked = false;
+let customKeys = {};
 async function deriveVaultKey(pass, saltHex) {
   const seed = await crypto.subtle.importKey('raw', enc.encode('vault::' + pass), 'PBKDF2', false, ['deriveBits']);
   const bits = await crypto.subtle.deriveBits({ name:'PBKDF2', hash:'SHA-256', salt:hexToBytes(saltHex), iterations:PBKDF2_ITER }, seed, 256);
@@ -1167,6 +1270,32 @@ async function decryptJSON(key, blob) {
   const pt = await crypto.subtle.decrypt({ name:'AES-GCM', iv:new Uint8Array(b64ToBuf(blob.iv)) }, key, b64ToBuf(blob.ct));
   return JSON.parse(new TextDecoder().decode(pt));
 }
+async function getDeviceKey() {
+  const rec = load(LS.DEVKEY, null);
+  if (rec && rec.k) { try { return await crypto.subtle.importKey('raw', b64ToBuf(rec.k), 'AES-GCM', false, ['encrypt','decrypt']); } catch {} }
+  const raw = crypto.getRandomValues(new Uint8Array(32));
+  saveRaw(LS.DEVKEY, { k: bufToB64(raw) });
+  return crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['encrypt','decrypt']);
+}
+// Wrap the password-derived vault key with a device key → keys auto-unlock on boot
+async function wrapVaultKey(vk) {
+  try {
+    const dk = await getDeviceKey();
+    const raw = await crypto.subtle.exportKey('raw', vk);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, dk, raw);
+    saveRaw(LS.DWRAP, { v:1, iv: bufToB64(iv.buffer), ct: bufToB64(ct) });
+  } catch {}
+}
+async function unwrapVaultKey() {
+  try {
+    const w = load(LS.DWRAP, null);
+    if (!w || !w.ct) return null;
+    const dk = await getDeviceKey();
+    const pt = await crypto.subtle.decrypt({ name:'AES-GCM', iv:new Uint8Array(b64ToBuf(w.iv)) }, dk, b64ToBuf(w.ct));
+    return await crypto.subtle.importKey('raw', pt, 'AES-GCM', false, ['encrypt', 'decrypt']);
+  } catch { return null; }
+}
 async function setupVaultKey(u, password) {
   vaultKey = null;
   if (!cryptoOK() || !password || !(u && u.salt)) return;
@@ -1174,16 +1303,20 @@ async function setupVaultKey(u, password) {
 }
 const hasPlainKeys = o => FAILOVER.some(p => (o && o[p] || '').trim());
 async function keysChanged() {
-  if (vaultKey && cryptoOK()) {
-    try { settings.encKeys = await encryptJSON(vaultKey, settings.apiKeys); } catch {}
-    persist();
+  if (cryptoOK() && vaultKey) {
+    try { settings.encKeys = await encryptJSON(vaultKey, { apiKeys: settings.apiKeys, custom: customKeys }); } catch {}
+    if (!settings.strictVault) await wrapVaultKey(vaultKey); else DB.del(LS.DWRAP);
+  } else {
+    settings.customKeys = customKeys;
   }
+  persist();
 }
 async function decryptKeysInto() {
   if (!settings.encKeys || !vaultKey) return false;
   try {
     const dec = await decryptJSON(vaultKey, settings.encKeys);
-    settings.apiKeys = Object.assign({}, DEFAULT_KEYS, dec || {});
+    settings.apiKeys = Object.assign({}, DEFAULT_KEYS, (dec && dec.apiKeys) || {});
+    customKeys = Object.assign({}, (dec && dec.custom) || {});
     vaultLocked = false;
     return true;
   } catch { return false; }
@@ -1200,10 +1333,12 @@ async function submitUnlock() {
   if (!(await verifyPassword(USER, pw))) { $('#unlockErr').textContent = 'Wrong password'; show($('#unlockErr')); return; }
   await setupVaultKey(USER, pw);
   const ok = await decryptKeysInto();
+  if (ok && !settings.strictVault) await wrapVaultKey(vaultKey); // remember for next launch
   closeModal('unlockModal');
   if (ok) {
     toast('API keys unlocked 🔓', 'success');
-    renderProviderList(); renderSidebar(); renderHeader();
+    renderProviderList(); renderCustomList(); renderSidebar(); renderHeader();
+    flushQueued(true);
   } else {
     toast('Could not decrypt stored keys — re-enter them in Settings', 'error', 6000);
   }
@@ -1213,30 +1348,48 @@ const getUsers = () => load(LS.USERS, []) || [];
 const persistUsers = list => saveRaw(LS.USERS, list);
 
 let USER = null;
-let agents = [], chats = {}, settings = null, latency = {}, circuit = {}, prompts = [];
-let ui = { activeId:null, collapsed:{ pinned:false, all:false, archived:true, prompts:false } };
+let agents = [], chats = {}, settings = null, latency = {}, circuit = {}, prompts = [], usage = {};
+let ui = { activeId:null, collapsed:{ pinned:false, all:false, archived:true, prompts:false }, drafts:{} };
 let sharedKeys = Object.assign({}, DEFAULT_KEYS, load(LS.SHARED, {}));
 let modelCache = normModelCache(load(LS.MODELS, {}));
-const dynamicIds = p => (modelCache[p] && modelCache[p].models) || [];
+let localFlag = Object.assign({ enabled:false, model:'Llama-3.2-1B-Instruct-q4f32_1-MLC' }, load(LS.LOCAL, {}));
+function refreshGlobalCaches() {
+  sharedKeys = Object.assign({}, DEFAULT_KEYS, load(LS.SHARED, {}));
+  modelCache = normModelCache(load(LS.MODELS, {}));
+  localFlag = Object.assign({ enabled:false, model:'Llama-3.2-1B-Instruct-q4f32_1-MLC' }, load(LS.LOCAL, {}));
+}
+const dynamicIds = p => {
+  const pr = PROVIDERS[p];
+  if (pr && pr.custom) return pr.models || [];
+  return (modelCache[p] && modelCache[p].models) || [];
+};
 function providerOf(modelId) {
   if (!modelId) return null;
   if (MODELS[modelId]) return MODELS[modelId].provider;
+  if (LOCAL_MODELS[modelId]) return 'local';
   if (LEGACY_PROVIDER[modelId]) return LEGACY_PROVIDER[modelId];
-  for (const p of FAILOVER) if (dynamicIds(p).includes(modelId)) return p;
+  for (const p of ALL_IDS()) if (dynamicIds(p).includes(modelId)) return p;
   return null;
 }
 const isGuest = () => !!USER && USER.id === 'guest';
 const persist = () => { if (USER && !isGuest()) {
   let s = settings;
-  if (vaultKey && settings.encKeys) { s = Object.assign({}, settings); delete s.apiKeys; }
-  saveRaw(bucketKey(), { agents, chats, settings:s, latency, circuit, ui, prompts });
+  if (vaultKey && settings.encKeys) { s = Object.assign({}, settings); delete s.apiKeys; delete s.customKeys; }
+  saveRaw(bucketKey(), { agents, chats, settings:s, latency, circuit, ui, prompts, usage });
 }};
 const saveAgents = persist, saveChats = persist, saveSettings = persist, saveCircuit = persist, saveLatency = persist, saveUI = persist;
 
+function registerCustomProviders() {
+  (settings.customProviders || []).forEach(c => {
+    PROVIDERS[c.id] = { label:c.label, model:(c.models && c.models[0]) || 'default', tier:'Custom · ' + c.kind,
+      endpoint:c.endpoint, kind:c.kind, custom:true, tint:'linear-gradient(135deg,#64748b,#334155)' };
+  });
+}
+
 function defaultSettings() {
-  return { apiKeys: Object.assign({}, DEFAULT_KEYS), shareKeys:false, theme:'dark',
+  return { apiKeys: Object.assign({}, DEFAULT_KEYS), customProviders: [], shareKeys:false, theme:'dark', strictVault:false,
     defaultModel:'gemini-2.0-flash', defaultTemp:0.6, defaultMaxTokens:2048, accent:'violet',
-    sounds:true, haptics:true, autoSpeak:false };
+    sounds:true, haptics:true, autoSpeak:false, ttsVoice:'', ttsRate:1 };
 }
 function normLatency(o) {
   if (!o || typeof o !== 'object' || Array.isArray(o)) return {};
@@ -1253,12 +1406,24 @@ function normCircuit(o) {
     if (typeof o[k].lastFail !== 'number') o[k].lastFail = 0; });
   return o;
 }
+function normUsage(o) {
+  const out = {};
+  if (!o || typeof o !== 'object' || Array.isArray(o)) return out;
+  Object.keys(o).forEach(p => { const u = o[p];
+    if (u && typeof u === 'object' && typeof u.reqs === 'number') out[p] = { reqs:u.reqs||0, in:u.in||0, out:u.out||0 }; });
+  return out;
+}
 function normModelCache(o) {
   const out = {};
   if (!o || typeof o !== 'object' || Array.isArray(o)) return out;
   FAILOVER.forEach(p => { const c = o[p];
     if (c && Array.isArray(c.models)) out[p] = { models:c.models.filter(x => typeof x === 'string' && x), ts: typeof c.ts === 'number' ? c.ts : 0 }; });
   return out;
+}
+function normCustoms(arr) {
+  return (Array.isArray(arr) ? arr : []).filter(c => c && typeof c.id === 'string' && typeof c.endpoint === 'string')
+    .map(c => ({ id:c.id, label:String(c.label||'Custom'), endpoint:c.endpoint, kind:c.kind === 'anthropic' ? 'anthropic' : 'openai',
+      models:Array.isArray(c.models) ? c.models.filter(x => typeof x === 'string') : [], ts: typeof c.ts === 'number' ? c.ts : Date.now() }));
 }
 function defaultPrompts() {
   return [
@@ -1277,12 +1442,13 @@ function normPrompts(arr) {
 function presetToAgent(p) {
   return { id:uid(), name:p.name, emoji:p.emoji||'', gradient:p.gradient||'violet', role:p.role, systemPrompt:p.systemPrompt||'',
     model:p.model || settings.defaultModel, temp:p.temp ?? settings.defaultTemp, maxTokens:p.maxTokens ?? settings.defaultMaxTokens,
-    color:p.color||'violet', pinned:false, archived:false, createdAt:Date.now(), starter:p.starter||'' };
+    color:p.color||'violet', pinned:false, archived:false, createdAt:Date.now(), starter:p.starter||'', memory:[] };
 }
 async function loadForUser(u) {
-  settings = defaultSettings(); agents = []; chats = {}; latency = {}; circuit = {};
-  ui = { activeId:null, collapsed:{ pinned:false, all:false, archived:true, prompts:false } };
+  settings = defaultSettings(); agents = []; chats = {}; latency = {}; circuit = {}; usage = {};
+  ui = { activeId:null, collapsed:{ pinned:false, all:false, archived:true, prompts:false }, drafts:{} };
   prompts = defaultPrompts();
+  customKeys = {};
   vaultLocked = false;
   if (u.id === 'guest') { agents = [presetToAgent(PRESETS[0])]; return; }
   const d = load(bucketKey(), null);
@@ -1291,35 +1457,47 @@ async function loadForUser(u) {
     chats = (d.chats && typeof d.chats === 'object') ? d.chats : {};
     settings = Object.assign(defaultSettings(), d.settings || {});
     settings.apiKeys = Object.assign({}, DEFAULT_KEYS, settings.apiKeys || {});
+    settings.customProviders = normCustoms(settings.customProviders);
     latency = normLatency(d.latency); circuit = normCircuit(d.circuit);
-    ui = Object.assign({ activeId:null, collapsed:{ pinned:false, all:false, archived:true, prompts:false } }, d.ui || {});
+    usage = normUsage(d.usage);
+    ui = Object.assign({ activeId:null, collapsed:{ pinned:false, all:false, archived:true, prompts:false }, drafts:{} }, d.ui || {});
     if (!ui.collapsed || typeof ui.collapsed !== 'object') ui.collapsed = { pinned:false, all:false, archived:true, prompts:false };
     if (typeof ui.collapsed.prompts !== 'boolean') ui.collapsed.prompts = false;
+    if (!ui.drafts || typeof ui.drafts !== 'object') ui.drafts = {};
     prompts = Array.isArray(d.prompts) ? normPrompts(d.prompts) : defaultPrompts();
+    agents.forEach(a => { if (!Array.isArray(a.memory)) a.memory = []; });
+    registerCustomProviders();
     if (settings.encKeys && settings.encKeys.ct) {
+      let ok = false;
       if (vaultKey) {
-        const ok = await decryptKeysInto();
-        if (!ok) { vaultLocked = true; settings.apiKeys = Object.assign({}, DEFAULT_KEYS); }
-      } else {
-        vaultLocked = true;
-        settings.apiKeys = Object.assign({}, DEFAULT_KEYS);
+        ok = await decryptKeysInto();
+      } else if (cryptoOK() && !settings.strictVault) {
+        // Auto-unlock: unwrap the vault key with the on-device device key (no password needed)
+        const k = await withTimeout(unwrapVaultKey(), 3000).catch(() => null);
+        if (k) { vaultKey = k; ok = await decryptKeysInto(); if (ok) setTimeout(() => toast('Keys unlocked automatically 🔓', 'info', 1600), 400); }
       }
-    } else if (hasPlainKeys(settings.apiKeys) && vaultKey && cryptoOK()) {
-      await keysChanged();
-      setTimeout(() => toast('API keys are now encrypted on this device 🔐', 'success'), 1200);
+      if (!ok) { vaultLocked = true; settings.apiKeys = Object.assign({}, DEFAULT_KEYS); customKeys = {}; }
+    } else {
+      customKeys = Object.assign({}, settings.customKeys || {});
+      if (hasPlainKeys(settings.apiKeys) && vaultKey && cryptoOK()) {
+        await keysChanged();
+        setTimeout(() => toast('API keys are now encrypted on this device 🔐', 'success'), 1200);
+      }
     }
-  } else if (localStorage.getItem('phantom_agents') && !load(LS.MIG, false)) {
+  } else if (DB.get('phantom_agents') && !load(LS.MIG, false)) {
     try {
-      agents = JSON.parse(localStorage.getItem('phantom_agents')) || [];
-      chats = JSON.parse(localStorage.getItem('phantom_chats')) || {};
-      const os = JSON.parse(localStorage.getItem('phantom_settings')) || '{}';
+      agents = JSON.parse(DB.get('phantom_agents')) || [];
+      chats = JSON.parse(DB.get('phantom_chats')) || {};
+      const os = JSON.parse(DB.get('phantom_settings') || '{}');
       settings = Object.assign(defaultSettings(), typeof os === 'object' ? os : {});
       settings.apiKeys = Object.assign({}, DEFAULT_KEYS, (os && os.apiKeys) || {});
-      latency = normLatency(JSON.parse(localStorage.getItem('phantom_latency') || '{}'));
-      circuit = normCircuit(JSON.parse(localStorage.getItem('phantom_circuit') || '{}'));
+      latency = normLatency(JSON.parse(DB.get('phantom_latency') || '{}'));
+      circuit = normCircuit(JSON.parse(DB.get('phantom_circuit') || '{}'));
       saveRaw(LS.MIG, true);
+      ['phantom_agents','phantom_chats','phantom_settings','phantom_latency','phantom_circuit'].forEach(k => DB.del(k));
       setTimeout(() => toast('Imported your previous Phantom data into this account', 'success'), 800);
     } catch {}
+    registerCustomProviders();
     if (vaultKey && hasPlainKeys(settings.apiKeys)) await keysChanged();
     persist();
   } else {
@@ -1335,8 +1513,12 @@ function ensureActive() {
   }
 }
 const activeAgent = () => agents.find(a => a.id === ui.activeId) || null;
-const keyFor = p => (settings.shareKeys ? sharedKeys[p] : settings.apiKeys[p]) || '';
-const hasAnyKey = () => FAILOVER.some(p => keyFor(p).trim());
+const keyFor = p => {
+  if (p === 'local') return localReady ? 'local' : '';
+  if (PROVIDERS[p] && PROVIDERS[p].custom) return customKeys[p] || '';
+  return (settings.shareKeys ? sharedKeys[p] : settings.apiKeys[p]) || '';
+};
+const hasAnyKey = () => ALL_IDS().some(p => keyFor(p).trim());
 const getChat = id => { if (!chats[id] || !Array.isArray(chats[id])) chats[id] = []; return chats[id]; };
 
 /* ─── auth flows ─── */
@@ -1436,11 +1618,12 @@ async function startSession(u, announce=true, password=null) {
   hideAuth();
   resetTransient();
   applyTheme(); applyAccent(); renderChrome(); renderAll();
+  restoreDraft(ui.activeId);
   if (announce) toast(`Welcome back, ${u.username} 👻`, 'success');
 }
 function startGuest() {
   USER = { id:'guest', username:'Guest', email:'', avatar:'👻', bio:'Browsing as guest', createdAt:Date.now(), lastLogin:Date.now() };
-  localStorage.removeItem(LS.SESSION);
+  DB.del(LS.SESSION);
   vaultKey = null; vaultLocked = false;
   loadForUser(USER);
   hideAuth();
@@ -1450,7 +1633,8 @@ function startGuest() {
 }
 function logout() {
   if (window.speechSynthesis) speechSynthesis.cancel(); speakingId = null;
-  localStorage.removeItem(LS.SESSION);
+  DB.del(LS.SESSION);
+  DB.del(LS.DWRAP); // vault re-locks; next sign-in re-establishes auto-unlock
   USER = null; vaultKey = null; vaultLocked = false;
   showAuth('signin');
   toast('Signed out', 'info', 2000);
@@ -1469,7 +1653,35 @@ function renderThemeRow() {
     b.style.background = on ? 'var(--accent)' : '';
   });
 }
+
+/* ─── TTS ENGINE: natural-voice picking + sentence-chunked prosody ─── */
 let speakingId = null;
+let ttsVoices = [];
+function refreshVoiceList() {
+  if (!('speechSynthesis' in window)) return;
+  ttsVoices = speechSynthesis.getVoices() || [];
+}
+if ('speechSynthesis' in window) {
+  refreshVoiceList();
+  speechSynthesis.addEventListener('voiceschanged', () => {
+    refreshVoiceList();
+    if (modalOpen('settingsModal')) renderTtsRow();
+  });
+  setTimeout(refreshVoiceList, 600); // some browsers populate late
+}
+// Prefer genuinely natural voices over the robotic defaults (esp. Windows "David")
+function pickVoice() {
+  if (!ttsVoices.length) refreshVoiceList();
+  if (settings.ttsVoice) {
+    const chosen = ttsVoices.find(v => v.voiceURI === settings.ttsVoice);
+    if (chosen) return chosen;
+  }
+  const en = ttsVoices.filter(v => /^en/i.test(v.lang));
+  const prefs = [/natural/i, /neural/i, /premium/i, /enhanced/i, /google us english/i, /google uk english female/i,
+    /aria/i, /jenny/i, /samantha/i, /serena/i, /libby/i, /sonia/i, /zira/i, /daniel/i, /karen/i, /moira/i];
+  for (const re of prefs) { const v = en.find(v => re.test(v.name)); if (v) return v; }
+  return en.find(v => v.default) || en[0] || ttsVoices[0] || null;
+}
 function ttsClean(text) {
   return String(text || '')
     .replace(/```[\s\S]*?```/g, ' Code block. ')
@@ -1477,33 +1689,61 @@ function ttsClean(text) {
     .replace(/https?:\/\/\S+/g, 'link')
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
     .replace(/^\s*[✓✔⚠✖]\s*/gm, '')
-    .replace(/[*_#>|]/g, '')
+    .replace(/[→|]/g, ',')
+    .replace(/[*_#>]+/g, '')
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{FE0F}\u{200D}]/gu, '')
     .replace(/\s+/g, ' ').trim();
+}
+function ttsChunks(text) {
+  const sentences = String(text).match(/[^.!?…]+[.!?…]+[\s]*|[^.!?…]+$/g) || [String(text)];
+  const chunks = [];
+  let cur = '';
+  for (const s of sentences) {
+    if ((cur + s).length > 180 && cur) { chunks.push(cur.trim()); cur = s; }
+    else cur += s;
+  }
+  if (cur.trim()) chunks.push(cur.trim());
+  return chunks.filter(Boolean);
 }
 function setSpeakIcons() {
   document.querySelectorAll('[data-speak]').forEach(el =>
     el.classList.toggle('speaking', el.dataset.speak === speakingId));
 }
 function stopSpeaking() { if (window.speechSynthesis) { speechSynthesis.cancel(); } speakingId = null; setSpeakIcons(); }
-function speakMessage(i) {
+function speakText(text, id) {
   if (!('speechSynthesis' in window)) { toast('Speech synthesis is not supported in this browser', 'warn'); return; }
+  speechSynthesis.cancel();
+  const chunks = ttsChunks(ttsClean(text).slice(0, 4000));
+  if (!chunks.length) return;
+  const voice = pickVoice();
+  const rate = Math.min(1.6, Math.max(0.7, +settings.ttsRate || 1));
+  let idx = 0;
+  speakingId = id;
+  setSpeakIcons();
+  const speakNext = () => {
+    if (speakingId !== id) return; // cancelled or superseded
+    if (idx >= chunks.length) { speakingId = null; setSpeakIcons(); return; }
+    const u = new SpeechSynthesisUtterance(chunks[idx++]);
+    if (voice) { u.voice = voice; u.lang = voice.lang; }
+    u.rate = rate; u.pitch = 1; u.volume = 1;
+    u.onend = speakNext;
+    u.onerror = () => { if (speakingId === id) { speakingId = null; setSpeakIcons(); } };
+    speechSynthesis.speak(u);
+  };
+  speakNext();
+}
+function speakMessage(i) {
   const a = activeAgent(); if (!a) return;
   const list = getChat(a.id);
   const m = list[i]; if (!m || !m.content) return;
-  if (speakingId === m.id && speechSynthesis.speaking) { stopSpeaking(); return; }
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(ttsClean(m.content).slice(0, 4000));
-  u.rate = 1.03;
-  u.onend = u.onerror = () => { speakingId = null; setSpeakIcons(); };
-  speakingId = m.id;
-  speechSynthesis.speak(u);
-  setSpeakIcons();
+  if (speakingId === m.id) { stopSpeaking(); return; }
+  speakText(m.content, m.id);
 }
 
 /* ═══════════════════════ // API ROTATION ═══════════════════════ */
 const circuitOpen = p => { const c = circuit[p]; return !!(c && c.fails >= CIRCUIT_THRESHOLD && (Date.now() - c.lastFail) < CIRCUIT_COOLDOWN); };
 function providerOrder(preferred) {
-  const avail = FAILOVER.filter(p => keyFor(p).trim() && !circuitOpen(p));
+  const avail = ALL_IDS().filter(p => keyFor(p).trim() && !circuitOpen(p));
   const latOf = p => { const l = latency[p]; return (l && typeof l === 'object' && l.n > 0) ? l.avg : Infinity; };
   return avail.sort((a, b) => { if (a === preferred) return -1; if (b === preferred) return 1; return latOf(a) - latOf(b); });
 }
@@ -1511,9 +1751,9 @@ function recordFail(p, err) {
   const c = (circuit[p] && typeof circuit[p] === 'object') ? circuit[p] : { fails:0, lastFail:0 };
   c.fails = (c.fails || 0) + 1; c.lastFail = Date.now();
   circuit[p] = c; saveCircuit();
-  if (c.fails === CIRCUIT_THRESHOLD) toast(`${PROVIDERS[p].label} failed ${CIRCUIT_THRESHOLD}× — paused for 10 minutes (circuit breaker)`, 'error');
+  if (c.fails === CIRCUIT_THRESHOLD) toast(`${(PROVIDERS[p] && PROVIDERS[p].label) || p} failed ${CIRCUIT_THRESHOLD}× — paused for 10 minutes (circuit breaker)`, 'error');
   renderSidebar(); renderHeader();
-  if (err && err.status === 401) toast(`${PROVIDERS[p].label} rejected the API key — check Settings`, 'error');
+  if (err && err.status === 401) toast(`${(PROVIDERS[p] && PROVIDERS[p].label) || p} rejected the API key — check Settings`, 'error');
 }
 function recordSuccess(p, ms) {
   try {
@@ -1526,12 +1766,23 @@ function recordSuccess(p, ms) {
   } catch { latency[p] = { avg:Math.round(ms), n:1 }; }
   renderSidebar(); renderHeader();
 }
+function trackUsage(p, inTok, outTok) {
+  try {
+    const u = usage[p] || (usage[p] = { reqs:0, in:0, out:0 });
+    u.reqs++; u.in += inTok; u.out += outTok;
+  } catch {}
+}
 function statusOf(a) {
   const p = providerOf(a.model) || 'gemini';
+  if (p === 'local') {
+    if (localReady) return { cls:'bg-emerald-500', label:'Offline Brain ready — no internet needed' };
+    if (localFlag.enabled) return { cls:'bg-amber-400', label:'Offline Brain loading…' };
+    return { cls:'bg-red-500', label:'Offline Brain not enabled — enable it in Settings' };
+  }
   if (!keyFor(p).trim()) return hasAnyKey() ? { cls:'bg-amber-400', label:'Preferred key missing — will fail over' } : { cls:'bg-red-500', label:'No API keys configured' };
-  if (circuitOpen(p)) { const mins = Math.max(1, Math.ceil((CIRCUIT_COOLDOWN - (Date.now() - circuit[p].lastFail)) / 60000)); return { cls:'bg-red-500', label:`${PROVIDERS[p].label} cooling down · ${mins}m left` }; }
+  if (circuitOpen(p)) { const mins = Math.max(1, Math.ceil((CIRCUIT_COOLDOWN - (Date.now() - circuit[p].lastFail)) / 60000)); return { cls:'bg-red-500', label:`${(PROVIDERS[p] && PROVIDERS[p].label) || p} cooling down · ${mins}m left` }; }
   const c = circuit[p];
-  if (c && c.fails > 0) return { cls:'bg-amber-400', label:`${c.fails} recent failure${c.fails > 1 ? 's' : ''} on ${PROVIDERS[p].label}` };
+  if (c && c.fails > 0) return { cls:'bg-amber-400', label:`${c.fails} recent failure${c.fails > 1 ? 's' : ''} on ${(PROVIDERS[p] && PROVIDERS[p].label) || p}` };
   return { cls:'bg-emerald-500', label:'Ready' };
 }
 async function httpError(res) {
@@ -1610,14 +1861,49 @@ async function callOpenAI(endpoint, model, extraHeaders, { system, messages, tem
   });
   return full;
 }
+async function callAnthropic(base, { model, system, messages, temp, maxTokens, apiKey, signal, onDelta }) {
+  const body = { model, max_tokens: maxTokens, temperature: temp, stream:true,
+    messages: messages.map(m => ({ role:m.role, content:m.content })) };
+  if (system) body.system = system;
+  const res = await fetch(base + '/v1/messages', { method:'POST', signal,
+    headers:{ 'Content-Type':'application/json', 'x-api-key': apiKey,
+      'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+    body: JSON.stringify(body) });
+  if (!res.ok) throw await httpError(res);
+  let full = '';
+  await streamSSE(res, data => {
+    if (!data) return;
+    try { const j = JSON.parse(data); if (j.type === 'content_block_delta' && j.delta && j.delta.text) { full += j.delta.text; onDelta(j.delta.text); } } catch {}
+  });
+  return full;
+}
+async function callLocal({ system, messages, temp, maxTokens, signal, onDelta }) {
+  await ensureLocalEngine();
+  const msgs = [];
+  if (system) msgs.push({ role:'system', content: system });
+  messages.forEach(m => msgs.push({ role: m.role, content: m.content }));
+  const stream = await localEngine.chat.completions.create({ messages: msgs, temperature: temp, max_tokens: maxTokens, stream: true });
+  let full = '';
+  for await (const ch of stream) {
+    if (signal && signal.aborted) break;
+    const d = (ch.choices && ch.choices[0] && ch.choices[0].delta && ch.choices[0].delta.content) || '';
+    if (d) { full += d; onDelta(d); }
+  }
+  if (signal && signal.aborted && full) { throw Object.assign(new Error('aborted'), { name:'AbortError' }); }
+  return full;
+}
 function callProvider(p, args) {
   if (p === 'gemini') return callGemini(args);
+  if (p === 'local') return callLocal(args);
+  const pr = PROVIDERS[p];
+  if (pr && pr.kind === 'anthropic') return callAnthropic(pr.endpoint, args);
   const headers = {};
   if (p === 'openrouter') { headers['HTTP-Referer'] = 'https://phantom.app'; headers['X-Title'] = 'Phantom'; }
-  return callOpenAI(PROVIDERS[p].endpoint + '/chat/completions', args.model, headers, args);
+  return callOpenAI(pr.endpoint + '/chat/completions', args.model, headers, args);
 }
 async function _testProvider(p, key, signal) {
   const t0 = performance.now();
+  const pr = PROVIDERS[p];
   if (p === 'gemini') {
     const r = await fetch(`${PROVIDERS.gemini.endpoint}/gemini-2.0-flash?key=${encodeURIComponent(key)}`, { signal });
     if (!r.ok) throw await httpError(r);
@@ -1629,8 +1915,11 @@ async function _testProvider(p, key, signal) {
   } else if (p === 'openrouter') {
     const r = await fetch('https://openrouter.ai/api/v1/auth/key', { headers:{ 'Authorization': `Bearer ${key}` }, signal });
     if (!r.ok) throw await httpError(r);
+  } else if (pr && pr.kind === 'anthropic') {
+    const r = await fetch(pr.endpoint + '/v1/models', { headers:{ 'x-api-key': key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' }, signal });
+    if (!r.ok) throw await httpError(r);
   } else {
-    const r = await fetch(PROVIDERS[p].endpoint + '/models', { headers:{ 'Authorization': `Bearer ${key}` }, signal });
+    const r = await fetch(pr.endpoint + '/models', { headers:{ 'Authorization': `Bearer ${key}` }, signal });
     if (!r.ok) throw await httpError(r);
   }
   return performance.now() - t0;
@@ -1651,6 +1940,7 @@ function tidyIds(arr) {
 }
 async function fetchProviderModels(p, key) {
   let ids = [];
+  const pr = PROVIDERS[p];
   if (p === 'gemini') {
     const r = await fetch(`${PROVIDERS.gemini.endpoint}?pageSize=200&key=${encodeURIComponent(key)}`);
     if (!r.ok) throw await httpError(r);
@@ -1664,8 +1954,13 @@ async function fetchProviderModels(p, key) {
       if (r.ok) { const j = await r.json(); ids = (j.data || j.models || []).map(m => (typeof m === 'string' ? m : m.id)).filter(Boolean); }
     } catch {}
     if (!ids.length) ids = ['glm-4-flash', 'glm-4-air', 'glm-4-plus', 'glm-4-long', 'glm-4'];
+  } else if (pr && pr.kind === 'anthropic') {
+    const r = await fetch(pr.endpoint + '/v1/models', { headers:{ 'x-api-key': key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' } });
+    if (!r.ok) throw await httpError(r);
+    const j = await r.json();
+    ids = (j.data || []).map(m => (typeof m === 'string' ? m : m.id)).filter(Boolean);
   } else {
-    const r = await fetch(PROVIDERS[p].endpoint + '/models', { headers:{ 'Authorization': `Bearer ${key}` } });
+    const r = await fetch(pr.endpoint + '/models', { headers:{ 'Authorization': `Bearer ${key}` } });
     if (!r.ok) throw await httpError(r);
     const j = await r.json();
     ids = (j.data || j.models || []).map(m => (typeof m === 'string' ? m : m.id)).filter(Boolean);
@@ -1675,8 +1970,14 @@ async function fetchProviderModels(p, key) {
 async function refreshModels(p, key) {
   const models = await fetchProviderModels(p, key);
   if (models.length) {
-    modelCache[p] = { models, ts: Date.now() };
-    saveRaw(LS.MODELS, modelCache);
+    if (PROVIDERS[p] && PROVIDERS[p].custom) {
+      const c = (settings.customProviders || []).find(x => x.id === p);
+      if (c) { c.models = models; registerCustomProviders(); }
+      persist();
+    } else {
+      modelCache[p] = { models, ts: Date.now() };
+      saveRaw(LS.MODELS, modelCache);
+    }
     populateModelSelects();
     updateModelInfo(p);
   }
@@ -1689,9 +1990,11 @@ function queueModelFetch(p, key) {
   modelFetchTimers[p] = setTimeout(() => { refreshModels(p, key.trim()).catch(() => {}); }, 900);
 }
 function backgroundModelRefresh() {
-  FAILOVER.forEach((p, i) => {
+  ALL_IDS().forEach((p, i) => {
+    if (p === 'local') return;
     const key = keyFor(p).trim();
     if (!key) return;
+    if (PROVIDERS[p] && PROVIDERS[p].custom) return;
     const c = modelCache[p];
     if (c && c.models && c.models.length && Date.now() - (c.ts || 0) < MODEL_REFRESH_MS) return;
     setTimeout(() => refreshModels(p, key).catch(() => {}), 400 + i * 350);
@@ -1710,6 +2013,198 @@ function updateModelInfo(p) {
     el.className = 'text-[11px] mt-1.5 text-amber-400';
     el.textContent = 'Model discovery pending — press Test or retype the key';
   } else { el.textContent = ''; el.className = 'text-[11px] mt-1.5'; }
+}
+
+/* ═══════════════════════ // BRING-ANY-PROVIDER ═══════════════════════ */
+function normalizeBase(u) {
+  return String(u || '').trim().replace(/\/+$/, '').replace(/\/chat\/completions$/i, '');
+}
+function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return 'Custom'; } }
+async function probeModels(base, key, kind) {
+  if (kind === 'anthropic') {
+    const r = await fetch(base + '/v1/models', { headers:{ 'x-api-key': key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' } });
+    if (!r.ok) throw await httpError(r);
+    const j = await r.json();
+    return tidyIds((j.data || []).map(m => (typeof m === 'string' ? m : m.id)).filter(Boolean));
+  }
+  let r = await fetch(base + '/models', { headers:{ 'Authorization': `Bearer ${key}` } });
+  if (!r.ok && !/\/v\d/.test(base)) {
+    const r2 = await fetch(base + '/v1/models', { headers:{ 'Authorization': `Bearer ${key}` } });
+    if (r2.ok) { r = r2; base = base + '/v1'; }
+  }
+  if (!r.ok) throw await httpError(r);
+  const j = await r.json();
+  return tidyIds((j.data || j.models || []).map(m => (typeof m === 'string' ? m : m.id)).filter(Boolean));
+}
+async function detectAndAddCustom() {
+  const out = $('#cpOut');
+  const key = $('#cpKey').value.trim();
+  const baseIn = normalizeBase($('#cpBase').value);
+  const label = $('#cpLabel').value.trim();
+  const showErr = m => { out.className = 'text-[11px] mt-1.5 text-red-400'; out.textContent = '✗ ' + m; };
+  if (!key) { showErr('Paste an API key first'); return; }
+  const prefixMap = [
+    [/^sk-or-/, 'openrouter'], [/^gsk_/, 'groq'], [/^csk-/, 'cerebras'],
+    [/^hf_/, 'huggingface'], [/^together_/, 'together'], [/^AIza/, 'gemini'],
+  ];
+  for (const [re, id] of prefixMap) {
+    if (re.test(key)) {
+      settings.apiKeys[id] = key;
+      await keysChanged();
+      queueModelFetch(id, key);
+      updateProviderBadges(); renderProviderList(); renderSidebar(); renderHeader();
+      out.className = 'text-[11px] mt-1.5 text-emerald-400';
+      out.textContent = `✓ Recognized ${PROVIDERS[id].label} key — added to its built-in slot. Fetching models…`;
+      return;
+    }
+  }
+  let kind = 'openai', base = baseIn;
+  if (/^xai-/.test(key) && !base) base = 'https://api.x.ai/v1';
+  if (/^sk-ant-/.test(key)) { kind = 'anthropic'; if (!base) base = 'https://api.anthropic.com'; }
+  if (!base) { showErr('Unrecognized key — paste the API base URL (e.g. https://api.deepseek.com/v1)'); return; }
+  const btn = $('#btnCpAdd');
+  btn.disabled = true; const old = btn.textContent; btn.textContent = 'Detecting…';
+  try {
+    const models = await probeModels(base, key, kind);
+    if (!models.length) throw new Error('Endpoint responded but returned no models');
+    const id = 'c_' + uid();
+    settings.customProviders = settings.customProviders || [];
+    settings.customProviders.push({ id, label: label || hostOf(base), endpoint: base, kind, models, ts: Date.now() });
+    customKeys[id] = key;
+    registerCustomProviders();
+    await keysChanged();
+    persist();
+    $('#cpKey').value = ''; $('#cpBase').value = ''; $('#cpLabel').value = '';
+    out.className = 'text-[11px] mt-1.5 text-emerald-400';
+    out.textContent = `✓ Added "${label || hostOf(base)}" — ${models.length} models discovered. It's now in the failover rotation.`;
+    renderCustomList(); renderProviderList(); renderSidebar(); renderHeader(); populateModelSelects();
+    if (isGuest()) toast('Guest mode won\'t keep this — create an account to save custom providers', 'warn', 5000);
+    else toast(`${label || hostOf(base)} joined the rotation ⚡`, 'success');
+  } catch (err) {
+    showErr(friendlyTestError(err) + ' — check the key and base URL');
+  } finally {
+    btn.disabled = false; btn.textContent = old;
+  }
+}
+function renderCustomList() {
+  const el = $('#cpList');
+  if (!el) return;
+  const cs = settings.customProviders || [];
+  if (!cs.length) { el.innerHTML = ''; return; }
+  el.innerHTML = cs.map((c, i) => `
+    <div class="p-3 bg-[#101010] rounded-xl border border-white/5">
+      <div class="flex items-center justify-between mb-2 gap-2">
+        <span class="flex items-center gap-2 min-w-0">
+          <span class="w-2 h-2 rounded-full shrink-0 ${circuitOpen(c.id) ? 'bg-red-500' : (customKeys[c.id] ? 'bg-emerald-500' : 'bg-zinc-600')}"></span>
+          <span class="text-sm font-medium text-zinc-200 truncate">${i + 9}. ${esc(c.label)}</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-zinc-400 shrink-0">${esc(c.kind)}</span>
+          <span class="text-[10px] text-zinc-500 tnum shrink-0">${(c.models || []).length} models</span>
+        </span>
+        <button data-cpdel="${c.id}" title="Remove provider" class="btn p-1.5 rounded-lg text-zinc-500 hover:text-red-400 shrink-0">${icon('trash','w-4 h-4')}</button>
+      </div>
+      <div class="text-[10px] text-zinc-600 truncate mb-2" title="${esc(c.endpoint)}">${esc(c.endpoint)}</div>
+      <div class="flex gap-2">
+        <div class="relative flex-1">
+          <input data-cpkey="${c.id}" type="password" placeholder="API key" autocomplete="off" value="${esc(customKeys[c.id] || '')}"
+            class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 py-2 text-sm pr-9 focus:outline-none focus:border-white/25">
+          <button data-cpeye="${c.id}" title="Show/hide" class="btn absolute right-2 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300">${icon('eye','w-4 h-4')}</button>
+        </div>
+        <button data-cptest="${c.id}" class="btn text-xs px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300 shrink-0 min-w-[64px]">Test</button>
+      </div>
+      <div data-testout="${c.id}" class="text-[11px] mt-1.5"></div>
+    </div>`).join('');
+}
+async function deleteCustomProvider(id) {
+  const c = (settings.customProviders || []).find(x => x.id === id);
+  if (!c) return;
+  const ok = await confirmDialog({ title:`Remove ${c.label}?`, message:'The provider and its key will be removed from the rotation. Chats are kept.', okText:'Remove' });
+  if (!ok) return;
+  settings.customProviders = settings.customProviders.filter(x => x.id !== id);
+  delete customKeys[id];
+  delete PROVIDERS[id];
+  delete usage[id];
+  persist();
+  renderCustomList(); renderProviderList(); renderSidebar(); renderHeader(); populateModelSelects();
+  toast(`${c.label} removed`, 'info', 1800);
+}
+
+/* ═══════════════════════ // OFFLINE BRAIN (WebLLM) ═══════════════════════ */
+let localEngine = null, localReady = false, localLoading = false, localProgress = 0, localStatusText = '', localLoadingPromise = null;
+function setLocalUI() {
+  const st = $('#localStatus'), bar = $('#localBar'), wrap = $('#localProgWrap'), txt = $('#localProgText'), btn = $('#btnLocalToggle'), sel = $('#localModel');
+  if (!st) return;
+  const gpu = 'gpu' in navigator;
+  if (!gpu) {
+    st.className = 'text-[11px] mb-2 text-amber-400';
+    st.textContent = '⚠ WebGPU is not available in this browser — the Offline Brain needs Chrome/Edge 113+, or a recent Safari/Firefox.';
+    btn.disabled = true; btn.textContent = 'Unsupported';
+    if (wrap) hide(wrap);
+    return;
+  }
+  btn.disabled = false;
+  if (localReady) {
+    st.className = 'text-[11px] mb-2 text-emerald-400';
+    st.textContent = `✓ ${modelLabel(localFlag.model)} loaded on-device — works with zero internet, zero keys.`;
+    btn.textContent = 'Disable';
+    btn.className = 'btn text-sm px-4 py-2.5 rounded-xl font-medium bg-red-500/90 hover:bg-red-600 text-white shrink-0';
+    if (wrap) hide(wrap);
+  } else if (localLoading) {
+    st.className = 'text-[11px] mb-2 text-amber-400';
+    st.textContent = 'Downloading & initializing model (one time — cached afterwards)…';
+    btn.textContent = 'Loading…'; btn.disabled = true;
+    if (wrap) { show(wrap); bar.style.width = Math.round(localProgress * 100) + '%'; txt.textContent = localStatusText || ''; }
+  } else if (localFlag.enabled) {
+    st.className = 'text-[11px] mb-2 text-amber-400';
+    st.textContent = 'Enabled — will load when first needed (or on next launch).';
+    btn.textContent = 'Load now';
+    if (wrap) hide(wrap);
+  } else {
+    st.className = 'text-[11px] mb-2 text-zinc-500';
+    st.textContent = 'Not enabled. Enable to add the on-device model as the last-resort provider.';
+    btn.textContent = 'Enable';
+    btn.className = 'btn text-sm px-4 py-2.5 rounded-xl font-medium text-white shrink-0';
+    btn.style.background = 'var(--accent)';
+    if (wrap) hide(wrap);
+  }
+  if (sel) sel.value = localFlag.model;
+}
+async function ensureLocalEngine() {
+  if (localReady) return true;
+  if (!localFlag.enabled) throw new Error('Offline Brain is disabled');
+  if (localLoading && localLoadingPromise) { await localLoadingPromise; return localReady; }
+  localLoading = true; localProgress = 0; localStatusText = ''; setLocalUI();
+  localLoadingPromise = (async () => {
+    const mod = await import(/* @vite-ignore */ WEBLLM_URL);
+    localEngine = await mod.CreateMLCEngine(localFlag.model, {
+      initProgressCallback: r => { localProgress = (r && typeof r.progress === 'number') ? r.progress : 0; localStatusText = (r && r.text) || ''; setLocalUI(); },
+    });
+    localReady = true;
+    latency.local = latency.local || { avg: 900, n: 1 };
+    saveLatency();
+    renderSidebar(); renderHeader();
+    toast('Offline Brain ready — zero internet, zero keys 👻', 'success');
+  })();
+  try { await localLoadingPromise; }
+  catch (e) {
+    localReady = false;
+    localStatusText = friendlyTestError(e);
+    toast('Offline Brain failed to load: ' + friendlyTestError(e), 'error', 5000);
+  }
+  finally { localLoading = false; setLocalUI(); }
+  return localReady;
+}
+function toggleLocal() {
+  if (localReady || localFlag.enabled) {
+    localFlag.enabled = false; localReady = false; localEngine = null; localLoading = false;
+    saveRaw(LS.LOCAL, localFlag);
+    setLocalUI(); renderSidebar(); renderHeader();
+    toast('Offline Brain disabled', 'info', 1800);
+    return;
+  }
+  localFlag.enabled = true;
+  saveRaw(LS.LOCAL, localFlag);
+  setLocalUI();
+  ensureLocalEngine();
 }
 
 /* ═══════════════════════ // STREAMING ENGINE ═══════════════════════ */
@@ -1738,7 +2233,6 @@ function createStreamRenderer(containerEl) {
 }
 let genState = { active:false, controller:null, typewriter:null };
 
-/* ─── REAL LINK ENRICHMENT ─── */
 const sourceCache = {};
 async function fetchSources(msg, outerSignal) {
   const key = msg.id || ('k:' + (msg.content || '').slice(0, 64));
@@ -1767,7 +2261,6 @@ async function fetchSources(msg, outerSignal) {
   finally { clearTimeout(timer); if (outerSignal) outerSignal.removeEventListener('abort', onAbort); }
 }
 
-/* ─── AGENT AUTO-REACTION ─── */
 function pickAgentReaction(text) {
   const t = String(text || '');
   const low = t.toLowerCase();
@@ -1779,6 +2272,14 @@ function pickAgentReaction(text) {
   if (t.includes('✓') || t.includes('✔')) return '👍';
   if (has(/\b(done|completed|fixed|solved|shipped|finished|all set)\b/)) return '👍';
   return null;
+}
+
+function extractMemories(text) {
+  const out = [];
+  const re = /^\s*(?:[-*]|\d+\.)?\s*(?:please\s+)?remember(?:\s+(?:that|this))?\s*[:\-]\s*(.{6,200})$/gim;
+  let m;
+  while ((m = re.exec(String(text || ''))) && out.length < 2) out.push(m[1].trim().replace(/\.+$/, ''));
+  return out;
 }
 
 /* ─── @MENTIONS / TEAM MODE ─── */
@@ -1825,7 +2326,6 @@ async function generateResponse() {
   if (!list.some(m => m.role === 'user')) { renderThread(); return; }
   stopSpeaking();
   const targetMsg = [...list].reverse().find(m => m.role === 'user');
-  // ── Team mode routing ──
   const mention = targetMsg ? detectMentions(targetMsg.content) : { agents:[], all:false };
   let responder = agent, huddlePlan = null;
   if (mention.all) {
@@ -1840,7 +2340,7 @@ async function generateResponse() {
   const order = providerOrder(preferred);
   if (!order.length) {
     threadError = { title: hasAnyKey() ? 'All providers cooling down' : 'No API key configured',
-      detail: hasAnyKey() ? 'Circuit breakers are active — retry in a few minutes.' : 'Add any provider key in Settings to start chatting.', retry: hasAnyKey() };
+      detail: hasAnyKey() ? 'Circuit breakers are active — retry in a few minutes.' : 'Add any provider key in Settings — or enable the Offline Brain and chat with zero keys.', retry: hasAnyKey() };
     renderThread(); return;
   }
   genState.active = true; genState.controller = new AbortController(); updateSendState();
@@ -1852,7 +2352,6 @@ async function generateResponse() {
   const bodyEl = document.querySelector(`.msg[data-idx="${phIdx}"] .msg-body`);
   const tw = createStreamRenderer(bodyEl);
   genState.typewriter = tw;
-  // Context includes attachment text; images ride along for vision-capable providers.
   const context = list.slice(0, -1).slice(-CONTEXT_MESSAGES).map(m => {
     let content = m.content || '';
     if (m === targetMsg) content = strippedQ;
@@ -1865,6 +2364,8 @@ async function generateResponse() {
     return { role:m.role, content, images: images.length ? images : null };
   });
   let system = responder.systemPrompt || '';
+  const mems = (responder.memory || []).slice(-MAX_MEMORIES);
+  if (mems.length) system += '\n\nDurable memory about the user (collected on-device; use it naturally to personalize, never recite it back verbatim):\n' + mems.map(m => '- ' + m.text).join('\n');
   const srcs = targetMsg ? await fetchSources(targetMsg, genState.controller.signal) : [];
   if (srcs.length) {
     const header = targetMsg && targetMsg.web
@@ -1873,7 +2374,6 @@ async function generateResponse() {
     system += '\n\n' + header + '\n' + srcs.map(s => `- ${s.title} — ${s.snippet}\n  ${s.url}`).join('\n');
   }
   if (targetMsg && targetMsg.web && !srcs.length) toast('Web search found nothing usable — answering from model knowledge', 'warn', 2500);
-  // ── Huddle: gather teammate briefs, then synthesize ──
   if (huddlePlan) {
     const histCtx = list.slice(0, -1).slice(-6).map(m => ({ role:m.role, content:(m === targetMsg ? strippedQ : (m.content || '')) }));
     for (const tm of huddlePlan.participants) {
@@ -1895,7 +2395,7 @@ async function generateResponse() {
               messages:[...histCtx, { role:'user', content:strippedQ }],
               temp:tm.temp ?? 0.5, maxTokens:Math.min(tm.maxTokens || HUDDLE_TOKENS, HUDDLE_TOKENS),
               apiKey:keyFor(p).trim(), signal:genState.controller.signal, onDelta: () => {} });
-            if (txt.trim()) { recordSuccess(p, performance.now() - t0); break; }
+            if (txt.trim()) { recordSuccess(p, performance.now() - t0); trackUsage(p, estTokens(strippedQ), estTokens(txt)); break; }
           } catch (e) { if (e && e.name === 'AbortError') throw e; recordFail(p, e); }
         }
         if (!txt.trim()) throw new Error('Empty response');
@@ -1923,13 +2423,14 @@ async function generateResponse() {
       return;
     }
     system += `\n\nYou are moderating a team huddle inside Phantom. Teammate briefs on the user's question:\n\n${transcript}\n\nSynthesize the best final answer for the user. Credit teammates by name when you use their points. If briefs conflict, resolve them and note the disagreement briefly.`;
-    tw.clear(); // swap huddle progress for streaming synthesis (huddle rows stay in ph)
+    tw.clear();
   }
   let lastErr = null;
   for (let i = 0; i < order.length; i++) {
     const p = order[i];
     const model = providerOf(responder.model) === p ? responder.model : PROVIDERS[p].model;
-    const imagesOk = p === 'gemini' || VISION_RE.test(model || '');
+    const isAnthropic = PROVIDERS[p] && PROVIDERS[p].kind === 'anthropic';
+    const imagesOk = p === 'gemini' ? true : (p === 'local' || isAnthropic ? false : VISION_RE.test(model || ''));
     const useCtx = imagesOk ? context : context.map(m => {
       if (!m.images) return m;
       return { role:m.role, images:null, content: m.content + `\n[${m.images.length} image${m.images.length > 1 ? 's' : ''} attached — not viewable by this model]` };
@@ -1946,6 +2447,15 @@ async function generateResponse() {
       if (targetMsg) targetMsg.status = 'read';
       let finalContent = tw.text();
       if (srcs.length) finalContent += '\n\n🔗 **Sources:**\n' + srcs.map(s => `- [${s.title}](${s.url})`).join('\n');
+      trackUsage(p, estTokens(system) + context.reduce((s, m) => s + estTokens(m.content), 0), estTokens(finalContent));
+      const learned = extractMemories(finalContent);
+      if (learned.length) {
+        const mem = responder.memory || (responder.memory = []);
+        let added = 0;
+        learned.forEach(t => { if (!mem.some(m => m.text.toLowerCase() === t.toLowerCase())) { mem.push({ id:uid(), text:t, ts:Date.now() }); added++; } });
+        while (mem.length > MAX_MEMORIES) mem.shift();
+        if (added) { persist(); if (profileId === responder.id) renderProfile(); toast(`${ph.agentName || agent.name} learned something new about you 🧠`, 'info', 3200); }
+      }
       if (targetMsg && !targetMsg.reaction && !targetMsg.agentReacted) {
         const r = pickAgentReaction(finalContent);
         if (r) { targetMsg.reaction = r; targetMsg.agentReacted = true; }
@@ -1973,8 +2483,8 @@ async function generateResponse() {
       recordFail(p, err); lastErr = err;
       const next = order[i + 1];
       if (next) toast(err.status === 429
-        ? `${PROVIDERS[p].label} rate limited → switching to ${PROVIDERS[next].label}…`
-        : `${PROVIDERS[p].label} failed → trying ${PROVIDERS[next].label}…`, 'warn');
+        ? `${(PROVIDERS[p] && PROVIDERS[p].label) || p} rate limited → switching to ${(PROVIDERS[next] && PROVIDERS[next].label) || next}…`
+        : `${(PROVIDERS[p] && PROVIDERS[p].label) || p} failed → trying ${(PROVIDERS[next] && PROVIDERS[next].label) || next}…`, 'warn');
     }
   }
   list.pop();
@@ -2269,7 +2779,7 @@ function bubbleHTML(m, i, grouped, isNew=false) {
             ${attachmentsHTML(m)}
             ${m.content ? `<div class="whitespace-pre-wrap break-words">${highlightMentions(m.content)}${m.web ? ' <span class="text-[10px] bg-black/20 rounded-full px-2 py-0.5 align-middle">🌐 web</span>' : ''}</div>` : ''}
             <div class="flex items-center justify-end gap-1 mt-0.5 text-[10px] text-white/60">
-              <span class="tnum">${fmtTime(m.ts)}</span>${m.stopped ? '<span>· stopped</span>' : ''}${tickHTML(m.status || 'sent')}
+              <span class="tnum">${fmtTime(m.ts)}</span>${m.status === 'queued' ? '<span>· ⏳ queued</span>' : (m.stopped ? '<span>· stopped</span>' : '')}${m.status === 'queued' ? '' : tickHTML(m.status || 'sent')}
             </div>
           </div>
           ${reactionChipHTML(m)}
@@ -2278,7 +2788,6 @@ function bubbleHTML(m, i, grouped, isNew=false) {
         ${grouped ? '<span class="w-7 shrink-0"></span>' : `<span class="w-7 h-7 rounded-full overflow-hidden shrink-0 flex">${userAvatarInner(u, 'text-[10px]')}</span>`}
       </div></div>`;
   }
-  // Assistant — with delegated-agent avatar/name (team mode) and huddle section
   const ra = m.agentId ? agents.find(x => x.id === m.agentId) : null;
   const avatarBlock = ra ? agentAvatarHTML(ra, 'w-7 h-7 rounded-lg') : logoHTML('w-7 h-7 object-cover');
   return `<div class="msg group flex ${grouped ? 'mt-1' : 'mt-4'} ${enter}" data-idx="${i}" data-mid="${m.id || ''}">
@@ -2308,7 +2817,7 @@ function setupCardHTML() {
   return `<div class="max-w-md mx-auto my-8 glass border border-white/10 rounded-2xl p-6 text-center pop">
     <div class="floaty inline-block w-14 h-14">${logoHTML('w-14 h-14 object-cover rounded-2xl')}</div>
     <h3 class="text-lg font-semibold text-white mt-3">Connect your AI providers</h3>
-    <p class="text-sm text-zinc-400 mt-1.5 leading-relaxed">Phantom runs on your own keys — every provider has a free tier. Add at least one and your team comes alive.</p>
+    <p class="text-sm text-zinc-400 mt-1.5 leading-relaxed">Bring any key — or enable the Offline Brain and chat with zero keys and zero internet.</p>
     <div class="mt-4 space-y-2 text-left">${rows}</div>
     <button data-maction="open-settings" class="btn mt-5 w-full py-2.5 rounded-xl font-medium text-white hover:opacity-90" style="background:var(--accent)">Open Settings</button></div>`;
 }
@@ -2369,7 +2878,7 @@ function updateStatusBar() {
   const msgs = a ? (chats[a.id] || []) : [];
   const visible = !!(a && msgs.length === 0);
   if (visible) {
-    bar.textContent = `≈${msgs.reduce((s, m) => s + (m.tokens || 0), 0)} tokens · ${modelLabel(a.model)} · ${storageMB().toFixed(2)} MB / 5 MB used`;
+    bar.textContent = `≈${msgs.reduce((s, m) => s + (m.tokens || 0), 0)} tokens · ${modelLabel(a.model)} · ${storageMB().toFixed(2)} MB stored locally`;
     bar.classList.remove('hidden');
     requestAnimationFrame(() => bar.classList.remove('opacity-0'));
   } else if (!bar.classList.contains('hidden')) {
@@ -2400,7 +2909,7 @@ function renderThread() {
   });
   lastRender = { id:a.id, count:msgs.length };
   if (threadError) html += errorCardHTML(threadError);
-  if (!hasAnyKey()) html = `<div class="max-w-md mx-auto mb-4 bg-amber-400/10 border border-amber-400/20 rounded-xl px-4 py-3 text-xs text-amber-300 flex items-center gap-2">⚠ No API keys configured — <button data-maction="open-settings" class="underline hover:text-white">open settings</button></div>` + html;
+  if (!hasAnyKey()) html = `<div class="max-w-md mx-auto mb-4 bg-amber-400/10 border border-amber-400/20 rounded-xl px-4 py-3 text-xs text-amber-300 flex items-center gap-2">⚠ No API keys configured — <button data-maction="open-settings" class="underline hover:text-white">open settings</button> or enable the Offline Brain</div>` + html;
   inner.innerHTML = html;
   enhanceCodeBlocks(inner);
   setSpeakIcons();
@@ -2410,7 +2919,6 @@ function renderThread() {
 }
 function renderAll() { ensureActive(); renderSidebar(); renderHeader(); renderThread(); updateSendState(); }
 
-/* ─── agent profile panel ─── */
 function openProfile(id) { closeCtxMenu(); if (!agents.find(x => x.id === id)) return; profileId = id; renderProfile(); show($('#profileScrim')); $('#profilePanel').classList.remove('translate-x-full'); }
 function closeProfile() { profileId = null; hide($('#profileScrim')); $('#profilePanel').classList.add('translate-x-full'); }
 function renderProfile() {
@@ -2422,6 +2930,7 @@ function renderProfile() {
   const avg = (lat && typeof lat === 'object' && lat.n > 0) ? lat.avg : null;
   const st = statusOf(a);
   const created = new Date(a.createdAt).toLocaleDateString([], { year:'numeric', month:'short', day:'numeric' });
+  const mem = a.memory || [];
   const statBox = (label, val) => `<div class="bg-[#101010] rounded-xl border border-white/5 px-3 py-2.5 text-center">
     <div class="text-[15px] font-semibold text-white truncate tnum">${val}</div>
     <div class="text-[10px] uppercase tracking-wide text-zinc-500 mt-0.5">${label}</div></div>`;
@@ -2439,13 +2948,29 @@ function renderProfile() {
       ${statBox('Created', esc(created))}
     </div>
     <div class="mt-4 flex flex-wrap gap-1.5">
-      <span class="text-[11px] px-2.5 py-1 rounded-full bg-white/5 text-zinc-300">${esc(modelLabel(a.model))} · ${PROVIDERS[p].label}</span>
+      <span class="text-[11px] px-2.5 py-1 rounded-full bg-white/5 text-zinc-300">${esc(modelLabel(a.model))} · ${(PROVIDERS[p] && PROVIDERS[p].label) || p}</span>
       <span class="text-[11px] px-2.5 py-1 rounded-full bg-white/5 text-zinc-300 tnum">temp ${a.temp}</span>
       <span class="text-[11px] px-2.5 py-1 rounded-full bg-white/5 text-zinc-300 tnum">${a.maxTokens} max tokens</span>
       ${a.pinned ? '<span class="text-[11px] px-2.5 py-1 rounded-full bg-amber-400/10 text-amber-400">📌 pinned</span>' : ''}
     </div>
     <div class="mt-5"><label class="block text-xs font-medium text-zinc-400 mb-1.5">System prompt</label>
-      <div class="max-h-44 overflow-y-auto text-[13px] leading-relaxed text-zinc-300 whitespace-pre-wrap bg-[#101010] rounded-xl p-3 border border-white/5">${a.systemPrompt ? esc(a.systemPrompt) : '<span class="text-zinc-600 italic">No system prompt — default behavior.</span>'}</div></div>`;
+      <div class="max-h-44 overflow-y-auto text-[13px] leading-relaxed text-zinc-300 whitespace-pre-wrap bg-[#101010] rounded-xl p-3 border border-white/5">${a.systemPrompt ? esc(a.systemPrompt) : '<span class="text-zinc-600 italic">No system prompt — default behavior.</span>'}</div></div>
+    <div class="mt-5">
+      <label class="block text-xs font-medium text-zinc-400 mb-1.5">🧠 Memory <span class="text-zinc-600 font-normal tnum">(${mem.length}/${MAX_MEMORIES}) — what ${esc(a.name)} remembers about you</span></label>
+      <div class="space-y-1.5 mt-1.5">
+        ${mem.length ? mem.map(m => `
+          <div class="flex items-start gap-2 bg-[#101010] border border-white/5 rounded-xl px-3 py-2 text-[12px] text-zinc-300">
+            <span class="flex-1 leading-snug">${esc(m.text)}</span>
+            <button data-memdel="${m.id}" class="btn p-0.5 rounded text-zinc-600 hover:text-red-400 shrink-0" aria-label="Forget">${icon('x','w-3.5 h-3.5')}</button>
+          </div>`).join('')
+        : '<div class="text-[11px] text-zinc-600 italic px-1">Nothing yet — say <b class="text-zinc-500">"remember: …"</b> in chat, or add a fact below. Stored only on this device.</div>'}
+      </div>
+      <div class="flex gap-2 mt-2">
+        <input id="memInput" placeholder="Add a fact… e.g. I prefer short answers" class="flex-1 bg-[#101010] border border-white/10 rounded-xl px-3 py-2 text-[12px] focus:outline-none focus:border-white/25">
+        <button id="memAdd" class="btn text-xs px-3 rounded-xl text-zinc-300 bg-white/5 hover:bg-white/10 shrink-0">Add</button>
+      </div>
+      ${mem.length ? '<button id="memClear" class="btn text-[11px] text-red-400/80 hover:text-red-400 mt-2 px-1">Clear all memory</button>' : ''}
+    </div>`;
 }
 
 /* ═══════════════════════ // MODALS ═══════════════════════ */
@@ -2517,10 +3042,10 @@ function saveAgentFromModal() {
     closeModal('agentModal');
     toast(`${a.name} updated`, 'success');
   } else {
-    const a = Object.assign({ id:uid(), pinned:false, archived:false, createdAt:Date.now(), starter:'' }, data);
+    const a = Object.assign({ id:uid(), pinned:false, archived:false, createdAt:Date.now(), starter:'', memory:[] }, data);
     agents.push(a);
     ui.activeId = a.id;
-    persist(); renderAll(); closeModal('agentModal');
+    persist(); renderAll(); restoreDraft(a.id); closeModal('agentModal');
     toast(`${a.name} joined your team 👻`, 'success');
   }
 }
@@ -2529,7 +3054,7 @@ function duplicateAgent(id) {
   if (!a) return null;
   if (isGuest()) { toast('Duplication is disabled in guest mode', 'warn'); return null; }
   const copy = JSON.parse(JSON.stringify(a));
-  copy.id = uid(); copy.name = a.name + ' Copy'; copy.pinned = false; copy.createdAt = Date.now();
+  copy.id = uid(); copy.name = a.name + ' Copy'; copy.pinned = false; copy.createdAt = Date.now(); copy.memory = [];
   agents.splice(agents.indexOf(a) + 1, 0, copy);
   persist(); renderSidebar();
   toast(`Cloned as "${copy.name}"`, 'success');
@@ -2538,10 +3063,11 @@ function duplicateAgent(id) {
 async function deleteAgent(id) {
   const a = agents.find(x => x.id === id);
   if (!a) return;
-  const ok = await confirmDialog({ title:`Delete ${a.name}?`, message:'This agent and its entire chat history will be permanently removed.', okText:'Delete' });
+  const ok = await confirmDialog({ title:`Delete ${a.name}?`, message:'This agent, its memories, and its entire chat history will be permanently removed.', okText:'Delete' });
   if (!ok) return;
   agents = agents.filter(x => x.id !== id);
   delete chats[id];
+  if (ui.drafts) delete ui.drafts[id];
   if (ui.activeId === id) ui.activeId = null;
   if (profileId === id) closeProfile();
   persist(); renderAll();
@@ -2600,10 +3126,16 @@ function providerBadge(p) {
 function renderVaultLine() {
   const el = $('#vaultLine');
   if (!el) return;
-  if (vaultKey) { el.className = 'text-[11px] mb-3 text-emerald-400'; el.innerHTML = '🔒 API keys are encrypted at rest (AES-GCM) on this device.'; }
-  else if (vaultLocked) { el.className = 'text-[11px] mb-3 text-amber-400'; el.innerHTML = '🔒 Keys are locked — <button id="btnUnlockKeys" class="underline hover:text-white">unlock with your password</button>'; }
-  else if (!cryptoOK()) { el.className = 'text-[11px] mb-3 text-amber-400'; el.textContent = '⚠ Encryption unavailable in this context — keys are stored in plain text.'; }
-  else { el.className = 'text-[11px] mb-3 text-zinc-500'; el.textContent = 'Keys will be encrypted with your password at next sign-in.'; }
+  const t = $('#strictVaultToggle'); if (t) t.checked = !!settings.strictVault;
+  if (vaultKey) {
+    el.className = 'text-[11px] mb-2 text-emerald-400';
+    el.textContent = settings.strictVault
+      ? '🔒 Keys encrypted (AES-GCM). Strict mode: they lock every time Phantom closes.'
+      : '🔒 Keys encrypted (AES-GCM) and auto-unlocked on this device — no password needed at launch.';
+  }
+  else if (vaultLocked) { el.className = 'text-[11px] mb-2 text-amber-400'; el.innerHTML = '🔒 Keys are locked — <button id="btnUnlockKeys" class="underline hover:text-white">unlock with your password</button>'; }
+  else if (!cryptoOK()) { el.className = 'text-[11px] mb-2 text-amber-400'; el.textContent = '⚠ Encryption unavailable in this context — keys are stored in plain text.'; }
+  else { el.className = 'text-[11px] mb-2 text-zinc-500'; el.textContent = 'Keys will be encrypted with your password at next sign-in.'; }
 }
 function renderProviderList() {
   const locked = vaultLocked && !vaultKey;
@@ -2634,6 +3166,7 @@ function renderProviderList() {
   $('#toggleHaptics').checked = settings.haptics !== false;
   $('#toggleTTS').checked = !!settings.autoSpeak;
   renderVaultLine();
+  renderTtsRow();
   FAILOVER.forEach(updateModelInfo);
 }
 function updateProviderBadges() {
@@ -2646,7 +3179,7 @@ function updateProviderBadges() {
   });
 }
 async function runTest(p, btn) {
-  const input = document.getElementById('key-' + p);
+  const input = document.getElementById('key-' + p) || document.querySelector(`[data-cpkey="${p}"]`);
   const out = document.querySelector(`[data-testout="${p}"]`);
   if (!out) return;
   const key = (input ? input.value : keyFor(p)).trim();
@@ -2669,9 +3202,26 @@ async function runTest(p, btn) {
   btn.disabled = false; btn.innerHTML = old;
   updateProviderBadges();
 }
+function renderUsage() {
+  const el = $('#usageTable');
+  if (!el) return;
+  const rows = ALL_IDS().filter(p => usage[p] && usage[p].reqs > 0);
+  if (!rows.length) { el.innerHTML = '<div class="text-[11px] text-zinc-600">No requests yet — your team hasn\'t been deployed.</div>'; return; }
+  const total = rows.reduce((s, p) => s + usage[p].reqs, 0);
+  el.innerHTML = rows.map(p => { const u = usage[p]; return `
+    <div class="flex items-center gap-3 bg-[#101010] border border-white/5 rounded-xl px-3 py-2.5 text-xs">
+      <span class="flex-1 min-w-0 font-medium text-zinc-200 truncate">${(PROVIDERS[p] && PROVIDERS[p].label) || p}</span>
+      <span class="text-zinc-500 tnum shrink-0">${u.reqs} req</span>
+      <span class="text-zinc-500 tnum shrink-0">↑${fmtK(u.in)} tok</span>
+      <span class="text-zinc-500 tnum shrink-0">↓${fmtK(u.out)} tok</span>
+    </div>`; }).join('') +
+    `<div class="text-[10px] text-zinc-600 px-1 tnum">${total} total request${total !== 1 ? 's' : ''} · all processed on-device, keys never logged</div>`;
+}
 function openSettings() {
   populateModelSelects();
   renderProviderList();
+  renderCustomList();
+  setLocalUI();
   $('#setDefaultModel').value = settings.defaultModel;
   $('#setDefaultTemp').value = settings.defaultTemp;
   $('#setDefaultTempVal').textContent = `${(+settings.defaultTemp).toFixed(1)} · ${tempWord(settings.defaultTemp)}`;
@@ -2680,17 +3230,45 @@ function openSettings() {
   $('#toggleSounds').checked = settings.sounds !== false;
   $('#toggleHaptics').checked = settings.haptics !== false;
   $('#toggleTTS').checked = !!settings.autoSpeak;
-  renderAccentRow(); renderThemeRow(); updateStorageUI();
+  renderAccentRow(); renderThemeRow(); renderUsage(); updateStorageUI();
   openModal('settingsModal');
 }
 function renderAccentRow() {
   $('#accentRow').innerHTML = Object.entries(COLORS).map(([id, hex]) =>
     `<button data-accent="${id}" class="btn w-7 h-7 rounded-full ${settings.accent === id ? 'ring-2 ring-white ring-offset-2 ring-offset-[#171717]' : ''}" style="background:${hex}"></button>`).join('');
 }
-function updateStorageUI() {
-  const mb = storageMB();
-  $('#storageBar').style.width = Math.min(100, (mb / 5) * 100) + '%';
-  $('#storageText').textContent = `${mb.toFixed(2)} MB / 5 MB used`;
+function renderTtsRow() {
+  const sel = $('#ttsVoiceSel');
+  if (!sel) return;
+  if ('speechSynthesis' in window) refreshVoiceList();
+  const vs = ttsVoices || [];
+  sel.innerHTML = vs.length
+    ? vs.map(v => `<option value="${esc(v.voiceURI)}">${esc(v.name)} (${esc(v.lang)})</option>`).join('')
+    : '<option value="">No voices found in this browser</option>';
+  if (settings.ttsVoice && vs.some(v => v.voiceURI === settings.ttsVoice)) sel.value = settings.ttsVoice;
+  else { const d = pickVoice(); if (d) sel.value = d.voiceURI; }
+  const r = $('#ttsRate');
+  if (r) { r.value = settings.ttsRate ?? 1; $('#ttsRateVal').textContent = (+r.value).toFixed(2) + '×'; }
+}
+async function updateStorageUI() {
+  const bar = $('#storageBar'), txt = $('#storageText');
+  if (!bar || !txt) return;
+  try {
+    if (navigator.storage && navigator.storage.estimate) {
+      const e = await navigator.storage.estimate();
+      const used = e.usage || 0, q = e.quota || 0;
+      txt.textContent = `${fmtBytes(used)} used${q ? ` of ~${fmtBytes(q)} available` : ''}`;
+      bar.style.width = (q ? Math.min(100, (used / q) * 100) : 4) + '%';
+    } else {
+      const mb = storageMB();
+      txt.textContent = `${mb.toFixed(2)} MB used`;
+      bar.style.width = Math.min(100, (mb / 5) * 100) + '%';
+    }
+  } catch {
+    const mb = storageMB();
+    txt.textContent = `${mb.toFixed(2)} MB used`;
+    bar.style.width = Math.min(100, (mb / 5) * 100) + '%';
+  }
 }
 function populateModelSelects() {
   const mkOpt = id => `<option value="${esc(id)}">${esc(modelLabel(id))}${isFreeId(id) ? ' · free' : ''}</option>`;
@@ -2701,6 +3279,13 @@ function populateModelSelects() {
     if (!all.length) return;
     html += `<optgroup label="${esc(PROVIDERS[p].label)}">${all.map(mkOpt).join('')}</optgroup>`;
   });
+  (settings.customProviders || []).forEach(c => {
+    if (!(c.models || []).length) return;
+    html += `<optgroup label="${esc(c.label)} · custom">${c.models.map(mkOpt).join('')}</optgroup>`;
+  });
+  if (localFlag.enabled || localReady) {
+    html += `<optgroup label="Offline Brain · on-device">${Object.keys(LOCAL_MODELS).map(mkOpt).join('')}</optgroup>`;
+  }
   if (!html) html = Object.entries(MODELS).map(([id, m]) => `<option value="${esc(id)}">${esc(m.label)}</option>`).join('');
   ['afModel', 'setDefaultModel'].forEach(sid => {
     const el = document.getElementById(sid);
@@ -2738,7 +3323,8 @@ function openUserModal() {
   $('#upBioCount').textContent = `(${(USER.bio || '').length}/200)`;
   $('#upPwCur').value = $('#upPwNew').value = $('#upPwConf').value = '';
   const totalSent = Object.values(chats).reduce((s, c) => s + (Array.isArray(c) ? c.filter(m => m.role === 'user').length : 0), 0);
-  $('#upStatsLine').textContent = `${totalSent} messages sent · ${agents.length} agents · member since ${new Date(USER.createdAt).toLocaleDateString([], { month:'short', year:'numeric' })}`;
+  const totalMem = agents.reduce((s, a) => s + (a.memory || []).length, 0);
+  $('#upStatsLine').textContent = `${totalSent} messages sent · ${agents.length} agents · ${totalMem} memories · member since ${new Date(USER.createdAt).toLocaleDateString([], { month:'short', year:'numeric' })}`;
   const s = load(LS.SESSION, null);
   $('#upSessionInfo').textContent = s ? `Active on this device · expires ${new Date(s.expiry).toLocaleString()}` : 'No active session';
   renderUserPresetRow(); renderUserAvatars();
@@ -2898,6 +3484,7 @@ function openAgentCtx(x, y, id) {
   ] : [
     { icon:'send', label:'Open chat', fn: () => openAgentChat(id) },
     { icon:'eye', label:'View profile', fn: () => { setActive(id); openProfile(id); } },
+    { icon:'brain', label:'Memory', fn: () => { setActive(id); openProfile(id); setTimeout(() => { const el = document.getElementById('memInput'); if (el) el.focus(); }, 320); } },
     { sep:true },
     { icon:'pencil', label:'Edit', fn: () => openAgentModal(a) },
     { icon:'star', label: a.pinned ? 'Unpin' : 'Pin', fn: () => { a.pinned = !a.pinned; persist(); renderSidebar(); } },
@@ -2961,13 +3548,54 @@ function openAgentChat(id) {
   setActive(id);
   if (window.innerWidth < 1024) closeSidebarMobile();
 }
+async function flushQueued(silent=false) {
+  if (!navigator.onLine || genState.active) return;
+  if (vaultLocked && !vaultKey) return;
+  const a = activeAgent(); if (!a) return;
+  const list = getChat(a.id);
+  if (!list.some(m => m.role === 'user' && m.status === 'queued')) return;
+  list.forEach(m => { if (m.role === 'user' && m.status === 'queued') m.status = 'sent'; });
+  persist(); renderThread();
+  if (!silent) toast('Back online — sending your queued message', 'success', 2400);
+  await generateResponse();
+}
+function saveDraftNow() {
+  const a = activeAgent();
+  if (!a) return;
+  ui.drafts = ui.drafts || {};
+  if (inputEl.value) ui.drafts[a.id] = inputEl.value;
+  else delete ui.drafts[a.id];
+  saveUI();
+}
+function restoreDraft(id) {
+  inputEl.value = (ui.drafts || {})[id] || '';
+  autoResize(); updateSendState();
+}
 async function handleSend() {
   if ((!inputEl.value.trim() && !pendingFiles.length) || genState.active) return;
-  if (!navigator.onLine) { toast('You are offline — message not sent', 'error'); return; }
-  if (vaultLocked && !vaultKey) { openUnlock('Your API keys are locked — unlock them to send messages.'); return; }
   const agent = activeAgent();
   if (!agent) { toast('Pick an agent first', 'warn'); return; }
-  if (!hasAnyKey()) { toast('Add an API key in Settings first', 'warn'); openSettings(); return; }
+  if (!navigator.onLine) {
+    SFX.play('pop');
+    threadError = null;
+    const list = getChat(agent.id);
+    const attachments = pendingFiles.length
+      ? pendingFiles.map(a => ({ id:a.id, kind:a.kind, name:a.name, mime:a.mime, size:a.size, data:a.data, text:a.text }))
+      : undefined;
+    const msg = { id:uid(), role:'user', content: inputEl.value.trim(), ts:Date.now(), tokens:estTokens(inputEl.value), web:webSearchOn, status:'queued', replyTo: replyState || null };
+    if (attachments) msg.attachments = attachments;
+    list.push(msg);
+    persist();
+    replyState = null; hide($('#replyBar'));
+    pendingFiles = []; renderAttachBar();
+    delete ui.drafts[agent.id];
+    inputEl.value = ''; autoResize(); updateSendState();
+    renderThread();
+    toast('Offline — message queued. It will send automatically when you reconnect.', 'warn', 5000);
+    return;
+  }
+  if (vaultLocked && !vaultKey) { openUnlock('Your API keys are locked — unlock them to send messages.'); return; }
+  if (!hasAnyKey()) { toast('Add an API key in Settings — or enable the Offline Brain for keyless chat', 'warn'); openSettings(); return; }
   stopSpeaking();
   hide($('#mentionMenu'));
   SFX.play('send');
@@ -2982,6 +3610,7 @@ async function handleSend() {
   persist();
   replyState = null; hide($('#replyBar'));
   pendingFiles = []; renderAttachBar();
+  delete ui.drafts[agent.id];
   inputEl.value = ''; autoResize(); updateSendState();
   renderThread();
   setTimeout(() => {
@@ -3012,13 +3641,14 @@ function setActive(id) {
   pendingFiles = []; renderAttachBar();
   saveUI();
   renderSidebar(); renderHeader(); renderThread(); updateSendState();
+  if (id) restoreDraft(id);
   if (changed && id) SFX.play('pop');
   if (window.innerWidth >= 1024 && id) inputEl.focus();
+  if (navigator.onLine) flushQueued(true);
 }
 const openSidebarMobile = () => { $('#sidebar').classList.remove('-translate-x-full'); show($('#scrim')); };
 const closeSidebarMobile = () => { $('#sidebar').classList.add('-translate-x-full'); hide($('#scrim')); };
 
-// ─── @mention autocomplete popover ───
 let mentionItems = [];
 function updateMentionMenu() {
   const menu = $('#mentionMenu');
@@ -3053,7 +3683,6 @@ function applyMentionItem(it) {
   if (it) applyMentionItem(it);
 });
 
-// ─── reaction picker ───
 function openReactPicker(x, y, idx) {
   const pk = $('#reactPicker');
   pk.innerHTML = REACTIONS.map(em => `<button data-react="${em}" data-sfx="pop" data-idx="${idx}" class="btn w-9 h-9 rounded-full text-lg hover:bg-white/10 hover:scale-125 flex items-center justify-center transition-transform">${em}</button>`).join('');
@@ -3070,7 +3699,6 @@ function applyReaction(idx, emoji) {
   persist(); renderThread();
 }
 
-// ─── sidebar ───
  $('#agentList').addEventListener('click', e => {
   const g = e.target.closest('[data-group]');
   if (g) { const k = g.dataset.group; ui.collapsed[k] = !ui.collapsed[k]; saveUI(); renderSidebar(); return; }
@@ -3130,9 +3758,36 @@ function applyReaction(idx, emoji) {
  $('#scrim').addEventListener('click', closeSidebarMobile);
  $('#sidebarBrand').addEventListener('click', openSettings);
 
-// ─── agent profile panel ───
+function addMemoryFromInput() {
+  const a = agents.find(x => x.id === profileId);
+  const inp = $('#memInput');
+  const t = inp ? inp.value.trim() : '';
+  if (!a || !t) return;
+  a.memory = a.memory || [];
+  a.memory.push({ id:uid(), text:t, ts:Date.now() });
+  while (a.memory.length > MAX_MEMORIES) a.memory.shift();
+  persist(); renderProfile();
+  toast('Saved to memory — it will shape every future chat', 'success', 2200);
+}
  $('#btnCloseProfile').addEventListener('click', closeProfile);
  $('#profileScrim').addEventListener('click', closeProfile);
+ $('#profileBody').addEventListener('click', e => {
+  const del = e.target.closest('[data-memdel]');
+  if (del) {
+    const a = agents.find(x => x.id === profileId);
+    if (a && a.memory) { a.memory = a.memory.filter(m => m.id !== del.dataset.memdel); persist(); renderProfile(); }
+    return;
+  }
+  if (e.target.closest('#memAdd')) { addMemoryFromInput(); return; }
+  if (e.target.closest('#memClear')) {
+    const a = agents.find(x => x.id === profileId);
+    if (!a || !(a.memory || []).length) return;
+    confirmDialog({ title:`Clear ${a.name}'s memory?`, message:`All ${a.memory.length} remembered fact(s) will be forgotten. Chats are kept.`, okText:'Forget all' }).then(ok => {
+      if (ok) { a.memory = []; persist(); renderProfile(); toast('Memory cleared', 'info', 1800); }
+    });
+  }
+});
+ $('#profileBody').addEventListener('keydown', e => { if (e.target.id === 'memInput' && e.key === 'Enter') { e.preventDefault(); addMemoryFromInput(); } });
  $('#pBtnChat').addEventListener('click', () => {
   const a = agents.find(x => x.id === profileId);
   if (a && a.archived) { a.archived = false; persist(); renderSidebar(); renderHeader(); }
@@ -3143,7 +3798,6 @@ function applyReaction(idx, emoji) {
  $('#pBtnDup').addEventListener('click', () => { if (profileId) { duplicateAgent(profileId); closeProfile(); } });
  $('#pBtnDelete').addEventListener('click', () => { if (profileId) deleteAgent(profileId); });
 
-// ─── header / user menu ───
  $('#brandHome').addEventListener('click', () => setActive(null));
  $('#headerAgentBtn').addEventListener('click', () => { const a = activeAgent(); if (a) openProfile(a.id); });
  $('#headerSwitchChev').addEventListener('click', () => { renderHeader(); $('#agentSwitcher').classList.toggle('hidden'); });
@@ -3177,8 +3831,9 @@ function applyReaction(idx, emoji) {
   else if (act === 'logout') logout();
 });
 
-// ─── composer & attachments ───
-inputEl.addEventListener('input', () => { autoResize(); updateSendState(); updateMentionMenu(); });
+let draftTimer = null;
+inputEl.addEventListener('input', () => { autoResize(); updateSendState(); updateMentionMenu(); clearTimeout(draftTimer); draftTimer = setTimeout(saveDraftNow, 700); });
+inputEl.addEventListener('blur', saveDraftNow);
 inputEl.addEventListener('keydown', e => {
   if (mentionItems.length && !$('#mentionMenu').classList.contains('hidden')) {
     if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); applyMentionItem(mentionItems[0]); return; }
@@ -3227,7 +3882,6 @@ composerEl.addEventListener('drop', e => {
   e.target.value = '';
 });
 
-// ─── voice input ───
 let recognition = null, listening = false;
  $('#btnMic').addEventListener('click', () => {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -3245,7 +3899,6 @@ let recognition = null, listening = false;
   toast('Listening…', 'info', 2000);
 });
 
-// ─── thread: actions, lightbox, code copy, TTS, reply, reactions, swipe ───
 function jumpToMessage(mid) {
   const el = document.querySelector(`.msg[data-mid="${mid}"]`);
   if (!el) return;
@@ -3319,7 +3972,6 @@ function jumpToMessage(mid) {
  $('#lightbox').addEventListener('click', closeLightbox);
  $('#scrollFab').addEventListener('click', () => threadEl().scrollTo({ top:threadEl().scrollHeight, behavior:'smooth' }));
 
-// swipe-right to reply (mobile)
 let sw = null;
  $('#thread').addEventListener('touchstart', e => {
   const wrap = e.target.closest('.msg');
@@ -3354,7 +4006,6 @@ let sw = null;
   sw = null;
 }, { passive:true });
 
-// ─── template picker ───
  $('#tplGrid').addEventListener('click', e => {
   const b = e.target.closest('[data-tpl]');
   if (!b) return;
@@ -3363,11 +4014,9 @@ let sw = null;
   else openAgentModal(null, PRESETS[+b.dataset.tpl]);
 });
 
-// ─── prompt modal ───
  $('#btnPromptSave').addEventListener('click', savePromptFromModal);
  $('#pfText').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); savePromptFromModal(); } });
 
-// ─── agent modal ───
  $('#emojiRow').addEventListener('click', e => { const b = e.target.closest('[data-emoji]'); if (b) { selEmoji = b.dataset.emoji; renderPickerRows(); updateAgentPreview(); } });
  $('#gradRow').addEventListener('click', e => { const b = e.target.closest('[data-grad]'); if (b) { selGrad = b.dataset.grad; renderPickerRows(); updateAgentPreview(); } });
  $('#colorRow').addEventListener('click', e => { const b = e.target.closest('[data-color]'); if (b) { selColor = b.dataset.color; renderPickerRows(); updateAgentPreview(); } });
@@ -3401,6 +4050,42 @@ let sw = null;
   const t = e.target.closest('[data-test]');
   if (t) runTest(t.dataset.test, t);
 });
+ $('#cpList').addEventListener('input', e => {
+  const inp = e.target.closest('[data-cpkey]');
+  if (!inp) return;
+  customKeys[inp.dataset.cpkey] = inp.value;
+  keysChanged();
+  renderSidebar(); renderHeader();
+  queueModelFetch(inp.dataset.cpkey, inp.value);
+});
+ $('#cpList').addEventListener('click', e => {
+  const eye = e.target.closest('[data-cpeye]');
+  if (eye) { const inp = document.querySelector(`[data-cpkey="${eye.dataset.cpeye}"]`); if (inp) inp.type = inp.type === 'password' ? 'text' : 'password'; return; }
+  const del = e.target.closest('[data-cpdel]');
+  if (del) { deleteCustomProvider(del.dataset.cpdel); return; }
+  const t = e.target.closest('[data-cptest]');
+  if (t) runTest(t.dataset.cptest, t);
+});
+ $('#btnCpAdd').addEventListener('click', detectAndAddCustom);
+ $('#cpKey').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); detectAndAddCustom(); } });
+ $('#btnLocalToggle').addEventListener('click', toggleLocal);
+ $('#localModel').addEventListener('change', e => {
+  localFlag.model = e.target.value;
+  if (localFlag.enabled && !localReady) saveRaw(LS.LOCAL, localFlag);
+  else if (localReady) { toast('Model change applies after you disable & re-enable the Offline Brain', 'info', 3500); }
+ });
+ $('#strictVaultToggle').addEventListener('change', async e => {
+  settings.strictVault = e.target.checked;
+  if (settings.strictVault) {
+    DB.del(LS.DWRAP);
+    persist();
+    toast('Strict mode on — keys will require your password at every launch', 'info', 3500);
+  } else {
+    if (vaultKey) { await wrapVaultKey(vaultKey); toast('Auto-unlock enabled — no password needed at launch', 'success', 2500); }
+    else { persist(); openUnlock('Unlock once to enable auto-unlock for future launches.'); }
+  }
+  renderVaultLine();
+ });
  $('#vaultLine').addEventListener('click', e => { if (e.target.closest('#btnUnlockKeys')) openUnlock(); });
  $('#shareKeysToggle').addEventListener('change', e => {
   settings.shareKeys = e.target.checked;
@@ -3411,23 +4096,33 @@ let sw = null;
  $('#toggleSounds').addEventListener('change', e => { settings.sounds = e.target.checked; persist(); if (e.target.checked) SFX.play('success'); });
  $('#toggleHaptics').addEventListener('change', e => { settings.haptics = e.target.checked; persist(); if (e.target.checked) SFX.play('tap'); });
  $('#toggleTTS').addEventListener('change', e => { settings.autoSpeak = e.target.checked; persist(); if (!e.target.checked) stopSpeaking(); toast(e.target.checked ? 'Replies will be read aloud automatically' : 'Auto read-aloud off', 'info', 2000); });
+ $('#ttsVoiceSel').addEventListener('change', e => { settings.ttsVoice = e.target.value; persist(); });
+ $('#ttsRate').addEventListener('input', e => { settings.ttsRate = +e.target.value; $('#ttsRateVal').textContent = (+e.target.value).toFixed(2) + '×'; persist(); });
+ $('#btnTtsTest').addEventListener('click', () => {
+  speakText('Hi! I am your Phantom teammate, and this is how I will sound when I read replies aloud.', 'tts-test');
+ });
  document.querySelectorAll('[data-theme-set]').forEach(b => b.addEventListener('click', () => {
   settings.theme = b.dataset.themeSet;
   persist(); applyTheme(); renderThemeRow();
   toast(settings.theme === 'light' ? 'Light theme on ☀️' : 'Dark theme on 🌙', 'info', 1800);
 }));
+ $('#btnResetUsage').addEventListener('click', async () => {
+  const ok = await confirmDialog({ title:'Reset usage stats?', message:'Request and token counters will be zeroed. Chats and agents are untouched.', okText:'Reset', danger:false });
+  if (!ok) return;
+  usage = {}; persist(); renderUsage();
+  toast('Usage reset', 'info', 1500);
+});
  $('#setDefaultModel').addEventListener('change', e => { settings.defaultModel = e.target.value; persist(); renderHeader(); });
  $('#setDefaultTemp').addEventListener('input', e => { settings.defaultTemp = +e.target.value; $('#setDefaultTempVal').textContent = `${settings.defaultTemp.toFixed(1)} · ${tempWord(settings.defaultTemp)}`; persist(); });
  $('#setDefaultMax').addEventListener('input', e => { settings.defaultMaxTokens = +e.target.value; $('#setDefaultMaxVal').textContent = `${settings.defaultMaxTokens} tokens`; persist(); });
  $('#accentRow').addEventListener('click', e => { const b = e.target.closest('[data-accent]'); if (b) { settings.accent = b.dataset.accent; persist(); applyAccent(); renderAccentRow(); renderThread(); } });
  $('#btnExportAll').addEventListener('click', () => {
   download(`phantom-backup-${new Date().toISOString().slice(0, 10)}.json`,
-    JSON.stringify({ app:'phantom', version:APP_VERSION, exportedAt:new Date().toISOString(), agents, chats, prompts,
-      settings: Object.assign({}, settings, { apiKeys: Object.fromEntries(FAILOVER.map(p => [p, ''])) }), latency, circuit }, null, 2));
+    JSON.stringify({ app:'phantom', version:APP_VERSION, exportedAt:new Date().toISOString(), agents, chats, prompts, usage,
+      settings: Object.assign({}, settings, { apiKeys: Object.fromEntries(FAILOVER.map(p => [p, ''])), customKeys: {} }), latency, circuit }, null, 2));
   toast('Backup exported — API keys excluded for safety', 'success');
 });
 
-// ─── user profile events ───
  $('#upPresetRow').addEventListener('click', e => {
   const b = e.target.closest('[data-upavatar]');
   if (!b) return;
@@ -3464,8 +4159,8 @@ let sw = null;
  $('#upPwSave').addEventListener('click', changePassword);
  $('#upRevoke').addEventListener('click', logout);
  $('#upExport').addEventListener('click', () => {
-  download(`phantom-${USER.username}-data.json`, JSON.stringify({ app:'phantom', version:APP_VERSION, user:{ username:USER.username, email:USER.email, bio:USER.bio }, agents, chats, prompts,
-    settings: Object.assign({}, settings, { apiKeys: Object.fromEntries(FAILOVER.map(p => [p, ''])) }), latency, circuit }, null, 2));
+  download(`phantom-${USER.username}-data.json`, JSON.stringify({ app:'phantom', version:APP_VERSION, user:{ username:USER.username, email:USER.email, bio:USER.bio }, agents, chats, prompts, usage,
+    settings: Object.assign({}, settings, { apiKeys: Object.fromEntries(FAILOVER.map(p => [p, ''])), customKeys: {} }), latency, circuit }, null, 2));
   toast('Data exported', 'success');
 });
  $('#upImport').addEventListener('click', () => $('#upImportFile').click());
@@ -3476,25 +4171,30 @@ let sw = null;
     try {
       const d = JSON.parse(r.result);
       if (d.app !== 'phantom') throw new Error('not a Phantom backup');
-      const ok = await confirmDialog({ title:'Import backup?', message:'This replaces your current agents, chats and settings. Existing API keys are kept.', okText:'Import', danger:false });
+      const ok = await confirmDialog({ title:'Import backup?', message:'This replaces your current agents, chats and settings. Existing API keys are kept (re-enter custom provider keys after import).', okText:'Import', danger:false });
       if (!ok) return;
       const oldKeys = Object.assign({}, settings.apiKeys);
       if (Array.isArray(d.agents)) agents = d.agents;
       if (d.chats && typeof d.chats === 'object') chats = d.chats;
       if (Array.isArray(d.prompts)) prompts = normPrompts(d.prompts);
+      if (d.usage && typeof d.usage === 'object') usage = normUsage(d.usage);
       if (d.settings && typeof d.settings === 'object') {
         const imported = Object.assign({}, d.settings);
         const impKeys = imported.apiKeys || {};
         delete imported.apiKeys;
+        delete imported.customKeys;
         settings = Object.assign(defaultSettings(), imported);
         settings.apiKeys = Object.assign({}, DEFAULT_KEYS, oldKeys);
         FAILOVER.forEach(p => { if (impKeys[p]) settings.apiKeys[p] = impKeys[p]; });
+        settings.customProviders = normCustoms(settings.customProviders);
       }
       latency = normLatency(d.latency); circuit = normCircuit(d.circuit);
       Object.keys(chats).forEach(k => (Array.isArray(chats[k]) ? chats[k] : []).forEach(m => { if (!m.id) m.id = uid(); }));
+      agents.forEach(a => { if (!Array.isArray(a.memory)) a.memory = []; });
+      registerCustomProviders();
       if (vaultKey) await keysChanged();
       persist();
-      resetTransient(); applyTheme(); applyAccent(); renderAll(); populateModelSelects(); closeModal('userModal');
+      resetTransient(); applyTheme(); applyAccent(); renderAll(); populateModelSelects(); renderCustomList(); closeModal('userModal');
       toast('Backup imported', 'success');
     } catch (err) { toast('Import failed: ' + err.message, 'error'); }
     e.target.value = '';
@@ -3512,14 +4212,14 @@ let sw = null;
   if (!ok) return;
   const users = getUsers().filter(x => x.id !== USER.id);
   persistUsers(users);
-  localStorage.removeItem(bucketKey());
-  localStorage.removeItem(LS.SESSION);
+  DB.del(bucketKey());
+  DB.del(LS.SESSION);
+  DB.del(LS.DWRAP);
   USER = null;
   showAuth('signup');
   toast('Account deleted', 'info');
 });
 
-// ─── auth events ───
  $('#tabSignin').addEventListener('click', () => setAuthTab('signin'));
  $('#tabSignup').addEventListener('click', () => setAuthTab('signup'));
  $('#auUser').addEventListener('input', validateAuthForm);
@@ -3530,15 +4230,12 @@ let sw = null;
  $('#authOverlay').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); submitAuth(); } });
  $('#btnGuest').addEventListener('click', startGuest);
 
-// ─── vault unlock events ───
  $('#btnUnlockGo').addEventListener('click', submitUnlock);
  $('#unlockPw').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submitUnlock(); } });
 
-// ─── confirm modal ───
  $('#cfOk').addEventListener('click', () => settleConfirm(true));
  $('#cfCancel').addEventListener('click', () => settleConfirm(false));
 
-// ─── PWA install ───
 let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
@@ -3589,7 +4286,6 @@ function setupPWA() {
   if (isIOS && !load(LS.IOS, false)) setTimeout(() => { openModal('iosModal'); saveRaw(LS.IOS, true); }, 4000);
 }
 
-/* ─── iOS/Android keyboard handling via visualViewport ─── */
 function setupKeyboard() {
   if (!window.visualViewport) return;
   const vv = window.visualViewport;
@@ -3609,7 +4305,6 @@ function setupKeyboard() {
   apply();
 }
 
-// ─── global clicks / keyboard / online ───
 document.addEventListener('click', e => {
   const closer = e.target.closest('[data-close]');
   if (closer) {
@@ -3655,10 +4350,11 @@ document.addEventListener('keydown', e => {
   }
 });
 const updateOffline = () => $('#offlineBanner').classList.toggle('hidden', navigator.onLine);
-window.addEventListener('online', () => { updateOffline(); toast('Back online', 'success', 2000); });
-window.addEventListener('offline', () => { updateOffline(); toast('You are offline', 'error', 3000); });
+window.addEventListener('online', () => { updateOffline(); toast('Back online', 'success', 2000); flushQueued(); });
+window.addEventListener('offline', () => { updateOffline(); toast('You are offline — messages will be queued', 'warn', 3000); });
+window.addEventListener('pagehide', () => { DB.flush(); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') DB.flush(); });
 
-/* ═══════════════════════ // INIT ═══════════════════════ */
 function renderChrome() {
   setHTML('#splashLogoWrap', logoState === 'fail'
     ? pFallback('w-full h-full text-4xl')
@@ -3696,14 +4392,23 @@ function initChromeIcons() {
   document.querySelectorAll('#tplModal [data-close], #agentModal [data-close], #settingsModal [data-close], #userModal [data-close], #iosModal [data-close], #promptModal [data-close], #unlockModal [data-close]').forEach(b => { if (!b.innerHTML.trim()) b.innerHTML = icon('x', 'w-4 h-4'); });
 }
 let splashDone = false;
-function hideSplash() {
+function hideSplash(instant=false) {
   if (splashDone) return;
   const el = $('#splash');
+  const finish = () => {
+    if (el) {
+      if (instant) el.remove();
+      else { el.style.opacity = '0'; setTimeout(() => el.remove(), 320); }
+    }
+    splashDone = true;
+  };
+  if (instant) { finish(); return; }
   const wait = Math.max(0, 1500 - (performance.now() - PAGE_T0));
-  const finish = () => { if (el) { el.style.opacity = '0'; setTimeout(() => el.remove(), 320); } splashDone = true; };
   if (wait === 0) finish(); else setTimeout(finish, wait);
 }
 const PAGE_T0 = performance.now();
+// Absolute watchdog: nothing — not even a hung IndexedDB open — can trap the user on the splash
+setTimeout(() => hideSplash(true), 4000);
 
 async function boot() {
   initChromeIcons();
@@ -3711,24 +4416,37 @@ async function boot() {
   setupPWA();
   setupKeyboard();
   updateOffline();
+  setLocalUI();
+  // Returning users skip the splash entirely — the app is simply there
+  const splashSeen = load(LS.SPLASH, false);
+  if (splashSeen) hideSplash(true);
+  try {
+    await withTimeout(DB.init(), 3500); // IDB stalls (prompts, blocked upgrades) can never block boot
+  } catch { /* falls back to localStorage mode inside DB */ }
   populateModelSelects();
-  const s = load(LS.SESSION, null);
-  if (s && s.expiry > Date.now()) {
-    const u = getUsers().find(x => x.id === s.userId);
-    if (u) {
-      await startSession(u, false);
-      backgroundModelRefresh();
-      if (vaultLocked && !vaultKey) setTimeout(() => openUnlock('Welcome back! Your API keys are locked — enter your password to use them.'), 900);
-      hideSplash();
-      return;
+  try {
+    const s = load(LS.SESSION, null);
+    if (s && s.expiry > Date.now()) {
+      const u = getUsers().find(x => x.id === s.userId);
+      if (u) {
+        await startSession(u, false);
+        backgroundModelRefresh();
+        if (localFlag.enabled && !localReady) ensureLocalEngine().catch(() => {}); // background warm-up, never blocks
+        saveRaw(LS.SPLASH, true);
+        hideSplash(splashSeen);
+        return;
+      }
     }
+  } catch (e) {
+    toast('Startup hiccup — recovered safely', 'warn', 2500);
   }
   showAuth('signin');
-  hideSplash();
+  saveRaw(LS.SPLASH, true);
+  hideSplash(splashSeen);
 }
 document.addEventListener('logo-ok', renderChrome);
 window.addEventListener('beforeunload', () => { if (window.speechSynthesis) speechSynthesis.cancel(); });
 boot();
 </script>
 </body>
-          </html>
+                                                                                                     </html>
