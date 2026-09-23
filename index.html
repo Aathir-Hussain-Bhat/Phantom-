@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com data:; img-src https://res.cloudinary.com data: blob:; connect-src https:; manifest-src data: blob:; worker-src blob:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com blob:; style-src 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com data:; img-src https://res.cloudinary.com data: blob:; connect-src https:; manifest-src data: blob:; worker-src blob:; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -302,7 +302,7 @@ tailwind.config = { theme: { extend: {
           <span id="sidebarLogo" class="logo-glow w-10 h-10 flex items-center justify-center shrink-0"></span>
           <span class="text-left min-w-0">
             <span class="block text-[15px] font-bold text-white leading-tight">Phantom</span>
-            <span class="block text-[10px] text-zinc-500">Your AI Ghost Team · v1.7.2</span>
+            <span class="block text-[10px] text-zinc-500">Your AI Ghost Team · v1.7.3</span>
           </span>
         </button>
         <button id="btnQuickAdd" title="New agent (Ctrl+N)" aria-label="New agent" class="btn p-2 rounded-xl text-zinc-500 hover:text-white hover:bg-white/10 shrink-0"></button>
@@ -640,7 +640,7 @@ tailwind.config = { theme: { extend: {
 
       <section>
         <h3 class="text-sm font-semibold text-white mb-1">👻 Offline Brain <span class="text-[10px] font-normal align-middle px-1.5 py-0.5 rounded-full bg-white/5 text-zinc-400">WebGPU</span></h3>
-        <p class="text-xs text-zinc-500 mb-3">Runs an LLM entirely on this device — no API key, no internet, free forever. After the first online setup, both the engine and model weights are cached, so it keeps working with the network fully off.</p>
+        <p class="text-xs text-zinc-500 mb-3">Runs an LLM entirely on this device — no API key, no internet, free forever. It runs in an isolated worker: if your device runs low on memory, only the brain pauses — Phantom itself never crashes.</p>
         <div id="localStatus" class="text-[11px] mb-2"></div>
         <div class="flex flex-col sm:flex-row gap-2 items-start">
           <select id="localModel" class="flex-1 bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25"></select>
@@ -760,7 +760,7 @@ tailwind.config = { theme: { extend: {
 'use strict';
 
 /* ═══════════════════════ // CONFIG ═══════════════════════ */
-const APP_VERSION = '1.7.2';
+const APP_VERSION = '1.7.3';
 const LOGO_URL = 'https://res.cloudinary.com/prjgzqvy/image/upload/v1790017986/file_000000007bec8208a53dc97b3142afb6_bxd7tt.png';
 
 const LS = { USERS:'phantom_users', SESSION:'phantom_session', SHARED:'phantom_shared_keys', INSTALL:'phantom_install_dismissed', IOS:'phantom_ios_hint', MIG:'phantom_migrated', MODELS:'phantom_model_cache', LOCAL:'phantom_local', SPLASH:'phantom_splash_seen', DEVKEY:'phantom_devkey', DWRAP:'phantom_dwrap' };
@@ -844,6 +844,13 @@ const HUDDLE_MAX = 2, HUDDLE_TOKENS = 700;
 const MAX_MEMORIES = 20;
 const WEBLLM_URL = 'https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm';
 const WEBLLM_SRC_KEY = 'phantom_webllm_src';
+const SHELL_KEY = 'phantom_shell_cache';
+const CDN_JS = [
+  'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
+  'https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js',
+];
+const CDN_CSS = ['https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'];
 
 const PRESETS = [
   { name:'Inbox Manager', emoji:'👻', gradient:'violet', color:'violet', role:'Email triage & drafts', model:'gemini-2.0-flash', temp:0.3, maxTokens:1024,
@@ -943,7 +950,6 @@ const setHTML = (sel, html) => { const el = document.querySelector(sel); if (el)
 const fillAvatarSlot = (sel, html) => setHTML(sel, html);
 const load = (k, fb) => { try { const v = JSON.parse(DB.get(k)); return v ?? fb; } catch { return fb; } };
 const saveRaw = (k, v) => { DB.set(k, v); };
-// Never let a single await stall the app — race anything against a hard timeout
 const withTimeout = (p, ms) => Promise.race([Promise.resolve(p), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
 const estTokens = t => Math.max(1, Math.round((t || '').length / 4));
 const isFreeId = id => /:free$/.test(id);
@@ -962,6 +968,42 @@ function userBubbleCSS() {
   const acc = COLORS[settings && settings.accent] || '#8b5cf6';
   return `background:linear-gradient(135deg,${acc},${shade(acc, 0.68)})`;
 }
+
+/* ═══════════════════════ // APP SHELL SNAPSHOT (offline-proof styling & libs) ═══════════════════════
+   The CDN <script> tags fail silently when offline → unstyled, featureless page.
+   Fix: after each online session we snapshot Tailwind's GENERATED CSS and the CDN
+   script sources into IndexedDB. On an offline boot we inject them from cache so
+   the app always opens fully styled and functional. */
+async function snapshotShell() {
+  try {
+    if (!navigator.onLine) return;
+    // Tailwind Play CDN injects its generated stylesheet as an inline <style> —
+    // capture every no-href stylesheet (ours is duplicated harmlessly).
+    let css = '';
+    for (const sheet of document.styleSheets) {
+      try { if (!sheet.href) css += [...sheet.cssRules].map(r => r.cssText).join('\n') + '\n'; } catch {}
+    }
+    const srcs = {}, styles = {};
+    for (const u of CDN_JS) { try { const r = await fetch(u, { cache:'force-cache' }); if (r.ok) srcs[u] = await r.text(); } catch {} }
+    for (const u of CDN_CSS) { try { const r = await fetch(u, { cache:'force-cache' }); if (r.ok) styles[u] = await r.text(); } catch {} }
+    if (css || Object.keys(srcs).length) { saveRaw(SHELL_KEY, { v:1, css, srcs, styles, ts: Date.now() }); DB.flush(); }
+  } catch {}
+}
+function restoreShellIfNeeded() {
+  try {
+    const needTW = !window.tailwind, needMD = !window.marked, needDP = !window.DOMPurify, needHL = !window.hljs;
+    if (!needTW && !needMD && !needDP && !needHL) return;
+    const c = load(SHELL_KEY, null);
+    if (!c) return;
+    if (needTW && c.css) { const st = document.createElement('style'); st.textContent = c.css; document.head.appendChild(st); }
+    if (c.styles) for (const u in c.styles) { const st = document.createElement('style'); st.textContent = c.styles[u]; document.head.appendChild(st); }
+    const inject = src => { try { const s = document.createElement('script'); s.textContent = src; document.head.appendChild(s); } catch {} };
+    for (const u in (c.srcs || {})) {
+      if ((u.includes('marked') && needMD) || (u.includes('purify') && needDP) || (u.includes('highlight') && needHL)) inject(c.srcs[u]);
+    }
+  } catch {}
+}
+restoreShellIfNeeded(); // runs immediately: styles + libs restored before anything renders
 
 const ICONS = {
   plus:'<path d="M12 5v14M5 12h14"/>', search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
@@ -1253,8 +1295,6 @@ async function upgradeHash(u, pass) {
   } catch {}
 }
 
-/* ─── VAULT: password-derived key, auto-unlocked on this device via a
-   device-wrapped copy. Strict mode (Settings) disables the auto-unlock. ─── */
 let vaultKey = null, vaultLocked = false;
 let customKeys = {};
 async function deriveVaultKey(pass, saltHex) {
@@ -1652,8 +1692,6 @@ function renderThemeRow() {
     b.style.background = on ? 'var(--accent)' : '';
   });
 }
-
-/* ─── TTS ENGINE: natural-voice picking + sentence-chunked prosody ─── */
 let speakingId = null;
 let ttsVoices = [];
 function refreshVoiceList() {
@@ -1873,21 +1911,6 @@ async function callAnthropic(base, { model, system, messages, temp, maxTokens, a
     if (!data) return;
     try { const j = JSON.parse(data); if (j.type === 'content_block_delta' && j.delta && j.delta.text) { full += j.delta.text; onDelta(j.delta.text); } } catch {}
   });
-  return full;
-}
-async function callLocal({ system, messages, temp, maxTokens, signal, onDelta }) {
-  await ensureLocalEngine();
-  const msgs = [];
-  if (system) msgs.push({ role:'system', content: system });
-  messages.forEach(m => msgs.push({ role: m.role, content: m.content }));
-  const stream = await localEngine.chat.completions.create({ messages: msgs, temperature: temp, max_tokens: maxTokens, stream: true });
-  let full = '';
-  for await (const ch of stream) {
-    if (signal && signal.aborted) break;
-    const d = (ch.choices && ch.choices[0] && ch.choices[0].delta && ch.choices[0].delta.content) || '';
-    if (d) { full += d; onDelta(d); }
-  }
-  if (signal && signal.aborted && full) { throw Object.assign(new Error('aborted'), { name:'AbortError' }); }
   return full;
 }
 function callProvider(p, args) {
@@ -2126,13 +2149,100 @@ async function deleteCustomProvider(id) {
   toast(`${c.label} removed`, 'info', 1800);
 }
 
-/* ═══════════════════════ // OFFLINE BRAIN (WebLLM) ═══════════════════════
-   The model WEIGHTS are cached by WebLLM itself after first download. The
-   ENGINE CODE (the JS module) is cached by us: on the first successful online
-   import we store its source, and offline launches import it from a Blob URL.
-   Boot NEVER imports WebLLM while offline — a failed network import of the
-   engine could hard-crash the renderer ("Aw, Snap") on some Chrome builds. */
-let localEngine = null, localReady = false, localLoading = false, localProgress = 0, localStatusText = '', localLoadingPromise = null;
+/* ═══════════════════════ // OFFLINE BRAIN (WebLLM in an isolated Worker) ═══════════════════════
+   The moment a model finishes loading, WebLLM allocates all GPU memory and
+   compiles shaders — on memory-constrained devices that OOM-kills the whole
+   renderer ("Aw, Snap"). Fix: the engine runs in a dedicated Web Worker. If the
+   device runs out of memory, ONLY the worker dies; Phantom catches it, shows a
+   friendly message, and disables the local provider. The page always survives. */
+const LOCAL_WORKER_SRC = `
+let engine = null;
+self.onmessage = async (e) => {
+  const d = e.data || {};
+  try {
+    if (d.type === 'init') {
+      let mod;
+      if (d.src) {
+        const u = URL.createObjectURL(new Blob([d.src], { type: 'text/javascript' }));
+        mod = await import(u);
+        setTimeout(() => URL.revokeObjectURL(u), 60000);
+      } else {
+        mod = await import(d.url);
+      }
+      engine = await mod.CreateMLCEngine(d.model, {
+        initProgressCallback: (r) => self.postMessage({ type: 'init-progress', progress: (r && r.progress) || 0, text: (r && r.text) || '' }),
+      });
+      self.postMessage({ type: 'init-ready' });
+    } else if (d.type === 'generate') {
+      const stream = await engine.chat.completions.create({
+        messages: d.messages, temperature: d.temp, max_tokens: d.maxTokens, stream: true,
+      });
+      let full = '';
+      for await (const ch of stream) {
+        const delta = (ch.choices && ch.choices[0] && ch.choices[0].delta && ch.choices[0].delta.content) || '';
+        if (delta) { full += delta; self.postMessage({ type: 'delta', id: d.id, delta }); }
+      }
+      self.postMessage({ type: 'done', id: d.id, text: full });
+    } else if (d.type === 'interrupt') {
+      try { if (engine && engine.interruptGenerate) engine.interruptGenerate(); } catch {}
+    }
+  } catch (err) {
+    self.postMessage({ type: 'fatal', message: String((err && err.message) || err), phase: d.type });
+  }
+};
+`;
+let localWorker = null, localReady = false, localLoading = false, localProgress = 0, localStatusText = '', localLoadingPromise = null;
+let localHandlers = new Map();
+let localInitHandler = null;
+let localGenSeq = 0;
+function terminateLocalWorker() {
+  if (localWorker) { try { localWorker.terminate(); } catch {} }
+  localWorker = null;
+  localHandlers.forEach(h => { clearTimeout(h.wd); try { h.reject(new Error('Offline Brain stopped')); } catch {} });
+  localHandlers.clear();
+  if (localInitHandler) { clearTimeout(localInitHandler.wd); localInitHandler = null; }
+  localReady = false;
+}
+function handleLocalFatal(message) {
+  const initH = localInitHandler;
+  terminateLocalWorker();
+  localFlag.enabled = false;
+  saveRaw(LS.LOCAL, localFlag);
+  if (initH) initH.reject(new Error('Offline Brain stopped: ' + message));
+  setLocalUI(); renderSidebar(); renderHeader();
+  toast('Offline Brain hit a device memory limit and was stopped to protect the page. Try the smaller 1B model in Settings.', 'warn', 8000);
+}
+function spawnLocalWorker() {
+  const blob = new Blob([LOCAL_WORKER_SRC], { type: 'text/javascript' });
+  const url = URL.createObjectURL(blob);
+  const w = new Worker(url, { type: 'module' });
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  w.onmessage = e => {
+    const d = e.data || {};
+    if (d.type === 'init-progress') {
+      localProgress = d.progress || 0; localStatusText = d.text || ''; setLocalUI();
+      if (localInitHandler) { clearTimeout(localInitHandler.wd); localInitHandler.wd = setTimeout(() => handleLocalFatal('init timeout'), 180000); }
+      return;
+    }
+    if (d.type === 'init-ready') {
+      localReady = true;
+      if (localInitHandler) { const f = localInitHandler.resolve; clearTimeout(localInitHandler.wd); localInitHandler = null; f(true); }
+      return;
+    }
+    if (d.type === 'fatal') { handleLocalFatal(d.message || 'worker error'); return; }
+    const h = localHandlers.get(d.id);
+    if (!h) return;
+    if (d.type === 'delta') {
+      h.full += d.delta;
+      try { h.onDelta(d.delta); } catch {}
+      clearTimeout(h.wd); h.wd = setTimeout(h.fire, 120000);
+    } else if (d.type === 'done') {
+      localHandlers.delete(d.id); clearTimeout(h.wd); h.resolve(d.text || h.full);
+    }
+  };
+  w.onerror = () => handleLocalFatal('worker crashed');
+  return w;
+}
 function setLocalUI() {
   const st = $('#localStatus'), bar = $('#localBar'), wrap = $('#localProgWrap'), txt = $('#localProgText'), btn = $('#btnLocalToggle'), sel = $('#localModel');
   if (!st) return;
@@ -2173,38 +2283,11 @@ function setLocalUI() {
   }
   if (sel) sel.value = localFlag.model;
 }
-// Store the engine's JS source so offline launches can import it without the network
-async function cacheWebLLMSource() {
-  try {
-    const res = await fetch(WEBLLM_URL, { cache: 'force-cache' });
-    if (!res.ok) return;
-    const src = await res.text();
-    saveRaw(WEBLLM_SRC_KEY, { v:1, src, ts: Date.now() });
-    DB.flush();
-  } catch {}
-}
-async function importWebLLMEngine() {
-  if (navigator.onLine) {
-    try {
-      const mod = await import(/* @vite-ignore */ WEBLLM_URL);
-      cacheWebLLMSource(); // keep a local copy for future offline launches
-      return mod;
-    } catch { /* fall through to cached copy */ }
-  }
-  const cached = load(WEBLLM_SRC_KEY, null);
-  if (cached && cached.src) {
-    const url = URL.createObjectURL(new Blob([cached.src], { type:'text/javascript' }));
-    try {
-      return await import(/* @vite-ignore */ url);
-    } finally { setTimeout(() => URL.revokeObjectURL(url), 120000); }
-  }
-  throw new Error('Engine not cached yet — connect to the internet once so Phantom can cache it');
-}
 async function ensureLocalEngine() {
   if (localReady) return true;
   if (!localFlag.enabled) throw new Error('Offline Brain is disabled');
-  // Offline AND never fully loaded before → defer politely. No network attempt,
-  // no crash. Auto-resumes on reconnect (see the 'online' listener).
+  // Offline AND the engine source was never cached → defer politely. No network
+  // attempt, no crash. Auto-resumes on reconnect (the 'online' listener).
   if (!navigator.onLine && !localFlag.loadedOnce && !load(WEBLLM_SRC_KEY, null)) {
     const st = $('#localStatus');
     if (st) {
@@ -2216,11 +2299,32 @@ async function ensureLocalEngine() {
   if (localLoading && localLoadingPromise) { await localLoadingPromise; return localReady; }
   localLoading = true; localProgress = 0; localStatusText = ''; setLocalUI();
   localLoadingPromise = (async () => {
-    const mod = await importWebLLMEngine();
-    localEngine = await mod.CreateMLCEngine(localFlag.model, {
-      initProgressCallback: r => { localProgress = (r && typeof r.progress === 'number') ? r.progress : 0; localStatusText = (r && r.text) || ''; setLocalUI(); },
+    // Engine source: cached text works offline; otherwise fetch & cache while online
+    let src = null;
+    const cached = load(WEBLLM_SRC_KEY, null);
+    if (cached && cached.src) src = cached.src;
+    else if (navigator.onLine) {
+      try { const r = await fetch(WEBLLM_URL, { cache:'force-cache' }); if (r.ok) { src = await r.text(); saveRaw(WEBLLM_SRC_KEY, { v:1, src, ts:Date.now() }); DB.flush(); } } catch {}
+    }
+    if (!src && !navigator.onLine) throw new Error('Engine not cached yet — connect once to cache it');
+    try {
+      localWorker = spawnLocalWorker();
+    } catch (e) {
+      // Module workers unsupported → legacy in-page fallback (old browsers only)
+      const mod = await import(/* @vite-ignore */ WEBLLM_URL);
+      localEngineFallback = await mod.CreateMLCEngine(localFlag.model, {
+        initProgressCallback: r => { localProgress = (r && typeof r.progress === 'number') ? r.progress : 0; localStatusText = (r && r.text) || ''; setLocalUI(); },
+      });
+      localReady = true; localFlag.loadedOnce = true; saveRaw(LS.LOCAL, localFlag);
+      latency.local = latency.local || { avg: 900, n: 1 }; saveLatency();
+      renderSidebar(); renderHeader();
+      toast('Offline Brain ready 👻 (legacy mode — worker unavailable)', 'success');
+      return;
+    }
+    await new Promise((resolve, reject) => {
+      localInitHandler = { resolve, reject, wd: setTimeout(() => handleLocalFatal('init timeout'), 180000) };
+      localWorker.postMessage({ type:'init', model: localFlag.model, src, url: src ? null : WEBLLM_URL });
     });
-    localReady = true;
     localFlag.loadedOnce = true;
     saveRaw(LS.LOCAL, localFlag);
     latency.local = latency.local || { avg: 900, n: 1 };
@@ -2232,14 +2336,15 @@ async function ensureLocalEngine() {
   catch (e) {
     localReady = false;
     localStatusText = friendlyTestError(e);
-    toast('Offline Brain failed to load: ' + friendlyTestError(e), 'error', 5000);
+    if (!/stopped|memory|Offline Brain disabled|cache/i.test(String(e.message || ''))) toast('Offline Brain failed to load: ' + friendlyTestError(e), 'error', 5000);
   }
-  finally { localLoading = false; setLocalUI(); }
+  finally { localLoading = false; localInitHandler = null; setLocalUI(); }
   return localReady;
 }
 function toggleLocal() {
   if (localReady || localFlag.enabled) {
-    localFlag.enabled = false; localReady = false; localEngine = null; localLoading = false;
+    terminateLocalWorker();
+    localFlag.enabled = false;
     saveRaw(LS.LOCAL, localFlag);
     setLocalUI(); renderSidebar(); renderHeader();
     toast('Offline Brain disabled', 'info', 1800);
@@ -2249,6 +2354,53 @@ function toggleLocal() {
   saveRaw(LS.LOCAL, localFlag);
   setLocalUI();
   ensureLocalEngine();
+}
+// In-page fallback engine (only used when module workers are unsupported)
+let localEngineFallback = null;
+// Streaming call — routed through the worker (or fallback). Aborts keep partial text.
+function callLocal({ system, messages, temp, maxTokens, signal, onDelta }) {
+  return ensureLocalEngine().then(() => new Promise((resolve, reject) => {
+    // Legacy fallback path
+    if (localEngineFallback) {
+      (async () => {
+        const msgs = [];
+        if (system) msgs.push({ role:'system', content: system });
+        messages.forEach(m => msgs.push({ role:m.role, content:m.content }));
+        const stream = await localEngineFallback.chat.completions.create({ messages: msgs, temperature: temp, max_tokens: maxTokens, stream: true });
+        let full = '';
+        for await (const ch of stream) {
+          if (signal && signal.aborted) break;
+          const d = (ch.choices && ch.choices[0] && ch.choices[0].delta && ch.choices[0].delta.content) || '';
+          if (d) { full += d; onDelta(d); }
+        }
+        if (signal && signal.aborted && full) reject(Object.assign(new Error('aborted'), { name:'AbortError' }));
+        else resolve(full);
+      })().catch(reject);
+      return;
+    }
+    if (!localReady || !localWorker) return reject(new Error('Offline Brain unavailable'));
+    const id = ++localGenSeq;
+    const msgs = [];
+    if (system) msgs.push({ role:'system', content: system });
+    messages.forEach(m => msgs.push({ role: m.role, content: m.content }));
+    const h = { full:'', onDelta: onDelta || (()=>{}), resolve, reject, wd: null, fire: null, onAbort: null };
+    h.fire = () => {
+      if (!localHandlers.has(id)) return;
+      localHandlers.delete(id);
+      reject(new Error('Offline Brain stopped responding — try the smaller 1B model'));
+    };
+    h.wd = setTimeout(h.fire, 120000);
+    if (signal) {
+      h.onAbort = () => {
+        try { localWorker.postMessage({ type:'interrupt' }); } catch {}
+        if (localHandlers.has(id)) { localHandlers.delete(id); clearTimeout(h.wd); reject(Object.assign(new Error('aborted'), { name:'AbortError' })); }
+      };
+      if (signal.aborted) h.onAbort();
+      else signal.addEventListener('abort', h.onAbort, { once:true });
+    }
+    localHandlers.set(id, h);
+    localWorker.postMessage({ type:'generate', id, messages: msgs, temp, maxTokens });
+  }));
 }
 
 /* ═══════════════════════ // STREAMING ENGINE ═══════════════════════ */
@@ -4398,15 +4550,11 @@ document.addEventListener('keydown', e => {
 const updateOffline = () => $('#offlineBanner').classList.toggle('hidden', navigator.onLine);
 window.addEventListener('online', () => {
   updateOffline(); toast('Back online', 'success', 2000); flushQueued();
-  // Resume a pending Offline Brain setup that was deferred while offline
   if (localFlag.enabled && !localReady && !localLoading) ensureLocalEngine().catch(() => {});
 });
 window.addEventListener('offline', () => { updateOffline(); toast('You are offline — messages will be queued', 'warn', 3000); });
 window.addEventListener('pagehide', () => { DB.flush(); });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') DB.flush(); });
-// Safety net: surface unexpected failures instead of dying silently.
-// (Renderer-level crashes like "Aw, Snap" can't be caught from JS — but with
-// the offline import guard, the known trigger is gone.)
 window.addEventListener('unhandledrejection', e => {
   const r = e.reason;
   if (r && (r.name === 'AbortError' || /network|fetch|timeout|offline/i.test(String(r.message || '')))) return;
@@ -4466,13 +4614,9 @@ function hideSplash(instant=false) {
   if (wait === 0) finish(); else setTimeout(finish, wait);
 }
 const PAGE_T0 = performance.now();
-// Absolute watchdog: nothing — not even a hung storage open — can trap the user on the splash
 setTimeout(() => hideSplash(true), 4000);
 
-/* ═══════════════════════ // BOOT ═══════════════════════
-   Every phase is guarded so a single failure can never leave a blank screen.
-   Splash = first-run-only moment. WebLLM is NEVER touched at boot while
-   offline (failed engine imports offline can crash the Android renderer). */
+/* ═══════════════════════ // BOOT ═══════════════════════ */
 async function boot() {
   try {
     initChromeIcons();
@@ -4481,12 +4625,12 @@ async function boot() {
     setupKeyboard();
     updateOffline();
     setLocalUI();
-    // Mark splash as seen IMMEDIATELY — no later crash or slow path can show it twice
     const firstVisit = !load(LS.SPLASH, false);
     try { saveRaw(LS.SPLASH, true); } catch {}
-    if (!firstVisit) hideSplash(true); // returning users: gone before first paint
-    // IDB stalls (storage prompts, blocked upgrades) can never block boot
+    if (!firstVisit) hideSplash(true);
     try { await withTimeout(DB.init(), 3500); } catch { /* falls back to localStorage mode */ }
+    // Snapshot the styled shell + CDN libs for future offline boots (online only)
+    if (navigator.onLine) setTimeout(() => snapshotShell(), 6000);
     try {
       const s = load(LS.SESSION, null);
       if (s && s.expiry > Date.now()) {
@@ -4495,12 +4639,10 @@ async function boot() {
           await startSession(u, false);
           populateModelSelects();
           backgroundModelRefresh();
-          // Warm up the Offline Brain only when ONLINE, and never block on it.
-          // Offline, it initializes lazily from cache when a chat needs it.
           if (localFlag.enabled && !localReady && navigator.onLine) {
             setTimeout(() => ensureLocalEngine().catch(() => {}), 2500);
           }
-          hideSplash(!firstVisit); // first visit: animated splash; returning: already gone
+          hideSplash(!firstVisit);
           return;
         }
       }
@@ -4511,7 +4653,6 @@ async function boot() {
     showAuth('signin');
     hideSplash(!firstVisit);
   } catch (fatal) {
-    // Absolute last resort: never leave a blank screen, whatever happens above
     try { showAuth('signin'); } catch {}
     hideSplash(true);
   }
