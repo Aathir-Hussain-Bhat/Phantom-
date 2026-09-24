@@ -302,7 +302,7 @@ tailwind.config = { theme: { extend: {
           <span id="sidebarLogo" class="logo-glow w-10 h-10 flex items-center justify-center shrink-0"></span>
           <span class="text-left min-w-0">
             <span class="block text-[15px] font-bold text-white leading-tight">Phantom</span>
-            <span class="block text-[10px] text-zinc-500">Your AI Ghost Team · v1.9.0</span>
+            <span class="block text-[10px] text-zinc-500">Your AI Ghost Team · v1.9.1</span>
           </span>
         </button>
         <button id="btnQuickAdd" title="New agent (Ctrl+N)" aria-label="New agent" class="btn p-2 rounded-xl text-zinc-500 hover:text-white hover:bg-white/10 shrink-0"></button>
@@ -765,7 +765,7 @@ tailwind.config = { theme: { extend: {
 'use strict';
 
 /* ═══════════════════════ // CONFIG ═══════════════════════ */
-const APP_VERSION = '1.9.0';
+const APP_VERSION = '1.9.1';
 const LOGO_URL = 'https://res.cloudinary.com/prjgzqvy/image/upload/v1790017986/file_000000007bec8208a53dc97b3142afb6_bxd7tt.png';
 
 const LS = { USERS:'phantom_users', SESSION:'phantom_session', SHARED:'phantom_shared_keys', INSTALL:'phantom_install_dismissed', IOS:'phantom_ios_hint', MIG:'phantom_migrated', MODELS:'phantom_model_cache', LOCAL:'phantom_local', SPLASH:'phantom_splash_seen', DEVKEY:'phantom_devkey', DWRAP:'phantom_dwrap' };
@@ -1262,10 +1262,17 @@ async function pbkdf2Hex(pass, saltHex, iterations) {
   const bits = await crypto.subtle.deriveBits({ name:'PBKDF2', hash:'SHA-256', salt:hexToBytes(saltHex), iterations }, key, 256);
   return bytesToHex(new Uint8Array(bits));
 }
+/* Password hashing: PBKDF2 preferred, graceful fallback if WebCrypto fails.
+   verifyPassword returns: true = OK, false = wrong password, string = error message. */
 async function makePasswordRecord(pass) {
   if (cryptoOK()) {
-    const salt = randomSalt();
-    return { algo:'pbkdf2', salt, iterations:PBKDF2_ITER, passHash: await pbkdf2Hex(pass, salt, PBKDF2_ITER) };
+    try {
+      const salt = randomSalt();
+      const hash = await withTimeout(pbkdf2Hex(pass, salt, PBKDF2_ITER), 15000);
+      return { algo:'pbkdf2', salt, iterations:PBKDF2_ITER, passHash: hash };
+    } catch (e) {
+      console.warn('[Phantom] PBKDF2 unavailable — using fallback hash:', e);
+    }
   }
   const salt = randomSalt();
   let h = 5381; const s = salt + '::' + pass;
@@ -1273,16 +1280,27 @@ async function makePasswordRecord(pass) {
   return { algo:'fnv', salt, iterations:0, passHash:'fnv_' + (h >>> 0).toString(16) + '_' + s.length };
 }
 async function verifyPassword(u, pass) {
-  if (u.algo === 'pbkdf2' && u.salt) return (await pbkdf2Hex(pass, u.salt, u.iterations || PBKDF2_ITER)) === u.passHash;
+  if (u.algo === 'pbkdf2' && u.salt) {
+    if (!cryptoOK()) return 'Secure crypto (WebCrypto) is unavailable in this context — open Phantom from a local file or HTTPS and try again.';
+    try {
+      return (await withTimeout(pbkdf2Hex(pass, u.salt, u.iterations || PBKDF2_ITER), 10000)) === u.passHash;
+    } catch (e) {
+      console.warn('[Phantom] pbkdf2 verify failed:', e);
+      return 'Password check failed — please try again.';
+    }
+  }
   if (u.algo === 'fnv' && u.salt) {
     let h = 5381; const s = u.salt + '::' + pass;
     for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
     return ('fnv_' + (h >>> 0).toString(16) + '_' + s.length) === u.passHash;
   }
   try {
-    if ((await sha256Hex('phantom::v1::' + pass)) === u.passHash) { await upgradeHash(u, pass); return true; }
-  } catch {}
-  return false;
+    if ((await withTimeout(sha256Hex('phantom::v1::' + pass), 10000)) === u.passHash) { await upgradeHash(u, pass); return true; }
+    return false;
+  } catch (e) {
+    console.warn('[Phantom] legacy verify failed:', e);
+    return 'Password check failed — please try again.';
+  }
 }
 async function upgradeHash(u, pass) {
   try {
@@ -1337,8 +1355,8 @@ async function unwrapVaultKey() {
 }
 async function setupVaultKey(u, password) {
   vaultKey = null;
-  if (!cryptoOK() || !password || !(u && u.salt)) return;
-  try { vaultKey = await deriveVaultKey(password, u.salt); } catch { vaultKey = null; }
+  if (!cryptoOK() || !password || !(u && u.salt) || u.algo === 'fnv') return;
+  try { vaultKey = await withTimeout(deriveVaultKey(password, u.salt), 10000); } catch (e) { console.warn('[Phantom] vault key derivation failed:', e); vaultKey = null; }
 }
 const hasPlainKeys = o => FAILOVER.some(p => (o && o[p] || '').trim());
 async function keysChanged() {
@@ -1526,22 +1544,31 @@ async function loadForUser(u) {
     prompts = Array.isArray(d.prompts) ? normPrompts(d.prompts) : defaultPrompts();
     agents.forEach(a => { if (!Array.isArray(a.memory)) a.memory = []; });
     registerCustomProviders();
-    if (settings.encKeys && settings.encKeys.ct) {
-      let ok = false;
-      if (vaultKey) {
-        ok = await decryptKeysInto();
-      } else if (cryptoOK() && !settings.strictVault) {
-        const k = await withTimeout(unwrapVaultKey(), 3000).catch(() => null);
-        if (k) { vaultKey = k; ok = await decryptKeysInto(); if (ok) setTimeout(() => toast('Keys unlocked automatically 🔓', 'info', 1600), 400); }
+    // Vault resolution: fully guarded so a vault failure can NEVER block sign-in
+    try {
+      if (settings.encKeys && settings.encKeys.ct) {
+        let ok = false;
+        if (vaultKey) {
+          ok = await decryptKeysInto();
+        } else if (cryptoOK() && !settings.strictVault) {
+          const k = await withTimeout(unwrapVaultKey(), 3000).catch(() => null);
+          if (k) { vaultKey = k; ok = await decryptKeysInto(); if (ok) setTimeout(() => toast('Keys unlocked automatically 🔓', 'info', 1600), 400); }
+        }
+        if (!ok) { vaultLocked = true; settings.apiKeys = Object.assign({}, DEFAULT_KEYS); customKeys = {}; keyPools = {}; }
+      } else {
+        customKeys = Object.assign({}, settings.customKeys || {});
+        keyPools = normPools(settings.keyPools);
+        if (hasPlainKeys(settings.apiKeys) && vaultKey && cryptoOK()) {
+          await keysChanged();
+          setTimeout(() => toast('API keys are now encrypted on this device 🔐', 'success'), 1200);
+        }
       }
-      if (!ok) { vaultLocked = true; settings.apiKeys = Object.assign({}, DEFAULT_KEYS); customKeys = {}; keyPools = {}; }
-    } else {
-      customKeys = Object.assign({}, settings.customKeys || {});
-      keyPools = normPools(settings.keyPools);
-      if (hasPlainKeys(settings.apiKeys) && vaultKey && cryptoOK()) {
-        await keysChanged();
-        setTimeout(() => toast('API keys are now encrypted on this device 🔐', 'success'), 1200);
-      }
+    } catch (vaultErr) {
+      console.warn('[Phantom] vault resolution failed — keys locked, sign-in continues:', vaultErr);
+      vaultLocked = true;
+      settings.apiKeys = Object.assign({}, DEFAULT_KEYS);
+      customKeys = {};
+      keyPools = {};
     }
   } else if (DB.get('phantom_agents') && !load(LS.MIG, false)) {
     try {
@@ -1683,26 +1710,49 @@ function validateAuthForm() {
   $('#btnAuthGo').style.opacity = $('#btnAuthGo').disabled ? '.5' : '1';
 }
 function authError(msg) { const el = $('#authError'); el.textContent = msg; show(el); }
+/* Sign-in/sign-up: fully guarded — any failure shows a visible error, never hangs. */
+let authBusy = false;
+function setAuthBusy(busy) {
+  authBusy = busy;
+  const btn = $('#btnAuthGo');
+  if (!btn) return;
+  btn.disabled = busy;
+  btn.style.opacity = busy ? '.65' : '1';
+  btn.textContent = busy
+    ? (authMode === 'signin' ? 'Signing in…' : 'Creating account…')
+    : (authMode === 'signin' ? 'Sign In' : 'Create Account');
+}
 async function submitAuth() {
-  const un = $('#auUser').value.trim(), pw = $('#auPass').value;
-  if (!un || !pw) return;
-  const users = getUsers();
-  if (authMode === 'signin') {
-    const u = users.find(x => x.username.toLowerCase() === un.toLowerCase() || (x.email || '').toLowerCase() === un.toLowerCase());
-    if (!u) return authError('No account found with that username or email');
-    if (!(await verifyPassword(u, pw))) return authError('Wrong password — try again');
-    await startSession(u, true, pw);
-  } else {
-    const em = $('#auEmail').value.trim(), cf = $('#auConfirm').value;
-    if (users.some(x => x.username.toLowerCase() === un.toLowerCase())) return authError('That username is taken');
-    if (!emailOk(em)) return authError('Invalid email address');
-    if (users.some(x => (x.email || '').toLowerCase() === em.toLowerCase())) return authError('An account with that email already exists');
-    if (pw.length < 6) return authError('Password must be at least 6 characters');
-    if (cf !== pw) return authError('Passwords do not match');
-    const rec = await makePasswordRecord(pw);
-    const u = Object.assign({ id:uid(), username:un, email:em, avatar:null, bio:'', createdAt:Date.now(), lastLogin:Date.now() }, rec);
-    users.push(u); persistUsers(users);
-    await startSession(u, true, pw);
+  if (authBusy) return;
+  setAuthBusy(true);
+  try {
+    const un = $('#auUser').value.trim(), pw = $('#auPass').value;
+    if (!un || !pw) return;
+    const users = getUsers();
+    if (authMode === 'signin') {
+      const u = users.find(x => x.username.toLowerCase() === un.toLowerCase() || (x.email || '').toLowerCase() === un.toLowerCase());
+      if (!u) { authError('No account found with that username or email'); return; }
+      const v = await verifyPassword(u, pw);
+      if (v !== true) { authError(typeof v === 'string' ? v : 'Wrong password — try again'); return; }
+      await startSession(u, true, pw);
+    } else {
+      const em = $('#auEmail').value.trim(), cf = $('#auConfirm').value;
+      if (users.some(x => x.username.toLowerCase() === un.toLowerCase())) { authError('That username is taken'); return; }
+      if (!emailOk(em)) { authError('Invalid email address'); return; }
+      if (users.some(x => (x.email || '').toLowerCase() === em.toLowerCase())) { authError('An account with that email already exists'); return; }
+      if (pw.length < 6) { authError('Password must be at least 6 characters'); return; }
+      if (cf !== pw) { authError('Passwords do not match'); return; }
+      const rec = await makePasswordRecord(pw);
+      const u = Object.assign({ id:uid(), username:un, email:em, avatar:null, bio:'', createdAt:Date.now(), lastLogin:Date.now() }, rec);
+      users.push(u); persistUsers(users);
+      await startSession(u, true, pw);
+    }
+  } catch (err) {
+    console.warn('[Phantom] auth error:', err);
+    authError('Sign-in failed: ' + friendlyTestError(err) + ' — please try again');
+  } finally {
+    setAuthBusy(false);
+    try { validateAuthForm(); } catch {}
   }
 }
 async function startSession(u, announce=true, password=null) {
@@ -2349,8 +2399,6 @@ function terminateLocalWorker() {
   if (localInitHandler) { clearTimeout(localInitHandler.wd); localInitHandler = null; }
   localReady = false;
 }
-// Brain hit a hard limit (worker crash / OOM). Keep the feature "enabled" but
-// pause it behind an explicit Load now — never auto-retry (crash-loop breaker).
 function handleLocalFatal(message) {
   const initH = localInitHandler;
   terminateLocalWorker();
@@ -2390,8 +2438,6 @@ function spawnLocalWorker() {
     }
   };
   w.onerror = () => {
-    // Worker failed before any progress → likely no module-worker support here;
-    // reject so the caller can fall back to the in-page engine instead of pausing.
     if (localProgress === 0 && localInitHandler) {
       const h = localInitHandler; localInitHandler = null;
       clearTimeout(h.wd);
@@ -2454,8 +2500,6 @@ function setLocalUI() {
 async function ensureLocalEngine(force=false) {
   if (localReady) return true;
   if (!localFlag.enabled) throw new Error('Offline Brain is disabled');
-  // Crash-loop breaker: after a crash the brain stays paused until the user
-  // explicitly presses Load now. Automatic (failover-driven) attempts bounce off.
   if (localFlag.crashHint && !force) throw new Error('Offline Brain paused after a crash — open Settings → Offline Brain and press Load now');
   if (!navigator.onLine && !localFlag.loadedOnce && !load(WEBLLM_SRC_KEY, null)) {
     const st = $('#localStatus');
@@ -2467,7 +2511,7 @@ async function ensureLocalEngine(force=false) {
   }
   if (localLoading && localLoadingPromise) { await localLoadingPromise; return localReady; }
   localLoading = true; localProgress = 0; localStatusText = '';
-  localFlag.loading = true; saveRaw(LS.LOCAL, localFlag); // cleared on success/failure; survives a page crash → crash detection
+  localFlag.loading = true; saveRaw(LS.LOCAL, localFlag);
   setLocalUI();
   localLoadingPromise = (async () => {
     let src = null;
@@ -2493,7 +2537,6 @@ async function ensureLocalEngine(force=false) {
     if (useWorker) {
       localReady = true;
     } else {
-      // Legacy in-page engine (module workers unavailable on this browser)
       terminateLocalWorker();
       const mod = await import(/* @vite-ignore */ WEBLLM_URL);
       const opts = { initProgressCallback: r => { localProgress = (r && typeof r.progress === 'number') ? r.progress : 0; localStatusText = (r && r.text) || ''; setLocalUI(); } };
@@ -2523,7 +2566,6 @@ async function ensureLocalEngine(force=false) {
   }
   return localReady;
 }
-// Button behavior: Enable → arms + loads. Load now → explicit (re)load. Loaded → Disable.
 function localBtnAction() {
   if (localReady) { disableLocal(); return; }
   if (!localFlag.enabled) {
@@ -2534,7 +2576,7 @@ function localBtnAction() {
   startLocalLoad();
 }
 function startLocalLoad() {
-  localFlag.crashHint = false; // explicit user action clears the breaker
+  localFlag.crashHint = false;
   saveRaw(LS.LOCAL, localFlag);
   setLocalUI();
   ensureLocalEngine(true).catch(() => {});
@@ -4802,7 +4844,6 @@ document.addEventListener('keydown', e => {
   }
 });
 const updateOffline = () => $('#offlineBanner').classList.toggle('hidden', navigator.onLine);
-// Reconnecting does NOT auto-download the Offline Brain — it waits for Load now.
 window.addEventListener('online', () => { updateOffline(); toast('Back online', 'success', 2000); flushQueued(); });
 window.addEventListener('offline', () => { updateOffline(); toast('You are offline — messages will be queued', 'warn', 3000); });
 window.addEventListener('pagehide', () => { DB.flush(); });
@@ -4868,10 +4909,7 @@ function hideSplash(instant=false) {
 const PAGE_T0 = performance.now();
 setTimeout(() => hideSplash(true), 4000);
 
-/* ═══════════════════════ // BOOT ═══════════════════════
-   The Offline Brain is NEVER touched here — no auto-download, no auto-init.
-   If the previous session crashed mid-load (page OOM at 100%), the persisted
-   loading-flag detects it and pauses the brain behind an explicit Load now. */
+/* ═══════════════════════ // BOOT ═══════════════════════ */
 async function boot() {
   try {
     initChromeIcons();
@@ -4883,8 +4921,6 @@ async function boot() {
     try { saveRaw(LS.SPLASH, true); } catch {}
     if (!firstVisit) hideSplash(true);
     try { await withTimeout(DB.init(), 3500); } catch { /* falls back to localStorage mode */ }
-    // Crash-loop breaker: a stale "loading" flag means the page died during the
-    // last model load. Pause the brain; the user decides when/whether to retry.
     if (localFlag.enabled && localFlag.loading) {
       localFlag.loading = false;
       localFlag.crashHint = true;
