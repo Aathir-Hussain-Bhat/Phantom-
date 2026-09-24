@@ -233,7 +233,7 @@ tailwind.config = { theme: { extend: {
       <p class="relative text-sm text-zinc-400 mt-2">Your AI Ghost Team</p>
       <div class="relative mt-10 space-y-3 text-[13px] text-zinc-400 max-w-xs">
         <div class="flex items-center gap-3"><span class="text-violet-400">👻</span> Agents that remember you — locally</div>
-        <div class="flex items-center gap-3"><span class="text-violet-400">⚡</span> 8 free providers · bring ANY key · even offline</div>
+        <div class="flex items-center gap-3"><span class="text-violet-400">♾️</span> Key pools: stack free tiers, never run out</div>
         <div class="flex items-center gap-3"><span class="text-violet-400">🔒</span> Your data never leaves this device. Ever.</div>
       </div>
       <p class="relative text-[11px] text-zinc-600 mt-12">Created by <span class="text-zinc-400">BHAT BOYKA</span></p>
@@ -302,7 +302,7 @@ tailwind.config = { theme: { extend: {
           <span id="sidebarLogo" class="logo-glow w-10 h-10 flex items-center justify-center shrink-0"></span>
           <span class="text-left min-w-0">
             <span class="block text-[15px] font-bold text-white leading-tight">Phantom</span>
-            <span class="block text-[10px] text-zinc-500">Your AI Ghost Team · v1.7.3</span>
+            <span class="block text-[10px] text-zinc-500">Your AI Ghost Team · v1.9.0</span>
           </span>
         </button>
         <button id="btnQuickAdd" title="New agent (Ctrl+N)" aria-label="New agent" class="btn p-2 rounded-xl text-zinc-500 hover:text-white hover:bg-white/10 shrink-0"></button>
@@ -611,11 +611,11 @@ tailwind.config = { theme: { extend: {
     <div class="overflow-y-auto px-5 py-5 space-y-7">
       <section>
         <h3 class="text-sm font-semibold text-white mb-1">API Providers</h3>
-        <p class="text-xs text-zinc-500 mb-2">Failover order: built-ins ranked by latency → your custom providers → the Offline Brain as last resort.</p>
+        <p class="text-xs text-zinc-500 mb-2">Add multiple keys per provider — they rotate automatically and rate-limited keys are skipped. Failover: built-ins by latency → custom providers → the Offline Brain as last resort.</p>
         <div id="vaultLine" class="text-[11px] mb-2"></div>
         <label class="flex items-center gap-2.5 mb-1 text-xs text-zinc-300 bg-[#101010] border border-white/5 rounded-xl px-3 py-2.5 cursor-pointer">
           <input id="strictVaultToggle" type="checkbox" class="accent-violet-500 w-4 h-4">
-          <span>Require password to unlock keys every session <span class="text-zinc-500">(highest security — keys lock when Phantom closes)</span></span>
+          <span>Require password to unlock keys every session <span class="text-zinc-500">(highest security)</span></span>
         </label>
         <label class="flex items-center gap-2.5 mb-1 text-xs text-zinc-300 bg-[#101010] border border-white/5 rounded-xl px-3 py-2.5 cursor-pointer">
           <input id="shareKeysToggle" type="checkbox" class="accent-violet-500 w-4 h-4">
@@ -640,16 +640,21 @@ tailwind.config = { theme: { extend: {
 
       <section>
         <h3 class="text-sm font-semibold text-white mb-1">👻 Offline Brain <span class="text-[10px] font-normal align-middle px-1.5 py-0.5 rounded-full bg-white/5 text-zinc-400">WebGPU</span></h3>
-        <p class="text-xs text-zinc-500 mb-3">Runs an LLM entirely on this device — no API key, no internet, free forever. It runs in an isolated worker: if your device runs low on memory, only the brain pauses — Phantom itself never crashes.</p>
+        <p class="text-xs text-zinc-500 mb-3">Runs an LLM entirely on this device — no API key, no internet, free forever. <b class="text-zinc-400">Nothing downloads automatically</b> — press Enable, pick a model, then Load now whenever you're ready. If your device runs out of memory, only the brain pauses; Phantom itself never crashes.</p>
         <div id="localStatus" class="text-[11px] mb-2"></div>
         <div class="flex flex-col sm:flex-row gap-2 items-start">
           <select id="localModel" class="flex-1 bg-[#101010] border border-white/10 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-white/25"></select>
           <button id="btnLocalToggle" class="btn text-sm px-4 py-2.5 rounded-xl font-medium text-white shrink-0" style="background:var(--accent)">Enable</button>
+          <button id="btnLocalDisable" class="btn hidden text-sm px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 shrink-0">Disable</button>
         </div>
         <div id="localProgWrap" class="hidden mt-2">
           <div class="h-1.5 bg-white/10 rounded-full overflow-hidden"><div id="localBar" class="h-full rounded-full transition-all" style="width:0%;background:var(--accent)"></div></div>
           <div id="localProgText" class="text-[10px] text-zinc-500 mt-1 truncate"></div>
         </div>
+        <label class="flex items-center gap-2.5 mt-3 text-xs text-zinc-300 bg-[#101010] border border-white/5 rounded-xl px-3 py-2.5 cursor-pointer">
+          <input id="lowMemToggle" type="checkbox" class="accent-violet-500 w-4 h-4">
+          <span>Low-memory mode <span class="text-zinc-500">(halves the context window — much lighter on phones; helps if loading crashed at 100%)</span></span>
+        </label>
       </section>
 
       <section>
@@ -760,7 +765,7 @@ tailwind.config = { theme: { extend: {
 'use strict';
 
 /* ═══════════════════════ // CONFIG ═══════════════════════ */
-const APP_VERSION = '1.7.3';
+const APP_VERSION = '1.9.0';
 const LOGO_URL = 'https://res.cloudinary.com/prjgzqvy/image/upload/v1790017986/file_000000007bec8208a53dc97b3142afb6_bxd7tt.png';
 
 const LS = { USERS:'phantom_users', SESSION:'phantom_session', SHARED:'phantom_shared_keys', INSTALL:'phantom_install_dismissed', IOS:'phantom_ios_hint', MIG:'phantom_migrated', MODELS:'phantom_model_cache', LOCAL:'phantom_local', SPLASH:'phantom_splash_seen', DEVKEY:'phantom_devkey', DWRAP:'phantom_dwrap' };
@@ -811,7 +816,7 @@ const LEGACY_PROVIDER = {
   'meta-llama/Llama-3-8b-chat-hf': 'together',
 };
 const LOCAL_MODELS = {
-  'Llama-3.2-1B-Instruct-q4f32_1-MLC':   { label:'Llama 3.2 1B · ~0.9 GB' },
+  'Llama-3.2-1B-Instruct-q4f32_1-MLC':   { label:'Llama 3.2 1B · ~0.9 GB (lightest — best for phones)' },
   'Llama-3.2-3B-Instruct-q4f32_1-MLC':   { label:'Llama 3.2 3B · ~2.2 GB' },
   'Qwen2.5-1.5B-Instruct-q4f32_1-MLC':   { label:'Qwen 2.5 1.5B · ~1.4 GB' },
   'gemma-2-2b-it-q4f32_1-MLC':           { label:'Gemma 2 2B · ~1.7 GB' },
@@ -969,16 +974,9 @@ function userBubbleCSS() {
   return `background:linear-gradient(135deg,${acc},${shade(acc, 0.68)})`;
 }
 
-/* ═══════════════════════ // APP SHELL SNAPSHOT (offline-proof styling & libs) ═══════════════════════
-   The CDN <script> tags fail silently when offline → unstyled, featureless page.
-   Fix: after each online session we snapshot Tailwind's GENERATED CSS and the CDN
-   script sources into IndexedDB. On an offline boot we inject them from cache so
-   the app always opens fully styled and functional. */
 async function snapshotShell() {
   try {
     if (!navigator.onLine) return;
-    // Tailwind Play CDN injects its generated stylesheet as an inline <style> —
-    // capture every no-href stylesheet (ours is duplicated harmlessly).
     let css = '';
     for (const sheet of document.styleSheets) {
       try { if (!sheet.href) css += [...sheet.cssRules].map(r => r.cssText).join('\n') + '\n'; } catch {}
@@ -1003,7 +1001,7 @@ function restoreShellIfNeeded() {
     }
   } catch {}
 }
-restoreShellIfNeeded(); // runs immediately: styles + libs restored before anything renders
+restoreShellIfNeeded();
 
 const ICONS = {
   plus:'<path d="M12 5v14M5 12h14"/>', search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
@@ -1297,6 +1295,7 @@ async function upgradeHash(u, pass) {
 
 let vaultKey = null, vaultLocked = false;
 let customKeys = {};
+let keyPools = {};
 async function deriveVaultKey(pass, saltHex) {
   const seed = await crypto.subtle.importKey('raw', enc.encode('vault::' + pass), 'PBKDF2', false, ['deriveBits']);
   const bits = await crypto.subtle.deriveBits({ name:'PBKDF2', hash:'SHA-256', salt:hexToBytes(saltHex), iterations:PBKDF2_ITER }, seed, 256);
@@ -1344,10 +1343,11 @@ async function setupVaultKey(u, password) {
 const hasPlainKeys = o => FAILOVER.some(p => (o && o[p] || '').trim());
 async function keysChanged() {
   if (cryptoOK() && vaultKey) {
-    try { settings.encKeys = await encryptJSON(vaultKey, { apiKeys: settings.apiKeys, custom: customKeys }); } catch {}
+    try { settings.encKeys = await encryptJSON(vaultKey, { apiKeys: settings.apiKeys, custom: customKeys, pools: keyPools }); } catch {}
     if (!settings.strictVault) await wrapVaultKey(vaultKey); else DB.del(LS.DWRAP);
   } else {
     settings.customKeys = customKeys;
+    settings.keyPools = keyPools;
   }
   persist();
 }
@@ -1357,6 +1357,7 @@ async function decryptKeysInto() {
     const dec = await decryptJSON(vaultKey, settings.encKeys);
     settings.apiKeys = Object.assign({}, DEFAULT_KEYS, (dec && dec.apiKeys) || {});
     customKeys = Object.assign({}, (dec && dec.custom) || {});
+    keyPools = Object.assign({}, (dec && dec.pools) || {});
     vaultLocked = false;
     return true;
   } catch { return false; }
@@ -1392,11 +1393,17 @@ let agents = [], chats = {}, settings = null, latency = {}, circuit = {}, prompt
 let ui = { activeId:null, collapsed:{ pinned:false, all:false, archived:true, prompts:false }, drafts:{} };
 let sharedKeys = Object.assign({}, DEFAULT_KEYS, load(LS.SHARED, {}));
 let modelCache = normModelCache(load(LS.MODELS, {}));
-let localFlag = Object.assign({ enabled:false, model:'Llama-3.2-1B-Instruct-q4f32_1-MLC' }, load(LS.LOCAL, {}));
+let localFlag = Object.assign({
+  enabled:false, model:'Llama-3.2-1B-Instruct-q4f32_1-MLC',
+  lowMem: (typeof navigator !== 'undefined' && (navigator.deviceMemory || 8) <= 4),
+}, load(LS.LOCAL, {}));
 function refreshGlobalCaches() {
   sharedKeys = Object.assign({}, DEFAULT_KEYS, load(LS.SHARED, {}));
   modelCache = normModelCache(load(LS.MODELS, {}));
-  localFlag = Object.assign({ enabled:false, model:'Llama-3.2-1B-Instruct-q4f32_1-MLC' }, load(LS.LOCAL, {}));
+  localFlag = Object.assign({
+    enabled:false, model:'Llama-3.2-1B-Instruct-q4f32_1-MLC',
+    lowMem: (typeof navigator !== 'undefined' && (navigator.deviceMemory || 8) <= 4),
+  }, load(LS.LOCAL, {}));
 }
 const dynamicIds = p => {
   const pr = PROVIDERS[p];
@@ -1414,7 +1421,7 @@ function providerOf(modelId) {
 const isGuest = () => !!USER && USER.id === 'guest';
 const persist = () => { if (USER && !isGuest()) {
   let s = settings;
-  if (vaultKey && settings.encKeys) { s = Object.assign({}, settings); delete s.apiKeys; delete s.customKeys; }
+  if (vaultKey && settings.encKeys) { s = Object.assign({}, settings); delete s.apiKeys; delete s.customKeys; delete s.keyPools; }
   saveRaw(bucketKey(), { agents, chats, settings:s, latency, circuit, ui, prompts, usage });
 }};
 const saveAgents = persist, saveChats = persist, saveSettings = persist, saveCircuit = persist, saveLatency = persist, saveUI = persist;
@@ -1465,6 +1472,18 @@ function normCustoms(arr) {
     .map(c => ({ id:c.id, label:String(c.label||'Custom'), endpoint:c.endpoint, kind:c.kind === 'anthropic' ? 'anthropic' : 'openai',
       models:Array.isArray(c.models) ? c.models.filter(x => typeof x === 'string') : [], ts: typeof c.ts === 'number' ? c.ts : Date.now() }));
 }
+function normPools(o) {
+  const out = {};
+  if (!o || typeof o !== 'object' || Array.isArray(o)) return out;
+  Object.keys(o).forEach(pid => {
+    const arr = o[pid];
+    if (!Array.isArray(arr)) return;
+    const entries = arr.filter(e => e && typeof e.key === 'string' && e.key.trim())
+      .map(e => ({ id: typeof e.id === 'string' ? e.id : uid(), label: String(e.label || 'Key').slice(0, 40), key: e.key.trim() }));
+    if (entries.length) out[pid] = entries;
+  });
+  return out;
+}
 function defaultPrompts() {
   return [
     { id:uid(), name:'Explain simply', createdAt:Date.now(), text:'Explain the following in simple terms, as if to a curious beginner. Use one short analogy. Keep it under 150 words.\n\n' },
@@ -1488,7 +1507,7 @@ async function loadForUser(u) {
   settings = defaultSettings(); agents = []; chats = {}; latency = {}; circuit = {}; usage = {};
   ui = { activeId:null, collapsed:{ pinned:false, all:false, archived:true, prompts:false }, drafts:{} };
   prompts = defaultPrompts();
-  customKeys = {};
+  customKeys = {}; keyPools = {}; poolCursor = {}; keyCooldown = {};
   vaultLocked = false;
   if (u.id === 'guest') { agents = [presetToAgent(PRESETS[0])]; return; }
   const d = load(bucketKey(), null);
@@ -1515,9 +1534,10 @@ async function loadForUser(u) {
         const k = await withTimeout(unwrapVaultKey(), 3000).catch(() => null);
         if (k) { vaultKey = k; ok = await decryptKeysInto(); if (ok) setTimeout(() => toast('Keys unlocked automatically 🔓', 'info', 1600), 400); }
       }
-      if (!ok) { vaultLocked = true; settings.apiKeys = Object.assign({}, DEFAULT_KEYS); customKeys = {}; }
+      if (!ok) { vaultLocked = true; settings.apiKeys = Object.assign({}, DEFAULT_KEYS); customKeys = {}; keyPools = {}; }
     } else {
       customKeys = Object.assign({}, settings.customKeys || {});
+      keyPools = normPools(settings.keyPools);
       if (hasPlainKeys(settings.apiKeys) && vaultKey && cryptoOK()) {
         await keysChanged();
         setTimeout(() => toast('API keys are now encrypted on this device 🔐', 'success'), 1200);
@@ -1552,12 +1572,51 @@ function ensureActive() {
   }
 }
 const activeAgent = () => agents.find(a => a.id === ui.activeId) || null;
-const keyFor = p => {
+
+const KEY_COOLDOWN_MS = 10*60*1000;
+function poolFor(p) {
+  const pr = PROVIDERS[p];
+  if (pr && pr.custom) {
+    const pool = (keyPools[p] || []).slice();
+    if (customKeys[p] && customKeys[p].trim() && !pool.some(e => e.key === customKeys[p].trim()))
+      pool.push({ id:'legacy_' + p, label:'Primary', key: customKeys[p].trim() });
+    return pool;
+  }
+  const pool = (keyPools[p] || []).slice();
+  const single = (settings.shareKeys ? sharedKeys[p] : settings.apiKeys[p]) || '';
+  if (single.trim() && !pool.some(e => e.key === single.trim()))
+    pool.push({ id:'legacy_' + p, label:'Primary', key: single.trim() });
+  return pool;
+}
+function keyReadyAt(pid, kid) {
+  const c = keyCooldown[pid + ':' + kid];
+  return c && c > Date.now() ? c : 0;
+}
+function keyFor(p) {
   if (p === 'local') return localReady ? 'local' : '';
-  if (PROVIDERS[p] && PROVIDERS[p].custom) return customKeys[p] || '';
-  return (settings.shareKeys ? sharedKeys[p] : settings.apiKeys[p]) || '';
-};
+  const pr = PROVIDERS[p];
+  if (pr && pr.custom && !(keyPools[p] || []).length) return customKeys[p] || '';
+  const pool = poolFor(p);
+  if (!pool.length) return '';
+  const healthy = pool.filter(e => !keyReadyAt(p, e.id));
+  if (healthy.length) {
+    const cur = (poolCursor[p] || 0) % healthy.length;
+    poolCursor[p] = (cur + 1) % healthy.length;
+    return healthy[cur].key;
+  }
+  return pool[0].key;
+}
+function cooldownKey(p, apiKey) {
+  const pool = poolFor(p);
+  const e = pool.find(e => e.key === apiKey);
+  if (e) keyCooldown[p + ':' + e.id] = Date.now() + KEY_COOLDOWN_MS;
+}
+function reviveKeysFor(p) {
+  const pool = poolFor(p);
+  pool.forEach(e => { delete keyCooldown[p + ':' + e.id]; });
+}
 const hasAnyKey = () => ALL_IDS().some(p => keyFor(p).trim());
+const poolReadyCount = p => poolFor(p).filter(e => !keyReadyAt(p, e.id)).length;
 const getChat = id => { if (!chats[id] || !Array.isArray(chats[id])) chats[id] = []; return chats[id]; };
 
 /* ─── auth flows ─── */
@@ -1787,9 +1846,17 @@ function recordFail(p, err) {
   const c = (circuit[p] && typeof circuit[p] === 'object') ? circuit[p] : { fails:0, lastFail:0 };
   c.fails = (c.fails || 0) + 1; c.lastFail = Date.now();
   circuit[p] = c; saveCircuit();
-  if (c.fails === CIRCUIT_THRESHOLD) toast(`${(PROVIDERS[p] && PROVIDERS[p].label) || p} failed ${CIRCUIT_THRESHOLD}× — paused for 10 minutes (circuit breaker)`, 'error');
+  if (err && (err.status === 429 || err.status === 401 || err.status === 403) && err.__apiKey) cooldownKey(p, err.__apiKey);
+  const pool = poolFor(p);
+  const allCooling = pool.length > 1 && pool.every(e => keyReadyAt(p, e.id));
+  if (c.fails === CIRCUIT_THRESHOLD && !allCooling) {
+    toast(`${(PROVIDERS[p] && PROVIDERS[p].label) || p} failed ${CIRCUIT_THRESHOLD}× — paused for 10 minutes (circuit breaker)`, 'error');
+  } else if (allCooling) {
+    const mins = Math.max(1, Math.ceil(KEY_COOLDOWN_MS / 60000));
+    toast(`${(PROVIDERS[p] && PROVIDERS[p].label) || p}: all ${pool.length} keys rate-limited — resting ${mins}m (failover continues)`, 'warn', 5000);
+  }
   renderSidebar(); renderHeader();
-  if (err && err.status === 401) toast(`${(PROVIDERS[p] && PROVIDERS[p].label) || p} rejected the API key — check Settings`, 'error');
+  if (err && err.status === 401 && pool.length <= 1) toast(`${(PROVIDERS[p] && PROVIDERS[p].label) || p} rejected the API key — check Settings`, 'error');
 }
 function recordSuccess(p, ms) {
   try {
@@ -1812,7 +1879,8 @@ function statusOf(a) {
   const p = providerOf(a.model) || 'gemini';
   if (p === 'local') {
     if (localReady) return { cls:'bg-emerald-500', label:'Offline Brain ready — no internet needed' };
-    if (localFlag.enabled) return { cls:'bg-amber-400', label:'Offline Brain loading…' };
+    if (localFlag.crashHint) return { cls:'bg-amber-400', label:'Offline Brain paused after a crash — press Load now in Settings' };
+    if (localFlag.enabled) return { cls:'bg-amber-400', label:'Offline Brain enabled — press Load now in Settings' };
     return { cls:'bg-red-500', label:'Offline Brain not enabled — enable it in Settings' };
   }
   if (!keyFor(p).trim()) return hasAnyKey() ? { cls:'bg-amber-400', label:'Preferred key missing — will fail over' } : { cls:'bg-red-500', label:'No API keys configured' };
@@ -1866,7 +1934,7 @@ async function callGemini({ model, system, messages, temp, maxTokens, apiKey, si
   if (system) body.systemInstruction = { parts: [{ text: system }] };
   const res = await fetch(`${PROVIDERS.gemini.endpoint}/${encodeURIComponent(model)}:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`,
     { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body), signal });
-  if (!res.ok) throw await httpError(res);
+  if (!res.ok) { const e = await httpError(res); e.__apiKey = apiKey; throw e; }
   let full = '';
   await streamSSE(res, data => {
     if (!data || data === '[DONE]') return;
@@ -1889,7 +1957,7 @@ async function callOpenAI(endpoint, model, extraHeaders, { system, messages, tem
   const res = await fetch(endpoint, { method:'POST',
     headers: Object.assign({ 'Content-Type':'application/json', 'Authorization': `Bearer ${apiKey}` }, extraHeaders),
     body: JSON.stringify({ model, messages: msgs, stream:true, temperature: temp, max_tokens: maxTokens }), signal });
-  if (!res.ok) throw await httpError(res);
+  if (!res.ok) { const e = await httpError(res); e.__apiKey = apiKey; throw e; }
   let full = '';
   await streamSSE(res, data => {
     if (!data || data === '[DONE]') return;
@@ -1905,7 +1973,7 @@ async function callAnthropic(base, { model, system, messages, temp, maxTokens, a
     headers:{ 'Content-Type':'application/json', 'x-api-key': apiKey,
       'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
     body: JSON.stringify(body) });
-  if (!res.ok) throw await httpError(res);
+  if (!res.ok) { const e = await httpError(res); e.__apiKey = apiKey; throw e; }
   let full = '';
   await streamSSE(res, data => {
     if (!data) return;
@@ -2112,49 +2180,127 @@ function renderCustomList() {
   if (!el) return;
   const cs = settings.customProviders || [];
   if (!cs.length) { el.innerHTML = ''; return; }
-  el.innerHTML = cs.map((c, i) => `
+  el.innerHTML = cs.map((c, i) => {
+    const pool = poolFor(c.id);
+    const ready = poolReadyCount(c.id);
+    return `
     <div class="p-3 bg-[#101010] rounded-xl border border-white/5">
       <div class="flex items-center justify-between mb-2 gap-2">
         <span class="flex items-center gap-2 min-w-0">
-          <span class="w-2 h-2 rounded-full shrink-0 ${circuitOpen(c.id) ? 'bg-red-500' : (customKeys[c.id] ? 'bg-emerald-500' : 'bg-zinc-600')}"></span>
+          <span class="w-2 h-2 rounded-full shrink-0 ${circuitOpen(c.id) ? 'bg-red-500' : (ready ? 'bg-emerald-500' : 'bg-zinc-600')}"></span>
           <span class="text-sm font-medium text-zinc-200 truncate">${i + 9}. ${esc(c.label)}</span>
           <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-zinc-400 shrink-0">${esc(c.kind)}</span>
-          <span class="text-[10px] text-zinc-500 tnum shrink-0">${(c.models || []).length} models</span>
+          <span class="text-[10px] text-zinc-500 tnum shrink-0">${pool.length ? pool.length + ' key' + (pool.length > 1 ? 's' : '') + ' · ' + ready + ' ready' : 'no key'}</span>
         </span>
         <button data-cpdel="${c.id}" title="Remove provider" class="btn p-1.5 rounded-lg text-zinc-500 hover:text-red-400 shrink-0">${icon('trash','w-4 h-4')}</button>
       </div>
       <div class="text-[10px] text-zinc-600 truncate mb-2" title="${esc(c.endpoint)}">${esc(c.endpoint)}</div>
-      <div class="flex gap-2">
-        <div class="relative flex-1">
-          <input data-cpkey="${c.id}" type="password" placeholder="API key" autocomplete="off" value="${esc(customKeys[c.id] || '')}"
-            class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 py-2 text-sm pr-9 focus:outline-none focus:border-white/25">
-          <button data-cpeye="${c.id}" title="Show/hide" class="btn absolute right-2 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300">${icon('eye','w-4 h-4')}</button>
-        </div>
-        <button data-cptest="${c.id}" class="btn text-xs px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300 shrink-0 min-w-[64px]">Test</button>
-      </div>
+      ${renderPoolUI(c.id)}
       <div data-testout="${c.id}" class="text-[11px] mt-1.5"></div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 async function deleteCustomProvider(id) {
   const c = (settings.customProviders || []).find(x => x.id === id);
   if (!c) return;
-  const ok = await confirmDialog({ title:`Remove ${c.label}?`, message:'The provider and its key will be removed from the rotation. Chats are kept.', okText:'Remove' });
+  const ok = await confirmDialog({ title:`Remove ${c.label}?`, message:'The provider, its key pool and its key will be removed from the rotation. Chats are kept.', okText:'Remove' });
   if (!ok) return;
   settings.customProviders = settings.customProviders.filter(x => x.id !== id);
   delete customKeys[id];
+  delete keyPools[id];
   delete PROVIDERS[id];
   delete usage[id];
-  persist();
+  persist(); keysChanged();
   renderCustomList(); renderProviderList(); renderSidebar(); renderHeader(); populateModelSelects();
   toast(`${c.label} removed`, 'info', 1800);
 }
 
+/* ═══════════════════════ // KEY POOL UI ═══════════════════════ */
+const poolOpen = {};
+function renderPoolUI(p, compact=false) {
+  const pool = poolFor(p);
+  const pr = PROVIDERS[p] || {};
+  const locked = vaultLocked && !vaultKey;
+  const isOpen = poolOpen[p];
+  const ready = poolReadyCount(p);
+  let html = '';
+  if (!compact) {
+    const single = (settings.shareKeys ? sharedKeys[p] : settings.apiKeys[p]) || '';
+    html += `
+    <div class="flex gap-2">
+      <div class="relative flex-1">
+        <input id="key-${p}" data-keyid="${p}" type="password" placeholder="${locked ? '🔒 Unlock to edit' : p === 'gemini' ? 'AIza…' : p === 'openrouter' ? 'sk-or-…' : 'API key'}" autocomplete="off" value="${locked ? '' : esc(single)}" ${locked ? 'disabled' : ''}
+          class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 py-2 text-sm pr-9 focus:outline-none focus:border-white/25 transition-colors disabled:opacity-50">
+        <button data-eye="${p}" title="Show/hide" class="btn absolute right-2 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300">${icon('eye','w-4 h-4')}</button>
+      </div>
+      <button data-test="${p}" class="btn text-xs px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300 shrink-0 min-w-[64px]">Test</button>
+      <a href="${pr.keyUrl || '#'}" target="_blank" rel="noopener" title="Get a free key" class="btn text-xs px-2 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 shrink-0">↗</a>
+    </div>`;
+  }
+  html += `
+  <button data-pooltoggle="${p}" class="btn mt-2 w-full flex items-center justify-between gap-2 text-[11px] px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400">
+    <span class="flex items-center gap-1.5">${icon('key','w-3.5 h-3.5')} Key pool <span class="tnum">· ${pool.length} key${pool.length !== 1 ? 's' : ''} · ${ready} ready</span></span>
+    <span class="flex items-center gap-2">
+      <span class="transition-transform ${isOpen ? 'rotate-180' : ''}">${icon('chev','w-3 h-3')}</span>
+    </span>
+  </button>
+  ${isOpen ? `
+  <div class="mt-2 space-y-2">
+    ${pool.map(e => {
+      const cooling = keyReadyAt(p, e.id);
+      const mins = cooling ? Math.ceil((cooling - Date.now()) / 60000) : 0;
+      return `
+      <div class="flex items-center gap-2 bg-[#0a0a0a] border border-white/5 rounded-lg px-2.5 py-2">
+        <span class="w-1.5 h-1.5 rounded-full shrink-0 ${cooling ? 'bg-amber-400' : 'bg-emerald-500'}" title="${cooling ? 'Cooling down ' + mins + 'm (rate-limited)' : 'Ready'}"></span>
+        <span class="text-[12px] text-zinc-300 truncate flex-1" title="${esc(e.key.slice(0, 6)) + '…' + esc(e.key.slice(-4))}">${esc(e.label)} <span class="text-zinc-600 tnum">· ${esc(e.key.slice(0, 4))}…${esc(e.key.slice(-4))}</span></span>
+        <button data-pooltest="${p}:${e.id}" class="btn text-[10px] px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-zinc-400 shrink-0">Test</button>
+        <button data-poolrevive="${p}:${e.id}" title="Reset cooldown" class="btn p-1 rounded text-zinc-600 hover:text-zinc-300 shrink-0 ${cooling ? '' : 'opacity-30'}">${icon('refresh','w-3.5 h-3.5')}</button>
+        <button data-pooldel="${p}:${e.id}" title="Remove key" class="btn p-1 rounded text-zinc-600 hover:text-red-400 shrink-0">${icon('trash','w-3.5 h-3.5')}</button>
+      </div>`;
+    }).join('') || '<div class="text-[11px] text-zinc-600 italic px-1">No extra keys yet — add your first below.</div>'}
+    <div class="flex gap-2">
+      <input data-pooladdkey="${p}" type="password" placeholder="Paste another ${esc(pr.label || 'API')} key…" autocomplete="off" ${locked ? 'disabled' : ''}
+        class="flex-1 bg-[#0a0a0a] border border-white/10 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:border-white/25 disabled:opacity-50">
+      <input data-pooladdlabel="${p}" type="text" placeholder="Label (optional)" class="w-28 bg-[#0a0a0a] border border-white/10 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:border-white/25 disabled:opacity-50">
+      <button data-pooladd="${p}" class="btn text-xs px-3 py-2 rounded-lg shrink-0 font-medium text-white" style="background:var(--accent)">Add</button>
+    </div>
+    ${pool.length > 1 ? '<div class="text-[10px] text-zinc-600 px-1">Keys rotate automatically. Rate-limited keys rest 10 minutes while the others keep flowing.</div>' : ''}
+  </div>` : ''}`;
+  return html;
+}
+function addPoolKey(p, key, label) {
+  key = String(key || '').trim();
+  if (!key) { toast('Paste a key first', 'warn'); return; }
+  if (key.length < 8) { toast('That doesn\'t look like a valid key', 'warn'); return; }
+  keyPools[p] = keyPools[p] || [];
+  if (keyPools[p].some(e => e.key === key)) { toast('That key is already in the pool', 'warn'); return; }
+  keyPools[p].push({ id:uid(), label: (label || '').trim() || ('Key ' + (keyPools[p].length + 1)), key });
+  delete keyCooldown[p + ':' + keyPools[p][keyPools[p].length - 1].id];
+  keysChanged();
+  renderProviderList(); renderCustomList(); renderSidebar(); renderHeader();
+  queueModelFetch(p, key);
+  toast(`Key added to ${(PROVIDERS[p] && PROVIDERS[p].label) || p} — ${keyPools[p].length} keys in the pool ♾️`, 'success');
+}
+function removePoolKey(p, entryId) {
+  const pool = keyPools[p] || [];
+  const entry = pool.find(e => e.id === entryId);
+  if (!entry) return;
+  keyPools[p] = pool.filter(e => e.id !== entryId);
+  if (!keyPools[p].length) delete keyPools[p];
+  delete keyCooldown[p + ':' + entryId];
+  keysChanged();
+  renderProviderList(); renderCustomList(); renderSidebar(); renderHeader();
+  toast('Key removed from pool', 'info', 1600);
+}
+
 /* ═══════════════════════ // OFFLINE BRAIN (WebLLM in an isolated Worker) ═══════════════════════
-   The moment a model finishes loading, WebLLM allocates all GPU memory and
-   compiles shaders — on memory-constrained devices that OOM-kills the whole
-   renderer ("Aw, Snap"). Fix: the engine runs in a dedicated Web Worker. If the
-   device runs out of memory, ONLY the worker dies; Phantom catches it, shows a
-   friendly message, and disables the local provider. The page always survives. */
+   100% MANUAL: nothing ever downloads or initializes automatically — boot never
+   touches WebLLM. The user presses Enable → Load now, explicitly.
+   The engine runs in a dedicated Worker; if the device runs out of GPU/RAM
+   memory (the classic "crash at 100%"), the worker dies — Phantom catches it,
+   pauses the brain behind an explicit "Load now", and the page survives.
+   If the PAGE itself is OOM-killed, the persisted loading-flag detects it on
+   the next boot (crash-loop breaker) and again waits for an explicit retry. */
 const LOCAL_WORKER_SRC = `
 let engine = null;
 self.onmessage = async (e) => {
@@ -2169,9 +2315,9 @@ self.onmessage = async (e) => {
       } else {
         mod = await import(d.url);
       }
-      engine = await mod.CreateMLCEngine(d.model, {
-        initProgressCallback: (r) => self.postMessage({ type: 'init-progress', progress: (r && r.progress) || 0, text: (r && r.text) || '' }),
-      });
+      const opts = { initProgressCallback: (r) => self.postMessage({ type: 'init-progress', progress: (r && r.progress) || 0, text: (r && r.text) || '' }) };
+      if (d.contextWindow > 0) opts.context_window_size = d.contextWindow;
+      engine = await mod.CreateMLCEngine(d.model, opts);
       self.postMessage({ type: 'init-ready' });
     } else if (d.type === 'generate') {
       const stream = await engine.chat.completions.create({
@@ -2203,14 +2349,17 @@ function terminateLocalWorker() {
   if (localInitHandler) { clearTimeout(localInitHandler.wd); localInitHandler = null; }
   localReady = false;
 }
+// Brain hit a hard limit (worker crash / OOM). Keep the feature "enabled" but
+// pause it behind an explicit Load now — never auto-retry (crash-loop breaker).
 function handleLocalFatal(message) {
   const initH = localInitHandler;
   terminateLocalWorker();
-  localFlag.enabled = false;
+  localFlag.loading = false;
+  localFlag.crashHint = true;
   saveRaw(LS.LOCAL, localFlag);
   if (initH) initH.reject(new Error('Offline Brain stopped: ' + message));
   setLocalUI(); renderSidebar(); renderHeader();
-  toast('Offline Brain hit a device memory limit and was stopped to protect the page. Try the smaller 1B model in Settings.', 'warn', 8000);
+  toast('Offline Brain hit a device memory limit and was paused to protect the page. Try the 1B model + Low-memory mode, then press Load now.', 'warn', 9000);
 }
 function spawnLocalWorker() {
   const blob = new Blob([LOCAL_WORKER_SRC], { type: 'text/javascript' });
@@ -2221,7 +2370,7 @@ function spawnLocalWorker() {
     const d = e.data || {};
     if (d.type === 'init-progress') {
       localProgress = d.progress || 0; localStatusText = d.text || ''; setLocalUI();
-      if (localInitHandler) { clearTimeout(localInitHandler.wd); localInitHandler.wd = setTimeout(() => handleLocalFatal('init timeout'), 180000); }
+      if (localInitHandler) { clearTimeout(localInitHandler.wd); localInitHandler.wd = setTimeout(() => handleLocalFatal('init timeout'), 300000); }
       return;
     }
     if (d.type === 'init-ready') {
@@ -2240,12 +2389,24 @@ function spawnLocalWorker() {
       localHandlers.delete(d.id); clearTimeout(h.wd); h.resolve(d.text || h.full);
     }
   };
-  w.onerror = () => handleLocalFatal('worker crashed');
+  w.onerror = () => {
+    // Worker failed before any progress → likely no module-worker support here;
+    // reject so the caller can fall back to the in-page engine instead of pausing.
+    if (localProgress === 0 && localInitHandler) {
+      const h = localInitHandler; localInitHandler = null;
+      clearTimeout(h.wd);
+      h.reject(Object.assign(new Error('worker-unsupported'), { workerUnsupported: true }));
+    } else {
+      handleLocalFatal('worker crashed');
+    }
+  };
   return w;
 }
 function setLocalUI() {
-  const st = $('#localStatus'), bar = $('#localBar'), wrap = $('#localProgWrap'), txt = $('#localProgText'), btn = $('#btnLocalToggle'), sel = $('#localModel');
+  const st = $('#localStatus'), bar = $('#localBar'), wrap = $('#localProgWrap'), txt = $('#localProgText'), btn = $('#btnLocalToggle'), sel = $('#localModel'), dis = $('#btnLocalDisable'), lm = $('#lowMemToggle');
   if (!st) return;
+  if (lm) lm.checked = !!localFlag.lowMem;
+  if (dis) dis.classList.add('hidden');
   const gpu = 'gpu' in navigator;
   if (!gpu) {
     st.className = 'text-[11px] mb-2 text-amber-400';
@@ -2268,14 +2429,21 @@ function setLocalUI() {
     if (wrap) { show(wrap); bar.style.width = Math.round(localProgress * 100) + '%'; txt.textContent = localStatusText || ''; }
   } else if (localFlag.enabled) {
     st.className = 'text-[11px] mb-2 text-amber-400';
-    st.textContent = localFlag.loadedOnce
-      ? 'Enabled — cached on this device; loads instantly when needed, even offline.'
-      : 'Enabled — will load when first needed (or on next launch, online).';
+    if (localFlag.crashHint) {
+      st.textContent = '⚠ The last load was interrupted or crashed — usually a device memory limit. Pick the smaller "1B" model, turn on Low-memory mode below, then press Load now.';
+    } else if (localFlag.loadedOnce) {
+      st.textContent = 'Enabled — model is cached on this device. It loads when a chat needs it (even offline), or press Load now now.';
+    } else {
+      st.textContent = 'Enabled — nothing downloaded yet. Press Load now whenever you\'re ready (one-time download, then cached forever).';
+    }
     btn.textContent = 'Load now';
+    btn.className = 'btn text-sm px-4 py-2.5 rounded-xl font-medium text-white shrink-0';
+    btn.style.background = 'var(--accent)';
+    if (dis) dis.classList.remove('hidden');
     if (wrap) hide(wrap);
   } else {
     st.className = 'text-[11px] mb-2 text-zinc-500';
-    st.textContent = 'Not enabled. Enable to add the on-device model as the last-resort provider.';
+    st.textContent = 'Not enabled. Nothing downloads until you press Load now — you stay in control.';
     btn.textContent = 'Enable';
     btn.className = 'btn text-sm px-4 py-2.5 rounded-xl font-medium text-white shrink-0';
     btn.style.background = 'var(--accent)';
@@ -2283,23 +2451,25 @@ function setLocalUI() {
   }
   if (sel) sel.value = localFlag.model;
 }
-async function ensureLocalEngine() {
+async function ensureLocalEngine(force=false) {
   if (localReady) return true;
   if (!localFlag.enabled) throw new Error('Offline Brain is disabled');
-  // Offline AND the engine source was never cached → defer politely. No network
-  // attempt, no crash. Auto-resumes on reconnect (the 'online' listener).
+  // Crash-loop breaker: after a crash the brain stays paused until the user
+  // explicitly presses Load now. Automatic (failover-driven) attempts bounce off.
+  if (localFlag.crashHint && !force) throw new Error('Offline Brain paused after a crash — open Settings → Offline Brain and press Load now');
   if (!navigator.onLine && !localFlag.loadedOnce && !load(WEBLLM_SRC_KEY, null)) {
     const st = $('#localStatus');
     if (st) {
       st.className = 'text-[11px] mb-2 text-amber-400';
-      st.textContent = '⏳ You\'re offline and the engine hasn\'t been cached yet. It will load automatically when you reconnect.';
+      st.textContent = '⏳ You\'re offline and the model hasn\'t been downloaded yet. Connect once to download it — nothing will download on its own.';
     }
-    throw new Error('Offline — engine not cached yet');
+    throw new Error('Offline — model not downloaded yet');
   }
   if (localLoading && localLoadingPromise) { await localLoadingPromise; return localReady; }
-  localLoading = true; localProgress = 0; localStatusText = ''; setLocalUI();
+  localLoading = true; localProgress = 0; localStatusText = '';
+  localFlag.loading = true; saveRaw(LS.LOCAL, localFlag); // cleared on success/failure; survives a page crash → crash detection
+  setLocalUI();
   localLoadingPromise = (async () => {
-    // Engine source: cached text works offline; otherwise fetch & cache while online
     let src = null;
     const cached = load(WEBLLM_SRC_KEY, null);
     if (cached && cached.src) src = cached.src;
@@ -2307,60 +2477,79 @@ async function ensureLocalEngine() {
       try { const r = await fetch(WEBLLM_URL, { cache:'force-cache' }); if (r.ok) { src = await r.text(); saveRaw(WEBLLM_SRC_KEY, { v:1, src, ts:Date.now() }); DB.flush(); } } catch {}
     }
     if (!src && !navigator.onLine) throw new Error('Engine not cached yet — connect once to cache it');
-    try {
-      localWorker = spawnLocalWorker();
-    } catch (e) {
-      // Module workers unsupported → legacy in-page fallback (old browsers only)
-      const mod = await import(/* @vite-ignore */ WEBLLM_URL);
-      localEngineFallback = await mod.CreateMLCEngine(localFlag.model, {
-        initProgressCallback: r => { localProgress = (r && typeof r.progress === 'number') ? r.progress : 0; localStatusText = (r && r.text) || ''; setLocalUI(); },
-      });
-      localReady = true; localFlag.loadedOnce = true; saveRaw(LS.LOCAL, localFlag);
-      latency.local = latency.local || { avg: 900, n: 1 }; saveLatency();
-      renderSidebar(); renderHeader();
-      toast('Offline Brain ready 👻 (legacy mode — worker unavailable)', 'success');
-      return;
+    let useWorker = true;
+    try { localWorker = spawnLocalWorker(); } catch { useWorker = false; }
+    if (useWorker) {
+      try {
+        await new Promise((resolve, reject) => {
+          localInitHandler = { resolve, reject, wd: setTimeout(() => handleLocalFatal('init timeout'), 300000) };
+          localWorker.postMessage({ type:'init', model: localFlag.model, src, url: src ? null : WEBLLM_URL, contextWindow: localFlag.lowMem ? 2048 : 0 });
+        });
+      } catch (e) {
+        if (e && e.workerUnsupported) useWorker = false;
+        else throw e;
+      }
     }
-    await new Promise((resolve, reject) => {
-      localInitHandler = { resolve, reject, wd: setTimeout(() => handleLocalFatal('init timeout'), 180000) };
-      localWorker.postMessage({ type:'init', model: localFlag.model, src, url: src ? null : WEBLLM_URL });
-    });
+    if (useWorker) {
+      localReady = true;
+    } else {
+      // Legacy in-page engine (module workers unavailable on this browser)
+      terminateLocalWorker();
+      const mod = await import(/* @vite-ignore */ WEBLLM_URL);
+      const opts = { initProgressCallback: r => { localProgress = (r && typeof r.progress === 'number') ? r.progress : 0; localStatusText = (r && r.text) || ''; setLocalUI(); } };
+      if (localFlag.lowMem) opts.context_window_size = 2048;
+      localEngineFallback = await mod.CreateMLCEngine(localFlag.model, opts);
+      localReady = true;
+      toast('Offline Brain ready 👻 (legacy mode — worker unavailable)', 'success');
+    }
     localFlag.loadedOnce = true;
+    localFlag.crashHint = false;
     saveRaw(LS.LOCAL, localFlag);
     latency.local = latency.local || { avg: 900, n: 1 };
     saveLatency();
     renderSidebar(); renderHeader();
-    toast('Offline Brain ready — zero internet, zero keys 👻', 'success');
+    if (useWorker) toast('Offline Brain ready — zero internet, zero keys 👻', 'success');
   })();
   try { await localLoadingPromise; }
   catch (e) {
     localReady = false;
     localStatusText = friendlyTestError(e);
-    if (!/stopped|memory|Offline Brain disabled|cache/i.test(String(e.message || ''))) toast('Offline Brain failed to load: ' + friendlyTestError(e), 'error', 5000);
+    if (!/stopped|memory|paused|cache|disabled|Offline Brain/i.test(String(e.message || ''))) toast('Offline Brain failed to load: ' + friendlyTestError(e), 'error', 5000);
   }
-  finally { localLoading = false; localInitHandler = null; setLocalUI(); }
+  finally {
+    localLoading = false; localInitHandler = null;
+    localFlag.loading = false; saveRaw(LS.LOCAL, localFlag);
+    setLocalUI();
+  }
   return localReady;
 }
-function toggleLocal() {
-  if (localReady || localFlag.enabled) {
-    terminateLocalWorker();
-    localFlag.enabled = false;
+// Button behavior: Enable → arms + loads. Load now → explicit (re)load. Loaded → Disable.
+function localBtnAction() {
+  if (localReady) { disableLocal(); return; }
+  if (!localFlag.enabled) {
+    localFlag.enabled = true;
     saveRaw(LS.LOCAL, localFlag);
     setLocalUI(); renderSidebar(); renderHeader();
-    toast('Offline Brain disabled', 'info', 1800);
-    return;
   }
-  localFlag.enabled = true;
+  startLocalLoad();
+}
+function startLocalLoad() {
+  localFlag.crashHint = false; // explicit user action clears the breaker
   saveRaw(LS.LOCAL, localFlag);
   setLocalUI();
-  ensureLocalEngine();
+  ensureLocalEngine(true).catch(() => {});
 }
-// In-page fallback engine (only used when module workers are unsupported)
+function disableLocal() {
+  terminateLocalWorker();
+  localEngineFallback = null;
+  localFlag.enabled = false; localFlag.loading = false; localFlag.crashHint = false;
+  saveRaw(LS.LOCAL, localFlag);
+  setLocalUI(); renderSidebar(); renderHeader();
+  toast('Offline Brain disabled', 'info', 1800);
+}
 let localEngineFallback = null;
-// Streaming call — routed through the worker (or fallback). Aborts keep partial text.
 function callLocal({ system, messages, temp, maxTokens, signal, onDelta }) {
   return ensureLocalEngine().then(() => new Promise((resolve, reject) => {
-    // Legacy fallback path
     if (localEngineFallback) {
       (async () => {
         const msgs = [];
@@ -2679,7 +2868,7 @@ async function generateResponse() {
       recordFail(p, err); lastErr = err;
       const next = order[i + 1];
       if (next) toast(err.status === 429
-        ? `${(PROVIDERS[p] && PROVIDERS[p].label) || p} rate limited → switching to ${(PROVIDERS[next] && PROVIDERS[next].label) || next}…`
+        ? `${(PROVIDERS[p] && PROVIDERS[p].label) || p} key rate-limited → rotating or switching to ${(PROVIDERS[next] && PROVIDERS[next].label) || next}…`
         : `${(PROVIDERS[p] && PROVIDERS[p].label) || p} failed → trying ${(PROVIDERS[next] && PROVIDERS[next].label) || next}…`, 'warn');
     }
   }
@@ -3013,7 +3202,7 @@ function setupCardHTML() {
   return `<div class="max-w-md mx-auto my-8 glass border border-white/10 rounded-2xl p-6 text-center pop">
     <div class="floaty inline-block w-14 h-14">${logoHTML('w-14 h-14 object-cover rounded-2xl')}</div>
     <h3 class="text-lg font-semibold text-white mt-3">Connect your AI providers</h3>
-    <p class="text-sm text-zinc-400 mt-1.5 leading-relaxed">Bring any key — or enable the Offline Brain and chat with zero keys and zero internet.</p>
+    <p class="text-sm text-zinc-400 mt-1.5 leading-relaxed">Bring any key — stack multiple keys per provider, or enable the Offline Brain for keyless chat.</p>
     <div class="mt-4 space-y-2 text-left">${rows}</div>
     <button data-maction="open-settings" class="btn mt-5 w-full py-2.5 rounded-xl font-medium text-white hover:opacity-90" style="background:var(--accent)">Open Settings</button></div>`;
 }
@@ -3312,12 +3501,14 @@ function deletePrompt(id) {
 
 /* ─── settings ─── */
 function providerBadge(p) {
-  if (!keyFor(p).trim()) return { txt:'Not configured', dot:'bg-zinc-600', txtCls:'text-zinc-500' };
+  const pool = poolFor(p);
+  const ready = poolReadyCount(p);
+  if (!pool.length) return { txt:'Not configured', dot:'bg-zinc-600', txtCls:'text-zinc-500' };
   if (circuitOpen(p)) return { txt:'Cooldown', dot:'bg-red-500', txtCls:'text-red-400' };
   if (testState[p] === 'ok') return { txt:'Connected', dot:'bg-emerald-500', txtCls:'text-emerald-400' };
   const c = circuit[p];
   if (testState[p] === 'fail' || (c && c.fails > 0)) return { txt:'Error', dot:'bg-amber-400', txtCls:'text-amber-400' };
-  return { txt:'Key saved', dot:'bg-emerald-500', txtCls:'text-zinc-400' };
+  return { txt: pool.length > 1 ? `${pool.length} keys · ${ready} ready` : 'Key saved', dot: ready ? 'bg-emerald-500' : 'bg-amber-400', txtCls:'text-zinc-400' };
 }
 function renderVaultLine() {
   const el = $('#vaultLine');
@@ -3334,7 +3525,6 @@ function renderVaultLine() {
   else { el.className = 'text-[11px] mb-2 text-zinc-500'; el.textContent = 'Keys will be encrypted with your password at next sign-in.'; }
 }
 function renderProviderList() {
-  const locked = vaultLocked && !vaultKey;
   $('#providerList').innerHTML = FAILOVER.map((p, i) => { const pr = PROVIDERS[p]; const b = providerBadge(p); return `
     <div class="p-3 bg-[#101010] rounded-xl border border-white/5">
       <div class="flex items-center justify-between mb-2 gap-2">
@@ -3345,15 +3535,7 @@ function renderProviderList() {
         </span>
         <span class="text-[10px] text-zinc-500 shrink-0">${pr.tier}</span>
       </div>
-      <div class="flex gap-2">
-        <div class="relative flex-1">
-          <input id="key-${p}" data-keyid="${p}" type="password" placeholder="${locked ? '🔒 Unlock to edit' : p === 'gemini' ? 'AIza…' : p === 'openrouter' ? 'sk-or-…' : 'API key'}" autocomplete="off" value="${locked ? '' : esc(keyFor(p))}" ${locked ? 'disabled' : ''}
-            class="w-full bg-[#0a0a0a] border border-white/10 rounded-lg px-3 py-2 text-sm pr-9 focus:outline-none focus:border-white/25 transition-colors disabled:opacity-50">
-          <button data-eye="${p}" title="Show/hide" class="btn absolute right-2 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-300">${icon('eye','w-4 h-4')}</button>
-        </div>
-        <button data-test="${p}" class="btn text-xs px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300 shrink-0 min-w-[64px]">Test</button>
-        <a href="${pr.keyUrl}" target="_blank" rel="noopener" title="Get a free key" class="btn text-xs px-2 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 shrink-0">↗</a>
-      </div>
+      ${renderPoolUI(p)}
       <div data-testout="${p}" class="text-[11px] mt-1.5"></div>
       <div data-modelinfo="${p}" class="text-[11px] mt-1"></div>
     </div>`; }).join('');
@@ -3375,7 +3557,7 @@ function updateProviderBadges() {
   });
 }
 async function runTest(p, btn) {
-  const input = document.getElementById('key-' + p) || document.querySelector(`[data-cpkey="${p}"]`);
+  const input = document.getElementById('key-' + p);
   const out = document.querySelector(`[data-testout="${p}"]`);
   if (!out) return;
   const key = (input ? input.value : keyFor(p)).trim();
@@ -3397,6 +3579,22 @@ async function runTest(p, btn) {
   }
   btn.disabled = false; btn.innerHTML = old;
   updateProviderBadges();
+}
+async function runPoolTest(p, entryId, btn) {
+  const pool = poolFor(p);
+  const e = pool.find(x => x.id === entryId);
+  if (!e) return;
+  const out = document.querySelector(`[data-testout="${p}"]`);
+  btn.disabled = true; const old = btn.textContent; btn.textContent = '…';
+  try {
+    const ms = await testProvider(p, e.key);
+    recordSuccess(p, ms);
+    reviveKeysFor(p);
+    if (out) { out.className = 'text-[11px] mt-1.5 text-emerald-400'; out.textContent = `✓ "${e.label}" works · ${Math.round(ms)}ms`; }
+  } catch (err) {
+    if (out) { out.className = 'text-[11px] mt-1.5 text-red-400'; out.textContent = `✗ "${e.label}": ${friendlyTestError(err)}`; }
+  }
+  btn.disabled = false; btn.textContent = old;
 }
 function renderUsage() {
   const el = $('#usageTable');
@@ -3466,7 +3664,6 @@ async function updateStorageUI() {
     bar.style.width = Math.min(100, (mb / 5) * 100) + '%';
   }
 }
-/* Null-guarded: settings may be null before sign-in — this must never crash boot. */
 function populateModelSelects() {
   const mkOpt = id => `<option value="${esc(id)}">${esc(modelLabel(id))}${isFreeId(id) ? ' · free' : ''}</option>`;
   let html = '';
@@ -4246,7 +4443,32 @@ let sw = null;
   const eye = e.target.closest('[data-eye]');
   if (eye) { const inp = document.getElementById('key-' + eye.dataset.eye); if (inp) inp.type = inp.type === 'password' ? 'text' : 'password'; return; }
   const t = e.target.closest('[data-test]');
-  if (t) runTest(t.dataset.test, t);
+  if (t) { runTest(t.dataset.test, t); return; }
+  const tog = e.target.closest('[data-pooltoggle]');
+  if (tog) { poolOpen[tog.dataset.pooltoggle] = !poolOpen[tog.dataset.pooltoggle]; renderProviderList(); return; }
+  const addBtn = e.target.closest('[data-pooladd]');
+  if (addBtn) {
+    const pid = addBtn.dataset.pooladd;
+    const kIn = document.querySelector(`[data-pooladdkey="${pid}"]`);
+    const lIn = document.querySelector(`[data-pooladdlabel="${pid}"]`);
+    if (kIn) { addPoolKey(pid, kIn.value, lIn ? lIn.value : ''); }
+    return;
+  }
+  const pt = e.target.closest('[data-pooltest]');
+  if (pt) { const [pid, kid] = pt.dataset.pooltest.split(':'); runPoolTest(pid, kid, pt); return; }
+  const rv = e.target.closest('[data-poolrevive]');
+  if (rv) { const [pid, kid] = rv.dataset.poolrevive.split(':'); delete keyCooldown[pid + ':' + kid]; renderProviderList(); toast('Key cooldown reset', 'info', 1400); return; }
+  const pd = e.target.closest('[data-pooldel]');
+  if (pd) { const [pid, kid] = pd.dataset.pooldel.split(':'); removePoolKey(pid, kid); return; }
+});
+ $('#providerList').addEventListener('keydown', e => {
+  const inp = e.target.closest('[data-pooladdkey]');
+  if (inp && e.key === 'Enter') {
+    e.preventDefault();
+    const pid = inp.dataset.pooladdkey;
+    const lIn = document.querySelector(`[data-pooladdlabel="${pid}"]`);
+    addPoolKey(pid, inp.value, lIn ? lIn.value : '');
+  }
 });
  $('#cpList').addEventListener('input', e => {
   const inp = e.target.closest('[data-cpkey]');
@@ -4261,16 +4483,47 @@ let sw = null;
   if (eye) { const inp = document.querySelector(`[data-cpkey="${eye.dataset.cpeye}"]`); if (inp) inp.type = inp.type === 'password' ? 'text' : 'password'; return; }
   const del = e.target.closest('[data-cpdel]');
   if (del) { deleteCustomProvider(del.dataset.cpdel); return; }
+  const tog = e.target.closest('[data-pooltoggle]');
+  if (tog) { poolOpen[tog.dataset.pooltoggle] = !poolOpen[tog.dataset.pooltoggle]; renderCustomList(); return; }
+  const addBtn = e.target.closest('[data-pooladd]');
+  if (addBtn) {
+    const pid = addBtn.dataset.pooladd;
+    const kIn = document.querySelector(`[data-pooladdkey="${pid}"]`);
+    const lIn = document.querySelector(`[data-pooladdlabel="${pid}"]`);
+    if (kIn) { addPoolKey(pid, kIn.value, lIn ? lIn.value : ''); }
+    return;
+  }
+  const pt = e.target.closest('[data-pooltest]');
+  if (pt) { const [pid, kid] = pt.dataset.pooltest.split(':'); runPoolTest(pid, kid, pt); return; }
+  const rv = e.target.closest('[data-poolrevive]');
+  if (rv) { const [pid, kid] = rv.dataset.poolrevive.split(':'); delete keyCooldown[pid + ':' + kid]; renderCustomList(); toast('Key cooldown reset', 'info', 1400); return; }
+  const pd = e.target.closest('[data-pooldel]');
+  if (pd) { const [pid, kid] = pd.dataset.pooldel.split(':'); removePoolKey(pid, kid); return; }
   const t = e.target.closest('[data-cptest]');
   if (t) runTest(t.dataset.cptest, t);
 });
+ $('#cpList').addEventListener('keydown', e => {
+  const inp = e.target.closest('[data-pooladdkey]');
+  if (inp && e.key === 'Enter') {
+    e.preventDefault();
+    const pid = inp.dataset.pooladdkey;
+    const lIn = document.querySelector(`[data-pooladdlabel="${pid}"]`);
+    addPoolKey(pid, inp.value, lIn ? lIn.value : '');
+  }
+});
  $('#btnCpAdd').addEventListener('click', detectAndAddCustom);
  $('#cpKey').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); detectAndAddCustom(); } });
- $('#btnLocalToggle').addEventListener('click', toggleLocal);
+ $('#btnLocalToggle').addEventListener('click', localBtnAction);
+ $('#btnLocalDisable').addEventListener('click', disableLocal);
+ $('#lowMemToggle').addEventListener('change', e => {
+  localFlag.lowMem = e.target.checked;
+  saveRaw(LS.LOCAL, localFlag);
+  toast(localFlag.lowMem ? 'Low-memory mode on — smaller context, much lighter on phones' : 'Low-memory mode off', 'info', 2200);
+ });
  $('#localModel').addEventListener('change', e => {
   localFlag.model = e.target.value;
-  if (localFlag.enabled && !localReady) saveRaw(LS.LOCAL, localFlag);
-  else if (localReady) { toast('Model change applies after you disable & re-enable the Offline Brain', 'info', 3500); }
+  saveRaw(LS.LOCAL, localFlag);
+  if (localReady) toast('Model change applies after you press Disable, then Load now', 'info', 3500);
  });
  $('#strictVaultToggle').addEventListener('change', async e => {
   settings.strictVault = e.target.checked;
@@ -4317,7 +4570,7 @@ let sw = null;
  $('#btnExportAll').addEventListener('click', () => {
   download(`phantom-backup-${new Date().toISOString().slice(0, 10)}.json`,
     JSON.stringify({ app:'phantom', version:APP_VERSION, exportedAt:new Date().toISOString(), agents, chats, prompts, usage,
-      settings: Object.assign({}, settings, { apiKeys: Object.fromEntries(FAILOVER.map(p => [p, ''])), customKeys: {} }), latency, circuit }, null, 2));
+      settings: Object.assign({}, settings, { apiKeys: Object.fromEntries(FAILOVER.map(p => [p, ''])), customKeys: {}, keyPools: {} }), latency, circuit }, null, 2));
   toast('Backup exported — API keys excluded for safety', 'success');
 });
 
@@ -4358,7 +4611,7 @@ let sw = null;
  $('#upRevoke').addEventListener('click', logout);
  $('#upExport').addEventListener('click', () => {
   download(`phantom-${USER.username}-data.json`, JSON.stringify({ app:'phantom', version:APP_VERSION, user:{ username:USER.username, email:USER.email, bio:USER.bio }, agents, chats, prompts, usage,
-    settings: Object.assign({}, settings, { apiKeys: Object.fromEntries(FAILOVER.map(p => [p, ''])), customKeys: {} }), latency, circuit }, null, 2));
+    settings: Object.assign({}, settings, { apiKeys: Object.fromEntries(FAILOVER.map(p => [p, ''])), customKeys: {}, keyPools: {} }), latency, circuit }, null, 2));
   toast('Data exported', 'success');
 });
  $('#upImport').addEventListener('click', () => $('#upImportFile').click());
@@ -4369,7 +4622,7 @@ let sw = null;
     try {
       const d = JSON.parse(r.result);
       if (d.app !== 'phantom') throw new Error('not a Phantom backup');
-      const ok = await confirmDialog({ title:'Import backup?', message:'This replaces your current agents, chats and settings. Existing API keys are kept (re-enter custom provider keys after import).', okText:'Import', danger:false });
+      const ok = await confirmDialog({ title:'Import backup?', message:'This replaces your current agents, chats and settings. Existing API keys and pools are kept (re-enter custom provider keys after import).', okText:'Import', danger:false });
       if (!ok) return;
       const oldKeys = Object.assign({}, settings.apiKeys);
       if (Array.isArray(d.agents)) agents = d.agents;
@@ -4381,6 +4634,7 @@ let sw = null;
         const impKeys = imported.apiKeys || {};
         delete imported.apiKeys;
         delete imported.customKeys;
+        delete imported.keyPools;
         settings = Object.assign(defaultSettings(), imported);
         settings.apiKeys = Object.assign({}, DEFAULT_KEYS, oldKeys);
         FAILOVER.forEach(p => { if (impKeys[p]) settings.apiKeys[p] = impKeys[p]; });
@@ -4548,10 +4802,8 @@ document.addEventListener('keydown', e => {
   }
 });
 const updateOffline = () => $('#offlineBanner').classList.toggle('hidden', navigator.onLine);
-window.addEventListener('online', () => {
-  updateOffline(); toast('Back online', 'success', 2000); flushQueued();
-  if (localFlag.enabled && !localReady && !localLoading) ensureLocalEngine().catch(() => {});
-});
+// Reconnecting does NOT auto-download the Offline Brain — it waits for Load now.
+window.addEventListener('online', () => { updateOffline(); toast('Back online', 'success', 2000); flushQueued(); });
 window.addEventListener('offline', () => { updateOffline(); toast('You are offline — messages will be queued', 'warn', 3000); });
 window.addEventListener('pagehide', () => { DB.flush(); });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') DB.flush(); });
@@ -4616,7 +4868,10 @@ function hideSplash(instant=false) {
 const PAGE_T0 = performance.now();
 setTimeout(() => hideSplash(true), 4000);
 
-/* ═══════════════════════ // BOOT ═══════════════════════ */
+/* ═══════════════════════ // BOOT ═══════════════════════
+   The Offline Brain is NEVER touched here — no auto-download, no auto-init.
+   If the previous session crashed mid-load (page OOM at 100%), the persisted
+   loading-flag detects it and pauses the brain behind an explicit Load now. */
 async function boot() {
   try {
     initChromeIcons();
@@ -4624,12 +4879,18 @@ async function boot() {
     setupPWA();
     setupKeyboard();
     updateOffline();
-    setLocalUI();
     const firstVisit = !load(LS.SPLASH, false);
     try { saveRaw(LS.SPLASH, true); } catch {}
     if (!firstVisit) hideSplash(true);
     try { await withTimeout(DB.init(), 3500); } catch { /* falls back to localStorage mode */ }
-    // Snapshot the styled shell + CDN libs for future offline boots (online only)
+    // Crash-loop breaker: a stale "loading" flag means the page died during the
+    // last model load. Pause the brain; the user decides when/whether to retry.
+    if (localFlag.enabled && localFlag.loading) {
+      localFlag.loading = false;
+      localFlag.crashHint = true;
+      saveRaw(LS.LOCAL, localFlag);
+    }
+    setLocalUI();
     if (navigator.onLine) setTimeout(() => snapshotShell(), 6000);
     try {
       const s = load(LS.SESSION, null);
@@ -4639,9 +4900,6 @@ async function boot() {
           await startSession(u, false);
           populateModelSelects();
           backgroundModelRefresh();
-          if (localFlag.enabled && !localReady && navigator.onLine) {
-            setTimeout(() => ensureLocalEngine().catch(() => {}), 2500);
-          }
           hideSplash(!firstVisit);
           return;
         }
@@ -4662,4 +4920,4 @@ window.addEventListener('beforeunload', () => { if (window.speechSynthesis) spee
 boot();
 </script>
 </body>
-  </html>
+          </html>
