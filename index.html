@@ -1314,6 +1314,8 @@ async function upgradeHash(u, pass) {
 let vaultKey = null, vaultLocked = false;
 let customKeys = {};
 let keyPools = {};
+let poolCursor = {};   // round-robin cursor per provider (in-memory, not persisted)
+let keyCooldown = {};  // per-key rate-limit cooldown timestamps (in-memory, not persisted)
 async function deriveVaultKey(pass, saltHex) {
   const seed = await crypto.subtle.importKey('raw', enc.encode('vault::' + pass), 'PBKDF2', false, ['deriveBits']);
   const bits = await crypto.subtle.deriveBits({ name:'PBKDF2', hash:'SHA-256', salt:hexToBytes(saltHex), iterations:PBKDF2_ITER }, seed, 256);
@@ -4956,4 +4958,4 @@ window.addEventListener('beforeunload', () => { if (window.speechSynthesis) spee
 boot();
 </script>
 </body>
-          </html>
+      </html>
